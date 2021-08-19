@@ -7,6 +7,79 @@ def assert_node_equality(node1: ast.AST, node2: ast.AST):
     assert ast.dump(node1) == ast.dump(node2)
 
 
+############ AstNormalizer #############
+
+def normalized_node(node: ast.AST):
+    return AstNormalizer().visit(node)
+
+
+def test_visit_Num():
+    assert_node_equality(normalized_node(ast.Num(69)),
+                         ast.Constant(value=69))
+
+
+def test_visit_Str():
+    value = "use '<>' instead of '!=' (Barry)"
+    assert_node_equality(normalized_node(ast.Str("")),
+                         ast.Constant(value=""))
+    assert_node_equality(normalized_node(ast.Str(value)),
+                         ast.Constant(value=value))
+
+
+def test_visit_Bytes():
+    value = b"use '<>' instead of '!=' (Barry)"
+    assert_node_equality(normalized_node(ast.Bytes(b"")),
+                         ast.Constant(value=b""))
+    assert_node_equality(normalized_node(ast.Bytes(value)),
+                         ast.Constant(value=value))
+
+
+def test_visit_NameConstant():
+    assert_node_equality(normalized_node(ast.NameConstant(True)),
+                         ast.Constant(value=True))
+    assert_node_equality(normalized_node(ast.NameConstant(False)),
+                         ast.Constant(value=False))
+    assert_node_equality(normalized_node(ast.NameConstant(None)),
+                         ast.Constant(value=None))
+
+
+def test_visit_Ellipsis():
+    assert_node_equality(normalized_node(ast.Ellipsis()),
+                         ast.Constant(value=Ellipsis))
+    assert_node_equality(normalized_node(ast.Ellipsis()),
+                         ast.Constant(value=...))
+
+
+def test_visit_Index():
+    assert_node_equality(
+        normalized_node(ast.Index(value=ast.Num(n=3))),
+        ast.Constant(value=3))
+    assert_node_equality(
+        normalized_node(ast.Index(value=ast.Name(id='UnladenSwallow',
+                                                 ctx=ast.Load()))),
+        ast.Name(id='UnladenSwallow', ctx=ast.Load()))
+
+
+def test_visit_ExtSlice():
+    ext_slice = ast.ExtSlice(dims=[
+        ast.Slice(lower=ast.Num(n=3), upper=ast.Num(n=14)),
+        ast.Index(value=ast.Num(n=15))
+    ])
+
+    assert_node_equality(
+        normalized_node(ext_slice),
+        ast.Tuple(
+            elts=[
+                ast.Slice(
+                    lower=ast.Constant(value=3),
+                    upper=ast.Constant(value=14)),
+                ast.Constant(value=15),
+            ],
+            ctx=ast.Load()
+        )
+    )
+
+
 ############ normalize_ast #############
 # TODO: add a test that shows that ast.fix_missing_locations is in use,
 # it is probably better to take tests for ast.fix_missing_locations from python sources.
