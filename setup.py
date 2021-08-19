@@ -49,4 +49,5 @@ setup(
     install_requires=requirements.pop("basic"),
     python_requires=">=3.6",
     extras_require=requirements,
+    package_data={__name__: ["py.typed"]},
 )
