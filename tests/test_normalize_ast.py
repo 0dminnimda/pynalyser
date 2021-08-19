@@ -145,6 +145,10 @@ def test_normalize_ast_ExtSlice():
         ],
         ctx=ast.Load()))
 
+def test_fix_missing_locations():
+
+    assert_node_equality()
+
 
 if __name__ == "__main__":
     import pytest
