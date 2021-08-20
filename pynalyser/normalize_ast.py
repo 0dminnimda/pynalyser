@@ -31,4 +31,4 @@ class AstNormalizer(ast.NodeTransformer):
 
 
 def normalize_ast(tree: ast.AST) -> ast.AST:
-    return ast.fix_missing_locations(AstNormalizer().visit(tree))
+    return AstNormalizer().visit(tree)
