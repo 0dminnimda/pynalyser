@@ -81,8 +81,6 @@ def test_visit_ExtSlice():
 
 
 ############ normalize_ast #############
-# TODO: add a test that shows that ast.fix_missing_locations is in use,
-# it is probably better to take tests for ast.fix_missing_locations from python sources.
 
 def normalized_source(*args, **kwargs) -> ast.AST:
     tree = ast.parse(*args, **kwargs)
@@ -148,4 +146,5 @@ def test_normalize_ast_ExtSlice():
 
 if __name__ == "__main__":
     import pytest
+
     pytest.main()
