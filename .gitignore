@@ -8,6 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+
 build/
 develop-eggs/
 dist/
@@ -94,7 +95,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+.idea/
 # Spyder project settings
 .spyderproject
 .spyproject
