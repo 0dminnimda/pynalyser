@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   run_tests:
-
+    timeout-minutes: 5
     runs-on: ${{ matrix.os }}
     strategy:
       # allows for matrix sub-jobs to fail without canceling the rest
@@ -30,3 +30,23 @@ jobs:
 
       - name: Running tests with pytest
         run: pytest -v
+
+  additional_metrics:
+    timeout-minutes: 5
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install package and dependencies
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install .[test]
+
+      - name: Check the code with pycodestyle
+        run: pycodestyle -v
