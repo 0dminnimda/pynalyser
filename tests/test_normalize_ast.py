@@ -82,7 +82,6 @@ def test_visit_ExtSlice():
 
 ############ normalize_ast #############
 
-
 def normalized_source(*args, **kwargs) -> ast.AST:
     tree = ast.parse(*args, **kwargs)
     return normalize_ast(tree).body[0].value
