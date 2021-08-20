@@ -49,4 +49,4 @@ jobs:
           pip install .[test]
 
       - name: Check the code with pycodestyle
-        run: pycodestyle -v
+        run: pycodestyle -v .
