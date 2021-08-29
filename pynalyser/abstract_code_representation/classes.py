@@ -1,4 +1,5 @@
-from typing import List, Set, Union, Any, TypeVar
+from typing import List, Set, Union, Any, TypeVar, Dict, DefaultDict, Optional
+from collections import defaultdict
 import ast
 
 
@@ -23,47 +24,71 @@ class Name(ACR):
 NameT = TypeVar("NameT", bound=Name)
 
 
-class NameSpace(Set[NameT], ACR):
-    def __getitem__(self, key: str) -> NameT:
-        # for set str is the same as Name
-        # because of __eq__ and __hash__
-        result: Set[NameT] = {key} & self  # type: ignore
+# def __getitem__(self, key: Union[str, NameT]) -> NameT:
+#     if isinstance(key, Name):
+#         key = key.name
 
-        # if len (result) == 0, then it ignores the loop,
-        # otherwise return one only possible element
-        for i in result:
-            return i
+#     super().__getitem__(key)
 
-        raise KeyError(key)
+
+# class NameSpace(Dict[str, NameT], ACR):
+    
+
+
+# class NameSpace(Set[NameT], ACR):
+#     def __getitem__(self, key: str) -> NameT:
+#         # for set str is the same as Name
+#         # because of __eq__ and __hash__
+#         result: Set[NameT] = {key} & self  # type: ignore
+
+#         # if len (result) == 0, then it ignores the loop,
+#         # otherwise return one only possible element
+#         for i in result:
+#             return i
+
+#         raise KeyError(key)
+
+#     def add_redefinition(self, item: NameT) -> None:
+#         if item in self:
+#             self[item].
 
 
 Action = Union[ast.AST, ACR]
 
 
-class Actor(ACR):  # need separate class??
-    def __init__(self, actions: List[Action] = []) -> None:
+class Actor(Name):
+    def __init__(self, name: str, actions: List[Action] = []) -> None:
+        super().__init__(name)
         self.actions = actions
 
 
-class NamedActor(Name, Actor):
-    def __init__(self, name: str, actions: List[Action] = []) -> None:
-        Name.__init__(self, name)
-        Actor.__init__(self, actions)
+# class NamedActor(Name, Actor):
+#     def __init__(self, name: str, actions: List[Action] = []) -> None:
+#         Name.__init__(self, name)
+#         Actor.__init__(self, actions)
 
 
-class Variable(NamedActor):
-    def __init__(self, name: str, actions: List[Action] = [],
+class Variable(Actor):
+    def __init__(self, name: str,
+                 actions: List[Action] = [],
                  scope: str = "") -> None:
+        super().__init__(name, actions)
         self.scope = scope
 
 
-class Scope(NamedActor):  # NamedScope
-    def __init__(self, name: str,
+Scopes = DefaultDict[str, Dict[int, "Scope"]]
+
+
+# NamedScope
+class Scope(Actor):
+    def __init__(self,
+                 name: str,
                  actions: List[Action] = [],
-                 actors: NameSpace[NamedActor] = NameSpace(),
-                 scopes: NameSpace["Scope"] = NameSpace()) -> None:
+                 variables: Dict[str, Variable] = dict(),
+                 scopes: Scopes = defaultdict(dict)
+                 ) -> None:
         super().__init__(name, actions)
-        self.actors = actors  # variables ???
+        self.variables = variables
         self.scopes = scopes  # definitions for classes and functions
 
     # action_space: NameSpace[NamedActor] = NameSpace(),
@@ -80,12 +105,20 @@ class Module(Scope):
 
 
 class Function(Scope):
-    args: ast.arguments
-    returns: ast.expr
-    decorator_list: List[ast.AST]
-    # body in in the actions of Actor
-
-    # type_comment ? (i think no)
+    def __init__(self,
+                 name: str,
+                 actions: List[Action] = [],
+                 variables: Dict[str, Variable] = dict(),
+                 scopes: Scopes = defaultdict(dict),
+                 args: ast.arguments = ast.arguments(),
+                 returns: ast.expr = ast.expr(),
+                 decorator_list: List[ast.AST] = [],
+                 ) -> None:
+        super().__init__(name, actions, variables, scopes)
+        self.args = args
+        self.returns = returns
+        self.decorator_list = decorator_list
+        # body in in the actions of Actor
 
 
 class Lambda(Function):
@@ -94,7 +127,16 @@ class Lambda(Function):
 
 
 class Class(Scope):
-    bases: List[ast.AST]  # parent-classes
-    keywords: List[ast.keyword]  # metaclass and kws for it
-    decorator_list: List[ast.AST]
-    # body and members in in the actions of Actor
+    def __init__(self, name: str,
+                 actions: List[Action] = [],
+                 bases: List[ast.AST] = [],  # parent-classes
+                 metaclass: Optional[type] = None,
+                 keywords: List[ast.keyword] = [],  # metaclass and kws for it
+                 decorator_list: List[ast.AST] = []
+                 ) -> None:
+        super().__init__(name, actions)
+        self.bases = bases
+        self.metaclass = metaclass
+        self.keywords = keywords
+        self.decorator_list = decorator_list
+        # body and members in in the actions of Actor
