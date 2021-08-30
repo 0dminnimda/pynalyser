@@ -53,6 +53,15 @@ NameT = TypeVar("NameT", bound=Name)
 #             self[item].
 
 
+# if and match with named actors
+# for loops?
+
+"""
+def f(a):
+    print(a)  # ???/
+"""
+
+
 Action = Union[ast.AST, ACR]
 
 
@@ -127,14 +136,17 @@ class Lambda(Function):
 
 
 class Class(Scope):
-    def __init__(self, name: str,
+    def __init__(self,
+                 name: str,
                  actions: List[Action] = [],
+                 variables: Dict[str, Variable] = dict(),
+                 scopes: Scopes = defaultdict(dict),
                  bases: List[ast.AST] = [],  # parent-classes
                  metaclass: Optional[type] = None,
                  keywords: List[ast.keyword] = [],  # metaclass and kws for it
                  decorator_list: List[ast.AST] = []
                  ) -> None:
-        super().__init__(name, actions)
+        super().__init__(name, actions, variables, scopes)
         self.bases = bases
         self.metaclass = metaclass
         self.keywords = keywords
