@@ -53,31 +53,22 @@ NameT = TypeVar("NameT", bound=Name)
 #             self[item].
 
 
-# if and match with named actors
-# for loops?
-
-"""
-def f(a):
-    print(a)  # ???/
-"""
-
 
 Action = Union[ast.AST, ACR]
 
 
-class Actor(Name):
-    def __init__(self, name: str, actions: List[Action] = []) -> None:
-        super().__init__(name)
+class Actor(ACR):
+    def __init__(self, actions: List[Action] = []) -> None:
         self.actions = actions
 
 
-# class NamedActor(Name, Actor):
-#     def __init__(self, name: str, actions: List[Action] = []) -> None:
-#         Name.__init__(self, name)
-#         Actor.__init__(self, actions)
+class NamedActor(Name, Actor):
+    def __init__(self, name: str, actions: List[Action] = []) -> None:
+        Name.__init__(self, name)
+        Actor.__init__(self, actions)
 
 
-class Variable(Actor):
+class Variable(NamedActor):
     def __init__(self, name: str,
                  actions: List[Action] = [],
                  scope: str = "") -> None:
@@ -89,7 +80,7 @@ Scopes = DefaultDict[str, Dict[int, "Scope"]]
 
 
 # NamedScope
-class Scope(Actor):
+class Scope(NamedActor):
     def __init__(self,
                  name: str,
                  actions: List[Action] = [],
@@ -152,3 +143,75 @@ class Class(Scope):
         self.keywords = keywords
         self.decorator_list = decorator_list
         # body and members in in the actions of Actor
+
+
+class BlockVariable(NamedActor):
+    pass
+
+
+class Block(Actor):
+    variables: Dict[str, BlockVariable]
+
+
+class MatchCase(Block):
+    # TODO
+    pass
+
+
+class Match(Block):
+    # TODO
+    cases: List[MatchCase]
+    pass
+
+
+class With(Block):
+    # TODO
+    pass
+
+
+class Else(Block):
+    pass
+
+
+class BlockWIthElse(Block):
+    orelse: Else
+
+
+class If(BlockWIthElse):
+    pass
+    # TODO
+
+
+class ExceptHandler(Block):
+    pass
+    # TODO
+
+
+class Try(BlockWIthElse):
+    handlers: List[ExceptHandler]
+    pass
+    # TODO
+
+
+class Loop(BlockWIthElse):
+    pass
+
+
+class For(Loop):
+    # TODO
+    pass
+
+
+class While(Loop):
+    # TODO
+    pass
+
+
+
+# async??
+
+"""
+def f(a):
+    print(a)  # ???/
+"""
+
