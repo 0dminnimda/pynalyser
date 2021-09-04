@@ -53,8 +53,7 @@ NameT = TypeVar("NameT", bound=Name)
 #             self[item].
 
 
-
-Action = Union[ast.AST, ACR]
+Action = Union[ast.AST, ACR]  # TODO: stricter specification
 
 
 class Actor(ACR):
@@ -154,19 +153,18 @@ class Block(Actor):
 
 
 class MatchCase(Block):
-    # TODO
-    pass
+    pattern: ast.AST  # ast.pattern
+    guard: Optional[ast.expr]
 
 
 class Match(Block):
-    # TODO
+    actions: List[Action] = []
+    # actions: List[MatchCase]
     cases: List[MatchCase]
-    pass
 
 
 class With(Block):
-    # TODO
-    pass
+    items: List[ast.withitem]
 
 
 class Else(Block):
@@ -178,19 +176,21 @@ class BlockWIthElse(Block):
 
 
 class If(BlockWIthElse):
-    pass
-    # TODO
+    test: ast.expr
 
 
 class ExceptHandler(Block):
+    type: Optional[ast.expr] = None
+    name: str
+
+
+class Final(Block):
     pass
-    # TODO
 
 
 class Try(BlockWIthElse):
     handlers: List[ExceptHandler]
-    pass
-    # TODO
+    finalbody: Final
 
 
 class Loop(BlockWIthElse):
@@ -198,13 +198,12 @@ class Loop(BlockWIthElse):
 
 
 class For(Loop):
-    # TODO
-    pass
+    target: Union[ast.Name, ast.Tuple, ast.List]
+    iter: ast.expr
 
 
 class While(Loop):
-    # TODO
-    pass
+    test: ast.expr
 
 
 
