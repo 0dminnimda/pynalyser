@@ -120,6 +120,9 @@ class Function(Scope):
         # body in in the actions of Actor
 
 
+# we will be trapped because
+# lambda can be defined in every expression
+# therefore any expression have it's out scope ? .. no? 
 class Lambda(Function):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__("<lambda>", *args, **kwargs)
@@ -144,8 +147,34 @@ class Class(Scope):
         # body and members in in the actions of Actor
 
 
-class BlockVariable(NamedActor):
-    pass
+# class Comprehension(Scope):
+#     actions: List[ast.comprehension]  # generators
+
+
+# class EltComprehension(Comprehension):
+#     elt: ast.expr
+
+
+# class ListComp(EltComprehension):
+#     name = "<listcomp>"
+
+
+# class SetComp(EltComprehension):
+#     name = "<setcomp>"
+
+
+# class GeneratorExp(EltComprehension):
+#     name = "<genexpr>"
+
+
+# class DictComp(Comprehension):
+#     key: ast.expr
+#     value: ast.expr
+#     name = "<dictcomp>"
+
+
+class BlockVariable(NamedActor):  # is there a need? why not Variable?
+    """Just to be different from NamedActor"""
 
 
 class Block(Actor):
@@ -207,10 +236,11 @@ class While(Loop):
 
 
 
-# async??
+# async?? - Async class + inhertance
 
 """
 def f(a):
-    print(a)  # ???/
+    print(a)  # ???
 """
 
+# how to point to action of the other variable
