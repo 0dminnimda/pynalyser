@@ -188,7 +188,7 @@ class MatchCase(Block):
 
 class Match(Block):
     actions: List[Action] = []
-    # actions: List[MatchCase]
+    # actions: List[MatchCase]  # XXX
     cases: List[MatchCase]
 
 
