@@ -103,31 +103,6 @@ class Module(Scope):
     pass
 
 
-class Function(Scope):
-    def __init__(self,
-                 name: str,
-                 actions: List[Action] = [],
-                 variables: Dict[str, Variable] = dict(),
-                 scopes: Scopes = defaultdict(dict),
-                 args: ast.arguments = ast.arguments(),
-                 returns: ast.expr = ast.expr(),
-                 decorator_list: List[ast.AST] = [],
-                 ) -> None:
-        super().__init__(name, actions, variables, scopes)
-        self.args = args
-        self.returns = returns
-        self.decorator_list = decorator_list
-        # body in in the actions of Actor
-
-
-# we will be trapped because
-# lambda can be defined in every expression
-# therefore any expression have it's out scope ? .. no? 
-class Lambda(Function):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__("<lambda>", *args, **kwargs)
-
-
 class Class(Scope):
     def __init__(self,
                  name: str,
@@ -147,30 +122,56 @@ class Class(Scope):
         # body and members in in the actions of Actor
 
 
-# class Comprehension(Scope):
-#     actions: List[ast.comprehension]  # generators
+class Function(Scope):
+    def __init__(self,
+                 name: str,
+                 actions: List[Action] = [],
+                 variables: Dict[str, Variable] = dict(),
+                 scopes: Scopes = defaultdict(dict),
+                 args: ast.arguments = ast.arguments(),
+                 returns: ast.expr = ast.expr(),
+                 decorator_list: List[ast.AST] = [],
+                 ) -> None:
+        super().__init__(name, actions, variables, scopes)
+        self.args = args
+        self.returns = returns
+        self.decorator_list = decorator_list
+        # body in in the actions of Actor
 
 
-# class EltComprehension(Comprehension):
-#     elt: ast.expr
+# lambdas and comprehensions will be moved to the scopes
+# and reference will take the place of the ast node
+class Lambda(Function):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__("<lambda>", *args, **kwargs)
 
 
-# class ListComp(EltComprehension):
-#     name = "<listcomp>"
+class Comprehension(Scope):
+    generators: List[ast.comprehension]
+    # actions: List[ast.comprehension]  # generators
+    actions: List[Action] = []
 
 
-# class SetComp(EltComprehension):
-#     name = "<setcomp>"
+class EltComprehension(Comprehension):
+    elt: ast.expr
 
 
-# class GeneratorExp(EltComprehension):
-#     name = "<genexpr>"
+class ListComp(EltComprehension):
+    name = "<listcomp>"
 
 
-# class DictComp(Comprehension):
-#     key: ast.expr
-#     value: ast.expr
-#     name = "<dictcomp>"
+class SetComp(EltComprehension):
+    name = "<setcomp>"
+
+
+class GeneratorExp(EltComprehension):
+    name = "<genexpr>"
+
+
+class DictComp(Comprehension):
+    key: ast.expr
+    value: ast.expr
+    name = "<dictcomp>"
 
 
 class BlockVariable(NamedActor):  # is there a need? why not Variable?
