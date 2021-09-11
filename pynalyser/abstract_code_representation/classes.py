@@ -174,12 +174,8 @@ class DictComp(Comprehension):
     name = "<dictcomp>"
 
 
-class BlockVariable(NamedActor):  # is there a need? why not Variable?
-    """Just to be different from NamedActor"""
-
-
 class Block(Actor):
-    variables: Dict[str, BlockVariable]
+    variables: Dict[str, Variable]
 
 
 class MatchCase(Block):
