@@ -17,12 +17,16 @@ class Name(ACR):  # or symbol?
     name: str
 
 
-NameT = TypeVar("NameT", bound=Name)
+@attr.s(auto_attribs=True)
+class Pointer(ACR):  # reference?
+    action_ind: int
+    # action  # TODO: how to point to action of the other variable
 
 
-
-
-Action = Union[ast.AST, ACR]  # TODO: stricter specification
+@attr.s(auto_attribs=True)
+class Action(ACR):
+    action: ast.AST  # TODO: stricter specification
+    depends_on: Optional[Pointer] = None
 
 
 @attr.s(auto_attribs=True)
@@ -175,12 +179,8 @@ class While(Loop):
     test: ast.expr
 
 
-
 # async?? - Async class + inhertance
-
 """
 def f(a):
     print(a)  # ???
 """
-
-# how to point to action of the other variable
