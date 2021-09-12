@@ -49,14 +49,23 @@ class Variable(Name, Actor):
 
 
 @attr.s(auto_attribs=True)
-class Block(Actor):
+class ActionSpace(Actor):
+    """just to distinguish between Block and Scope,
+    those are different things
+    that are used in the different context"""
+
     variables: Dict[str, Variable] = attr.ib(factory=dict, kw_only=True)
     scopes: DefaultDict[str, Dict[int, "Scope"]] = attr.ib(
         factory=lambda: defaultdict(dict), kw_only=True)
 
 
 @attr.s(auto_attribs=True)
-class Scope(Name, Block):
+class Block(ActionSpace):
+    pass
+
+
+@attr.s(auto_attribs=True)
+class Scope(Name, ActionSpace):
     pass
     # parent?
 
