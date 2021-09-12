@@ -27,6 +27,7 @@ class Pointer(ACR):  # reference?
 
 @attr.s(auto_attribs=True)
 class Action(ACR):
+    # TODO: generic 'action' type
     action: ast.AST  # TODO: stricter specification
     depends_on: Optional[Pointer] = None
 
@@ -53,7 +54,7 @@ class Actor(ACR):
 @attr.s(auto_attribs=True)
 class Variable(Name, Actor):
     scope: str = ""
-    # initialised_from_args i.e. func parameter
+    # TODO: initialised_from_args i.e. func parameter
 
 
 @attr.s(auto_attribs=True)
@@ -75,7 +76,7 @@ class Block(ActionSpace):
 @attr.s(auto_attribs=True)
 class Scope(Name, ActionSpace):
     pass
-    # parent?
+    # parent? probably nay
 
 
 class Module(Scope):
