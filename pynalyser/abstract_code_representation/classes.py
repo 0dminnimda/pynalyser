@@ -119,8 +119,9 @@ class Function(Scope):
 # lambdas and comprehensions will be moved to the scopes
 # and reference will take the place of the ast node
 @attr.s(auto_attribs=True)
-class Lambda(Function):
+class Lambda(Scope):
     name: str = attr.ib(default="<lambda>", init=False)
+    args: ast.arguments = attr.ib(factory=ast.arguments)
 
 
 @attr.s(auto_attribs=True)
