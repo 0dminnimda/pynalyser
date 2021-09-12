@@ -16,42 +16,10 @@ class ACR:
 class Name(ACR):  # or symbol?
     name: str
 
-    # def __hash__(self) -> int:
-    #     return hash(self.name)
-
-    # def __eq__(self, other: Any) -> bool:
-    #     return self.name == other
-
 
 NameT = TypeVar("NameT", bound=Name)
 
 
-# def __getitem__(self, key: Union[str, NameT]) -> NameT:
-#     if isinstance(key, Name):
-#         key = key.name
-
-#     super().__getitem__(key)
-
-
-# class NameSpace(Dict[str, NameT], ACR):
-
-
-# class NameSpace(Set[NameT], ACR):
-#     def __getitem__(self, key: str) -> NameT:
-#         # for set str is the same as Name
-#         # because of __eq__ and __hash__
-#         result: Set[NameT] = {key} & self  # type: ignore
-
-#         # if len (result) == 0, then it ignores the loop,
-#         # otherwise return one only possible element
-#         for i in result:
-#             return i
-
-#         raise KeyError(key)
-
-#     def add_redefinition(self, item: NameT) -> None:
-#         if item in self:
-#             self[item].
 
 
 Action = Union[ast.AST, ACR]  # TODO: stricter specification
@@ -60,12 +28,6 @@ Action = Union[ast.AST, ACR]  # TODO: stricter specification
 @attr.s(auto_attribs=True)
 class Actor(ACR):
     actions: List[Action] = attr.ib(factory=list, kw_only=True)
-
-
-# class NamedActor(Actor, Name):
-#     def __init__(self, name: str, actions: List[Action] = []) -> None:
-#         Name.__init__(self, name)
-#         Actor.__init__(self, actions)
 
 
 @attr.s(auto_attribs=True)
@@ -84,12 +46,6 @@ class Block(Actor):
 class Scope(Name, Block):
     pass
     # parent?
-
-    # action_space: NameSpace[NamedActor] = NameSpace(),
-    #              scopes: NameSpace[Scope] = NameSpace(),
-    # def __init__(self, name: str, *args, **kwargs) -> None:
-    #     Name.__init__(self, name)
-    #     Scope.__init__(self, *args, **kwargs)
 
 
 class Module(Scope):
