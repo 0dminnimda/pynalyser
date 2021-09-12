@@ -31,6 +31,14 @@ class Action(ACR):
     depends_on: Optional[Pointer] = None
 
 
+class ActionOfBlock(Action):  # TODO: Action[Block]
+    """inside variable, to refer to blocks, like if,
+    indicates that in that block there are actions
+    performed by the same name"""
+
+    pass
+
+
 @attr.s(auto_attribs=True)
 class Actor(ACR):
     actions: List[Action] = attr.ib(factory=list, kw_only=True)
