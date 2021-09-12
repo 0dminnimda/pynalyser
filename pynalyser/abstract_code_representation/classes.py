@@ -1,6 +1,8 @@
-from typing import List, Set, Union, Any, TypeVar, Dict, DefaultDict, Optional
-from collections import defaultdict
 import ast
+from collections import defaultdict
+from typing import Any, DefaultDict, Dict, List, Optional, Set, TypeVar, Union
+
+import attr
 
 
 class ACR:
@@ -10,15 +12,15 @@ class ACR:
     pass
 
 
-class Name(ACR):
-    def __init__(self, name: str) -> None:
-        self.name = name
+@attr.s(auto_attribs=True)
+class Name(ACR):  # or symbol?
+    name: str
 
-    def __hash__(self) -> int:
-        return hash(self.name)
+    # def __hash__(self) -> int:
+    #     return hash(self.name)
 
-    def __eq__(self, other: Any) -> bool:
-        return self.name == other
+    # def __eq__(self, other: Any) -> bool:
+    #     return self.name == other
 
 
 NameT = TypeVar("NameT", bound=Name)
@@ -32,7 +34,6 @@ NameT = TypeVar("NameT", bound=Name)
 
 
 # class NameSpace(Dict[str, NameT], ACR):
-    
 
 
 # class NameSpace(Set[NameT], ACR):
@@ -56,39 +57,33 @@ NameT = TypeVar("NameT", bound=Name)
 Action = Union[ast.AST, ACR]  # TODO: stricter specification
 
 
+@attr.s(auto_attribs=True)
 class Actor(ACR):
-    def __init__(self, actions: List[Action] = []) -> None:
-        self.actions = actions
+    actions: List[Action] = attr.ib(factory=list, kw_only=True)
 
 
-class NamedActor(Name, Actor):
-    def __init__(self, name: str, actions: List[Action] = []) -> None:
-        Name.__init__(self, name)
-        Actor.__init__(self, actions)
+# class NamedActor(Actor, Name):
+#     def __init__(self, name: str, actions: List[Action] = []) -> None:
+#         Name.__init__(self, name)
+#         Actor.__init__(self, actions)
 
 
-class Variable(NamedActor):
-    def __init__(self, name: str,
-                 actions: List[Action] = [],
-                 scope: str = "") -> None:
-        super().__init__(name, actions)
-        self.scope = scope
+@attr.s(auto_attribs=True)
+class Variable(Name, Actor):
+    scope: str = ""
 
 
-Scopes = DefaultDict[str, Dict[int, "Scope"]]
+@attr.s(auto_attribs=True)
+class Block(Actor):
+    variables: Dict[str, Variable] = attr.ib(factory=dict, kw_only=True)
+    scopes: DefaultDict[str, Dict[int, "Scope"]] = attr.ib(
+        factory=lambda: defaultdict(dict), kw_only=True)
 
 
-# NamedScope
-class Scope(NamedActor):
-    def __init__(self,
-                 name: str,
-                 actions: List[Action] = [],
-                 variables: Dict[str, Variable] = dict(),
-                 scopes: Scopes = defaultdict(dict)
-                 ) -> None:
-        super().__init__(name, actions)
-        self.variables = variables
-        self.scopes = scopes  # definitions for classes and functions
+@attr.s(auto_attribs=True)
+class Scope(Name, Block):
+    pass
+    # parent?
 
     # action_space: NameSpace[NamedActor] = NameSpace(),
     #              scopes: NameSpace[Scope] = NameSpace(),
@@ -103,92 +98,77 @@ class Module(Scope):
     pass
 
 
+@attr.s(auto_attribs=True)
 class Class(Scope):
-    def __init__(self,
-                 name: str,
-                 actions: List[Action] = [],
-                 variables: Dict[str, Variable] = dict(),
-                 scopes: Scopes = defaultdict(dict),
-                 bases: List[ast.AST] = [],  # parent-classes
-                 metaclass: Optional[type] = None,
-                 keywords: List[ast.keyword] = [],  # metaclass and kws for it
-                 decorator_list: List[ast.AST] = []
-                 ) -> None:
-        super().__init__(name, actions, variables, scopes)
-        self.bases = bases
-        self.metaclass = metaclass
-        self.keywords = keywords
-        self.decorator_list = decorator_list
-        # body and members in in the actions of Actor
+    bases: List[ast.AST] = attr.ib(factory=list)  # parent-classes
+    metaclass: Optional[type] = None
+    # initially metaclass and kws for it
+    keywords: List[ast.keyword] = attr.ib(factory=list)
+    decorator_list: List[ast.AST] = attr.ib(factory=list)
+    # body and members in in the actions of Actor
 
 
+@attr.s(auto_attribs=True)
 class Function(Scope):
-    def __init__(self,
-                 name: str,
-                 actions: List[Action] = [],
-                 variables: Dict[str, Variable] = dict(),
-                 scopes: Scopes = defaultdict(dict),
-                 args: ast.arguments = ast.arguments(),
-                 returns: ast.expr = ast.expr(),
-                 decorator_list: List[ast.AST] = [],
-                 ) -> None:
-        super().__init__(name, actions, variables, scopes)
-        self.args = args
-        self.returns = returns
-        self.decorator_list = decorator_list
-        # body in in the actions of Actor
+    args: ast.arguments = attr.ib(factory=ast.arguments)
+    # returns: ast.expr = attr.ib(factory=ast.expr)  # is needed?
+    decorator_list: List[ast.AST] = attr.ib(factory=list)
+    # body in in the actions of Actor
 
 
 # lambdas and comprehensions will be moved to the scopes
 # and reference will take the place of the ast node
+@attr.s(auto_attribs=True)
 class Lambda(Function):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__("<lambda>", *args, **kwargs)
+    name: str = attr.ib(default="<lambda>", init=False)
 
 
+@attr.s(auto_attribs=True)
 class Comprehension(Scope):
-    generators: List[ast.comprehension]
-    # actions: List[ast.comprehension]  # generators
-    actions: List[Action] = []
+    generators: List[ast.comprehension] = attr.ib(factory=list, kw_only=True)
+    # actions: List[ast.comprehension]  # XXX
 
 
+@attr.s(auto_attribs=True)
 class EltComprehension(Comprehension):
     elt: ast.expr
 
 
+@attr.s(auto_attribs=True)
 class ListComp(EltComprehension):
-    name = "<listcomp>"
+    name: str = attr.ib(default="<listcomp>", init=False)
 
 
+@attr.s(auto_attribs=True)
 class SetComp(EltComprehension):
-    name = "<setcomp>"
+    name: str = attr.ib(default="<setcomp>", init=False)
 
 
+@attr.s(auto_attribs=True)
 class GeneratorExp(EltComprehension):
-    name = "<genexpr>"
+    name: str = attr.ib(default="<genexpr>", init=False)
 
 
+@attr.s(auto_attribs=True)
 class DictComp(Comprehension):
     key: ast.expr
     value: ast.expr
-    name = "<dictcomp>"
+    name: str = attr.ib(default="<dictcomp>", init=False)
 
 
-class Block(Actor):
-    variables: Dict[str, Variable]
-
-
+@attr.s(auto_attribs=True)
 class MatchCase(Block):
-    pattern: ast.AST  # ast.pattern
+    pattern: ast.AST  # ast.pattern  # XXX: 3.10+
     guard: Optional[ast.expr]
 
 
+@attr.s(auto_attribs=True)
 class Match(Block):
-    actions: List[Action] = []
+    cases: List[MatchCase] = attr.ib(factory=list)
     # actions: List[MatchCase]  # XXX
-    cases: List[MatchCase]
 
 
+@attr.s(auto_attribs=True)
 class With(Block):
     items: List[ast.withitem]
 
@@ -197,23 +177,27 @@ class Else(Block):
     pass
 
 
+@attr.s(auto_attribs=True)
 class BlockWIthElse(Block):
     orelse: Else
 
 
+@attr.s(auto_attribs=True)
 class If(BlockWIthElse):
     test: ast.expr
 
 
+@attr.s(auto_attribs=True)
 class ExceptHandler(Block):
     type: Optional[ast.expr] = None
-    name: str
+    name: Optional[str] = None
 
 
 class Final(Block):
     pass
 
 
+@attr.s(auto_attribs=True)
 class Try(BlockWIthElse):
     handlers: List[ExceptHandler]
     finalbody: Final
@@ -223,11 +207,13 @@ class Loop(BlockWIthElse):
     pass
 
 
+@attr.s(auto_attribs=True)
 class For(Loop):
     target: Union[ast.Name, ast.Tuple, ast.List]
     iter: ast.expr
 
 
+@attr.s(auto_attribs=True)
 class While(Loop):
     test: ast.expr
 
