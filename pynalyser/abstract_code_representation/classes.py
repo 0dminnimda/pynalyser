@@ -11,6 +11,8 @@ class ACR:
     """
     pass
 
+    # TODO: ? dump(indent=None)
+
 
 @attr.s(auto_attribs=True)
 class Name(ACR):  # or symbol?
@@ -34,9 +36,16 @@ class Actor(ACR):
     actions: List[Action] = attr.ib(factory=list, kw_only=True)
 
 
+# XXX
+# Block / Scope actions are mostly
+# other blocks or keywords like return
+# while Variable actions are keywords like global
+# and all other (from Block / Scope) statements, expressions ...
+
 @attr.s(auto_attribs=True)
 class Variable(Name, Actor):
     scope: str = ""
+    # initialised_from_args i.e. func parameter
 
 
 @attr.s(auto_attribs=True)
