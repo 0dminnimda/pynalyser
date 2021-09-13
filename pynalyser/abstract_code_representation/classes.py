@@ -16,7 +16,7 @@ class ACR:
 
 
 @attr.s(auto_attribs=True)
-class Name(ACR):  # or symbol?
+class Name(ACR):
     name: str
 
 
@@ -54,8 +54,39 @@ class Actor(ACR, Generic[T]):
 # while Variable actions are keywords like global
 # and all other (from Block / Scope) statements, expressions ...
 
+# Import? ImportFrom?
+variable_actions = Union[
+    # stmt - from scope body
+    ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
+    ast.Global, ast.Nonlocal, ast.Expr,
+
+    # expr - from breakdown of complex expressions
+    ast.BoolOp, ast.NamedExpr, ast.BinOp, ast.UnaryOp,
+    ast.IfExp,  # ?
+    ast.Dict, ast.Set, ast.Await,
+    # XXX: YieldFrom don't affect object immediately ...
+    ast.Compare, ast.Call, ast.FormattedValue,
+    # XXX: why should we have just JoinedStr? it can have
+    # several FormattedValue with different variables inside...
+    # it should appear in context of the Assign, i guess
+    ast.Attribute, ast.Subscript,
+    ast.Starred,  # can act on 'a' only in situations like 'f(*a)'
+    # other situations is in assigns,
+    # and we don't care about possible previous state here,
+    # because we're overriding it
+
+    # Name is used in other nodes, but we don't
+    # care about single name mention, it doesn't do anything
+    ast.List, ast.Tuple,
+    # Slice can appear only in Subscript,
+    # and probably doesn't have any effect on the variables
+
+    # XXX: Pointer?
+]
+
+
 @attr.s(auto_attribs=True)
-class Variable(Name, Actor):
+class Variable(Name, Actor[variable_actions]):  # or symbol?
     scope: str = ""
     # TODO: initialised_from_args i.e. func parameter
     # imported? ...
