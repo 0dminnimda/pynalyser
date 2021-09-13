@@ -1,6 +1,7 @@
 import ast
 from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Optional, Set, TypeVar, Union
+from typing import (
+    Any, DefaultDict, Dict, List, Optional, Set, TypeVar, Union, Generic)
 
 import attr
 
@@ -11,7 +12,7 @@ class ACR:
     """
     pass
 
-    # TODO: ? dump(indent=None)
+    # TODO: abc ? dump(indent=None)
 
 
 @attr.s(auto_attribs=True)
@@ -25,14 +26,16 @@ class Pointer(ACR):  # reference?
     # action  # TODO: how to point to action of the other variable
 
 
+T = TypeVar("T")
+
+
 @attr.s(auto_attribs=True)
-class Action(ACR):
-    # TODO: generic 'action' type
-    action: ast.AST  # TODO: stricter specification
+class Action(ACR, Generic[T]):
+    action: T
     depends_on: Optional[Pointer] = None
 
 
-class ActionOfBlock(Action):  # TODO: Action[Block]
+class ActionOfBlock(Action["Block"]):
     """inside variable, to refer to blocks, like if,
     indicates that in that block there are actions
     performed by the same name"""
@@ -41,8 +44,8 @@ class ActionOfBlock(Action):  # TODO: Action[Block]
 
 
 @attr.s(auto_attribs=True)
-class Actor(ACR):
-    actions: List[Action] = attr.ib(factory=list, kw_only=True)
+class Actor(ACR, Generic[T]):
+    actions: List[Action[T]] = attr.ib(factory=list, kw_only=True)
 
 
 # XXX
@@ -55,10 +58,11 @@ class Actor(ACR):
 class Variable(Name, Actor):
     scope: str = ""
     # TODO: initialised_from_args i.e. func parameter
+    # imported? ...
 
 
 @attr.s(auto_attribs=True)
-class ActionSpace(Actor):
+class ActionSpace(Actor[ast.AST]):  # TODO: make T specification correct
     """just to distinguish between Block and Scope,
     those are different things
     that are used in the different context"""
