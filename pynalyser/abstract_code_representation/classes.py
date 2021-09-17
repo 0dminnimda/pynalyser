@@ -12,7 +12,7 @@ class ACR:
     """
     pass
 
-    # TODO: abc ? dump(indent=None)
+    # TODO: abc ? dump(indent=None), from_ast, to_ast
 
 
 @attr.s(auto_attribs=True)
@@ -55,9 +55,18 @@ class Actor(ACR, Generic[T]):
 # and all other (from Block / Scope) statements, expressions ...
 
 # Import? ImportFrom?
+# imports will create new names / override existing ones
+# (single or several ones!) case with several ones is the problem
+# they also should be threated as a kind of function call,
+# because they execute the module's code upon import
+# and we also can monkey patch data inside those modules,
+# to effectively change the bahaviour of the imported module
 variable_actions = Union[
     # stmt - from scope body
     ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
+    # import will be splitted to initialize each name separately
+    # Import(original_name) # asname - variable names
+    # ImportFrom(module, original_name, level)
     ast.Global, ast.Nonlocal, ast.Expr,
 
     # expr - from breakdown of complex expressions
@@ -82,6 +91,21 @@ variable_actions = Union[
     # and probably doesn't have any effect on the variables
 
     # XXX: Pointer?
+
+    # block should include Constant, but variable actions shouldn't
+]
+
+# Pass probably just shouldn't be included anywhere at all
+# python will check the correctness of the syntax,
+# we don't care about that
+
+action_space_actions = [
+    # stmt - from scope body
+    ast.Return, ast.Raise, ast.Assert,
+    ast.Break, ast.Continue,
+
+    # expr - from breakdown of complex expressions
+    ast.Yield, ast.YieldFrom
 ]
 
 
