@@ -2,7 +2,7 @@ import ast
 
 import pytest
 from pynalyser.abstract_code_representation.classes import (
-    Action, Actor, Name, Pointer, Variable)
+    Action, Name, Pointer, Variable)
 
 
 def test_Name():
@@ -41,21 +41,6 @@ def test_Action():
         Action()
 
 
-def test_Actor():
-    actions = [Action(ast.AST())]
-
-    actor = Actor()
-    assert actor.actions == []
-
-    actor = Actor(actions=actions)
-    assert actor.actions is actions
-
-    with pytest.raises(TypeError):
-        # those are only_kw for convenience of class construction
-        # maybe we should not test for that
-        Actor(actions)
-
-
 def test_Variable():
     n = "name"
     actions = [Action(ast.AST())]
@@ -64,24 +49,28 @@ def test_Variable():
     variable = Variable(n)
     assert variable.name is n
     assert variable.actions == []
-    assert variable.scope == ""
-
-    variable = Variable(n, scope)
-    assert variable.name is n
-    assert variable.actions == []
-    assert variable.scope is scope
-
-    variable = Variable(n, scope, actions=actions)
-    assert variable.name is n
-    assert variable.actions is actions
-    assert variable.scope is scope
 
     with pytest.raises(TypeError):
         Variable()
 
     # should it be splitted or all in one 'with'?
     with pytest.raises(TypeError):
-        Variable(n, scope, actions)
+        Variable(n, actions)
+
+
+# print(Variable("asd", []))
+# print(Block())
+# print(Scope("sdf"))
+# print(Module("sdf"))
+# print(Class("sdf"))
+# print(Function("sdf"))
+# print(Lambda(), Lambda([1, 2, 3]))
+# print(Comprehension("sdf"))
+# print(EltComprehension(ast.expr(), "sdf"))
+# print(ListComp(ast.expr()))
+# print(SetComp(ast.expr()))
+# print(GeneratorExp(ast.expr()))
+# print(DictComp(ast.expr(), ast.expr()))
 
 
 if __name__ == "__main__":
