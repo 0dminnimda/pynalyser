@@ -36,25 +36,6 @@ class Action(ACR, Generic[T]):
     depends_on: Optional[Pointer] = None
 
 
-class ActionOfBlock(Action["Block"]):
-    """inside variable, to refer to blocks, like if,
-    indicates that in that block there are actions
-    performed by the same name"""
-
-    pass
-
-
-@attr.s(auto_attribs=True)
-class Actor(ACR, Generic[T]):
-    actions: List[Action[T]] = attr.ib(factory=list, kw_only=True)
-
-
-# XXX
-# Block / Scope actions are mostly
-# other blocks or keywords like return
-# while Variable actions are keywords like global
-# and all other (from Block / Scope) statements, expressions ...
-
 # Import? ImportFrom?
 # imports will create new names / override existing ones
 # (single or several ones!) case with several ones is the problem
@@ -62,7 +43,7 @@ class Actor(ACR, Generic[T]):
 # because they execute the module's code upon import
 # and we also can monkey patch data inside those modules,
 # to effectively change the bahaviour of the imported module
-variable_actions = Union[
+VARIABLE_ACTIONS = Union[
     # stmt - from scope body
     ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
     # import will be splitted to initialize each name separately
@@ -111,8 +92,9 @@ action_space_actions = [
 
 
 @attr.s(auto_attribs=True)
-class Variable(Name, Actor[variable_actions]):  # or symbol?
-    scope: str = ""
+class Variable(Name):  # or symbol?
+    actions: List[Action[VARIABLE_ACTIONS]] = attr.ib(
+        factory=list, init=False)
     # TODO: initialised_from_args i.e. func parameter
     # imported? ...
 
