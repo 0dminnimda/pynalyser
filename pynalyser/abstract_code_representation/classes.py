@@ -1,7 +1,8 @@
 import ast
 from collections import defaultdict
+from enum import Flag, auto
 from typing import (
-    Any, DefaultDict, Dict, List, Optional, Set, TypeVar, Union, Generic)
+    Any, DefaultDict, Dict, Generic, List, Optional, Set, TypeVar, Union)
 
 import attr
 
@@ -128,9 +129,38 @@ class BlockContainer(ACR):
         factory=list, init=False)
 
 
+class ScopeType(Flag):  # XXX: maybe ScopeT?
+    GLOBAL = auto()  # used with global keyword in this scope
+    NONLOCAL = auto()  # used with nonlocal keyword in this scope
+    LOCAL = auto()  # had an assertion in this scope
+    # GLOBAL | NONLOCAL - not LOCAL
+    # NONLOCAL | LOCAL - can it happen?
+    # GLOBAL | LOCAL - can it happen?
+    UNKNOWN = GLOBAL | NONLOCAL | LOCAL
+
+
+@attr.s(auto_attribs=True)
+class SymbolData(ACR):
+    # it seems like symbol's scope doesn't change
+    # throughout the scope execution
+    scope: ScopeType = ScopeType.UNKNOWN
+
+
+class SymbolTable(Dict[str, SymbolData]):
+    pass
+
+
+# do we need this class?
+class ScopeDefs(Dict[int, "Scope"], ACR):
+    pass
+
+
 @attr.s(auto_attribs=True)
 class Scope(Name, BlockContainer):
-    pass
+    scopes: DefaultDict[str, ScopeDefs] = attr.ib(
+        factory=lambda: defaultdict(ScopeDefs), init=False)
+    symbol_table: SymbolTable = attr.ib(
+        factory=SymbolTable, init=False)
     # parent? probably nay
 
 
