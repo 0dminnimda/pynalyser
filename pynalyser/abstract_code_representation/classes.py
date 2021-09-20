@@ -214,28 +214,28 @@ class DictComp(Comprehension):
 
 
 @attr.s(auto_attribs=True)
-class MatchCase(Block):
+class MatchCase(BlockContainer):
     pattern: ast.AST  # ast.pattern  # XXX: 3.10+
     guard: Optional[ast.expr]
 
 
 @attr.s(auto_attribs=True)
-class Match(Block):
+class Match(BlockContainer):
     cases: List[MatchCase] = attr.ib(factory=list)
     # actions: List[MatchCase]  # XXX
 
 
 @attr.s(auto_attribs=True)
-class With(Block):
+class With(BlockContainer):
     items: List[ast.withitem]
 
 
-class Else(Block):
+class Else(BlockContainer):
     pass
 
 
 @attr.s(auto_attribs=True)
-class BlockWIthElse(Block):
+class BlockWIthElse(BlockContainer):
     orelse: Else
 
 
@@ -245,12 +245,12 @@ class If(BlockWIthElse):
 
 
 @attr.s(auto_attribs=True)
-class ExceptHandler(Block):
+class ExceptHandler(BlockContainer):
     type: Optional[ast.expr] = None
     name: Optional[str] = None
 
 
-class Final(Block):
+class Final(BlockContainer):
     pass
 
 
