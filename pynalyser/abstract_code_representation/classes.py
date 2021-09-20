@@ -117,23 +117,19 @@ class Variable(Name, Actor[variable_actions]):  # or symbol?
 
 
 @attr.s(auto_attribs=True)
-class ActionSpace(Actor[ast.AST]):  # TODO: make T specification correct
-    """just to distinguish between Block and Scope,
-    those are different things
-    that are used in the different context"""
-
-    variables: Dict[str, Variable] = attr.ib(factory=dict, kw_only=True)
-    scopes: DefaultDict[str, Dict[int, "Scope"]] = attr.ib(
-        factory=lambda: defaultdict(dict), kw_only=True)
+class Block(ACR):
+    variables: Dict[str, Variable] = attr.ib(
+        factory=dict, init=False)
 
 
 @attr.s(auto_attribs=True)
-class Block(ActionSpace):
-    pass
+class BlockContainer(ACR):
+    body: List[Union[Block, "BlockContainer"]] = attr.ib(
+        factory=list, init=False)
 
 
 @attr.s(auto_attribs=True)
-class Scope(Name, ActionSpace):
+class Scope(Name, BlockContainer):
     pass
     # parent? probably nay
 
