@@ -81,7 +81,9 @@ VARIABLE_ACTIONS = Union[
 # python will check the correctness of the syntax,
 # we don't care about that
 
-action_space_actions = [
+CONTROL_FLOW_ACTIONS = Union[
+    "CodeBlock", "BlockContainer",
+
     # stmt - from scope body
     ast.Return, ast.Raise, ast.Assert,
     ast.Break, ast.Continue,
@@ -100,14 +102,14 @@ class Variable(Name):  # or symbol?
 
 
 @attr.s(auto_attribs=True)
-class Block(ACR):
+class CodeBlock(ACR):
     variables: Dict[str, Variable] = attr.ib(
         factory=dict, init=False)
 
 
 @attr.s(auto_attribs=True)
-class BlockContainer(ACR):
-    body: List[Union[Block, "BlockContainer"]] = attr.ib(
+class BlockContainer(ACR):  # XXX: maybe ControlFlowSomething?
+    body: List[CONTROL_FLOW_ACTIONS] = attr.ib(
         factory=list, init=False)
 
 
