@@ -86,8 +86,9 @@ CONTROL_FLOW = Union[  # TODO: not finished
 
 @attr.s(auto_attribs=True)
 class CodeBlock(ACR):
-    variables: Dict[str, Variable] = attr.ib(
-        factory=dict, init=False)
+    """a.k.a. Basic block"""
+    body: List[CODE] = attr.ib(
+        factory=list)
 
 
 @attr.s(auto_attribs=True)
