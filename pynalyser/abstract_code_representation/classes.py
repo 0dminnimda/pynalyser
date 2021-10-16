@@ -21,12 +21,6 @@ class Name(ACR):
     name: str
 
 
-@attr.s(auto_attribs=True)
-class Pointer(ACR):  # reference?
-    action_ind: int
-    # action  # TODO: how to point to action of the other variable
-
-
 # Import? ImportFrom?
 # imports will create new names / override existing ones
 # (single or several ones!) case with several ones is the problem
@@ -63,7 +57,7 @@ CODE = Union[  # TODO: not finished
     # Slice can appear only in Subscript,
     # and probably doesn't have any effect on the variables
 
-    # XXX: Pointer?
+    "ScopeReference"
 
     # block should include Constant, but variable actions shouldn't
 ]
@@ -116,6 +110,18 @@ class SymbolData(ACR):
 
 class SymbolTable(Dict[str, SymbolData]):
     pass
+
+
+@attr.s(auto_attribs=True)
+class ScopeReference(ACR):
+    """Refers to a single scope in the `scopes`
+    of the local scope.
+    """
+    name: str
+    id: int
+
+    def get_scope(self, local_scope: "Scope") -> "Scope":
+        return local_scope.scopes[self.name][self.id]
 
 
 # do we need this class?
