@@ -108,7 +108,8 @@ class SymbolData(ACR):
     scope: ScopeType = ScopeType.UNKNOWN
 
 
-class SymbolTable(Dict[str, SymbolData]):
+
+class SymbolTable(DefaultDict[str, SymbolData]):
     pass
 
 
