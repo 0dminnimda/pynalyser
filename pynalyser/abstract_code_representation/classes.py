@@ -27,9 +27,6 @@ class Pointer(ACR):  # reference?
     # action  # TODO: how to point to action of the other variable
 
 
-T = TypeVar("T")
-
-
 # Import? ImportFrom?
 # imports will create new names / override existing ones
 # (single or several ones!) case with several ones is the problem
