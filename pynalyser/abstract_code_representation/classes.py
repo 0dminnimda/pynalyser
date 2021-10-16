@@ -70,7 +70,7 @@ VARIABLE_ACTIONS = Union[
 
 # Pass probably just shouldn't be included anywhere at all
 # python will check the correctness of the syntax,
-# we don't care about that
+# but we don't care about that
 
 CONTROL_FLOW_ACTIONS = Union[
     "CodeBlock", "BlockContainer",
@@ -99,7 +99,7 @@ class BlockContainer(ACR):  # XXX: maybe ControlFlowSomething?
 class ScopeType(Flag):  # XXX: maybe ScopeT?
     GLOBAL = auto()  # used with global keyword in this scope
     NONLOCAL = auto()  # used with nonlocal keyword in this scope
-    LOCAL = auto()  # had an assertion in this scope
+    LOCAL = auto()  # has an assertion in this scope
     # GLOBAL | NONLOCAL - not LOCAL
     # NONLOCAL | LOCAL - can it happen?
     # GLOBAL | LOCAL - can it happen?
@@ -131,6 +131,8 @@ class Scope(Name, BlockContainer):
     # parent? probably nay
 
 
+# all of the inner scopes inside of the scope will be moved
+# to the `scopes` and reference will take the place of the ast node
 class Module(Scope):
     """`name` is the name of the file that this module belongs to
     """
@@ -144,18 +146,17 @@ class Class(Scope):
     # initially metaclass and kws for it
     keywords: List[ast.keyword] = attr.ib(factory=list)
     decorator_list: List[ast.AST] = attr.ib(factory=list)
-    # body and members in in the actions of Actor
 
 
 @attr.s(auto_attribs=True)
 class Function(Scope):
+    # XXX: how to deal with the function returns?
     args: ast.arguments = attr.ib(factory=ast.arguments)
     # returns: ast.expr = attr.ib(factory=ast.expr)  # is needed?
     decorator_list: List[ast.AST] = attr.ib(factory=list)
-    # body in in the actions of Actor
 
 
-# lambdas and comprehensions will be moved to the scopes
+# lambdas and comprehensions will be moved to the `scopes`
 # and reference will take the place of the ast node
 @attr.s(auto_attribs=True)
 class Lambda(Scope):
@@ -218,7 +219,7 @@ class Else(BlockContainer):
 
 
 @attr.s(auto_attribs=True)
-class BlockWIthElse(BlockContainer):
+class BlockWIthElse(BlockContainer):  # XXX: do we need this class?
     orelse: Else
 
 
@@ -243,7 +244,7 @@ class Try(BlockWIthElse):
     finalbody: Final
 
 
-class Loop(BlockWIthElse):
+class Loop(BlockWIthElse):  # XXX: do we need this class?
     pass
 
 
@@ -263,3 +264,8 @@ class While(Loop):
 def f(a):
     print(a)  # ???
 """
+
+# class list
+# def mark(index) -> id
+# marked item's index will be tracked
+# def get_index(id) -> index
