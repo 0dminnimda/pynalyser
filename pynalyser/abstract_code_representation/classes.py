@@ -72,7 +72,7 @@ VARIABLE_ACTIONS = Union[
 # python will check the correctness of the syntax,
 # but we don't care about that
 
-CONTROL_FLOW_ACTIONS = Union[
+CONTROL_FLOW = Union[  # TODO: not finished
     "CodeBlock", "BlockContainer",
 
     # stmt - from scope body
