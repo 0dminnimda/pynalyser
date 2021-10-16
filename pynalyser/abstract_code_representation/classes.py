@@ -107,6 +107,11 @@ class SymbolData(ACR):
     # throughout the scope execution
     scope: ScopeType = ScopeType.UNKNOWN
 
+    # if we change from UNKNOWN to more specific it's fine
+    # but if we change from specific to other specific than
+    # probably something went wrong
+    # is it the responsibility of this class to check this?
+    # XXX: change_scope(self, new_scope: ScopeType) -> None
 
 
 class SymbolTable(DefaultDict[str, SymbolData]):
