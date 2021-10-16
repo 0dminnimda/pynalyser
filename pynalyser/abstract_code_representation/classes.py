@@ -132,7 +132,17 @@ class ScopeReference(ACR):
 
 # do we need this class?
 class ScopeDefs(Dict[int, "Scope"], ACR):
-    pass
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(self, *args, **kwargs)
+        self._last_index = 0
+
+    def append(self, value: "Scope") -> None:
+        self[self._last_index] = value
+        self._last_index += 1
+
+    @property
+    def last_index(self) -> int:
+        return self._last_index
 
 
 @attr.s(auto_attribs=True)
