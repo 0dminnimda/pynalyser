@@ -34,7 +34,7 @@ class Pointer(ACR):  # reference?
 # because they execute the module's code upon import
 # and we also can monkey patch data inside those modules,
 # to effectively change the bahaviour of the imported module
-VARIABLE_ACTIONS = Union[
+CODE = Union[  # TODO: not finished
     # stmt - from scope body
     ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
     # import will be splitted to initialize each name separately
