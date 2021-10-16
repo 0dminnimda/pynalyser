@@ -147,4 +147,4 @@ def test_normalize_ast_ExtSlice():
 if __name__ == "__main__":
     import pytest
 
-    pytest.main([__file__])
+    pytest.main()
