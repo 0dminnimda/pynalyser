@@ -138,6 +138,11 @@ class Scope(Name, BlockContainer):
         factory=SymbolTable, init=False)
     # parent? probably nay
 
+    def add_scope(self, scope: "Scope") -> ScopeReference:
+        defs = self.scopes[scope.name]
+        defs.append(scope)
+        return ScopeReference(scope.name, defs.last_index)
+
 
 # all of the inner scopes inside of the scope will be moved
 # to the `scopes` and reference will take the place of the ast node
