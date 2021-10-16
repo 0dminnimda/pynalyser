@@ -30,12 +30,6 @@ class Pointer(ACR):  # reference?
 T = TypeVar("T")
 
 
-@attr.s(auto_attribs=True)
-class Action(ACR, Generic[T]):
-    action: T
-    depends_on: Optional[Pointer] = None
-
-
 # Import? ImportFrom?
 # imports will create new names / override existing ones
 # (single or several ones!) case with several ones is the problem
@@ -91,14 +85,6 @@ CONTROL_FLOW_ACTIONS = Union[
     # expr - from breakdown of complex expressions
     ast.Yield, ast.YieldFrom
 ]
-
-
-@attr.s(auto_attribs=True)
-class Variable(Name):  # or symbol?
-    actions: List[Action[VARIABLE_ACTIONS]] = attr.ib(
-        factory=list, init=False)
-    # TODO: initialised_from_args i.e. func parameter
-    # imported? ...
 
 
 @attr.s(auto_attribs=True)
