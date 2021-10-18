@@ -27,9 +27,14 @@ class Translator(ast.NodeTransformer):
         # "ast.Module is handled in the translate_from_module "
         # "and there gotta be only one ast.Module in the tree")
 
+    def visit_Expr(self, node: ast.Expr) -> ast.Expr:
+        if type(node.value) in (ast.Yield, ast.YieldFrom):
+            raise NotImplementedError(
+                "implement handling of the Yield")  # TODO
+        self.scope.add_code(node.value)
+        # TODO: handle lambdas in the expr (everywhere, not only in the Expr)
+        return node
 
-    def visit_Expr(self, node: ast.Expr) -> None:
-        self.scope.body.append(node.value)
 
 
 def translate_ast_to_acr(tree: ast.Module, name: str) -> Module:
