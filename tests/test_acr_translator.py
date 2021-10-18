@@ -4,6 +4,15 @@ from pynalyser.acr.translation import Translator, translate_ast_to_acr
 from pynalyser.acr import classes as acr
 from collections import defaultdict
 
+tree = ast.parse("""
+def a():
+    5
+69
+""")
+out = translate_ast_to_acr(tree, "test")
+f = out.blocks[0].body[0].value.get_scope(out)
+
+
 [
     ast.Expr(
         value=ast.BinOp(
