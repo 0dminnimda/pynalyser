@@ -1,7 +1,7 @@
 import ast
-from .classes import Module, Scope
-from typing import Optional, NoReturn
+from typing import NoReturn, Union
 
+from .classes import Function, Module, Scope, ScopeReference
 
 class Translator(ast.NodeVisitor):
     acr: Optional[Module] = None
