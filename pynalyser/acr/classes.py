@@ -155,8 +155,9 @@ class Scope(Name, BlockContainer):
 
     def add_scope(self, scope: "Scope") -> ScopeReference:
         defs = self.scopes[scope.name]
+        reference = ScopeReference(scope.name, defs.last_index)
         defs.append(scope)
-        return ScopeReference(scope.name, defs.last_index)
+        return reference
 
 
 # all of the inner scopes inside of the scope will be moved
@@ -181,7 +182,7 @@ class Function(Scope):
     # XXX: how to deal with the function returns?
     args: ast.arguments = attr.ib(factory=ast.arguments)
     # returns: ast.expr = attr.ib(factory=ast.expr)  # is needed?
-    decorator_list: List[ast.AST] = attr.ib(factory=list)
+    decorator_list: List[ast.expr] = attr.ib(factory=list)
 
 
 # lambdas and comprehensions will be moved to the `scopes`
