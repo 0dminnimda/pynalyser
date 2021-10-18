@@ -87,7 +87,7 @@ class CodeBlock(ACR):
 
 @attr.s(auto_attribs=True)
 class BlockContainer(ACR):  # XXX: maybe ControlFlowSomething?
-    body: List[CONTROL_FLOW] = attr.ib(
+    blocks: List[CONTROL_FLOW] = attr.ib(
         factory=list, init=False)
 
 
