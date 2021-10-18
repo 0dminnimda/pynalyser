@@ -3,9 +3,12 @@ from typing import NoReturn, Union
 
 from .classes import Function, Module, Scope, ScopeReference
 
-class Translator(ast.NodeVisitor):
-    acr: Optional[Module] = None
-    scope: Optional[Scope] = None
+
+class Translator(ast.NodeTransformer):
+    acr: Module
+    scope: Scope
+
+    #### Only visit, no transformations ####
 
     def translate_from_module(self, module: ast.Module,
                               name: str) -> Module:
