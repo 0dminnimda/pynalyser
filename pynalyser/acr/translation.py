@@ -17,6 +17,8 @@ class Translator(ast.NodeTransformer):
         del self.scope, self.acr
         return acr
 
+    # we don't care about 'type_ignores'
+
     def visit_Module(self, node: ast.Module) -> NoReturn:
         raise NotImplementedError(  # XXX: parsing error idk
             "ast.Module is handled in the translate_from_module")
