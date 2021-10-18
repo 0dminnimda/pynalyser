@@ -57,6 +57,10 @@ class Translator(ast.NodeTransformer):
             node)
         return node
 
+    #### Transform the expressions ####
+
+    # def visit_Lambda
+
 
 def translate_ast_to_acr(tree: ast.Module, name: str) -> Module:
     return Translator().translate_from_module(tree, name)
