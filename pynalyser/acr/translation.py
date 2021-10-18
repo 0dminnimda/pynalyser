@@ -21,7 +21,12 @@ class Translator(ast.NodeTransformer):
 
     def visit_Module(self, node: ast.Module) -> NoReturn:
         raise NotImplementedError(  # XXX: parsing error idk
-            "ast.Module is handled in the translate_from_module")
+            "Either you just called `visit` on the tree "
+            "(which starts with `ast.Module`) - use `translate_from_module` "
+            "or there's more than one `ast.Module` in the tree")
+        # "ast.Module is handled in the translate_from_module "
+        # "and there gotta be only one ast.Module in the tree")
+
 
     def visit_Expr(self, node: ast.Expr) -> None:
         self.scope.body.append(node.value)
