@@ -13,8 +13,8 @@ class Translator(ast.NodeTransformer):
     def translate_from_module(self, module: ast.Module,
                               name: str) -> Module:
         acr = self.scope = self.acr = Module(name)
-        self.generic_visit(module)  # we don't care about 'type_ignores'
-        self.acr = None
+        self.generic_visit(module)
+        del self.scope, self.acr
         return acr
 
     def visit_Module(self, node: ast.Module) -> NoReturn:
