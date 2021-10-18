@@ -3,6 +3,8 @@ from typing import NoReturn, Union
 
 from .classes import Function, Module, Scope, ScopeReference
 
+STMT_SCOPE = Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]
+
 
 class Translator(ast.NodeTransformer):
     acr: Module
@@ -35,6 +37,25 @@ class Translator(ast.NodeTransformer):
         # TODO: handle lambdas in the expr (everywhere, not only in the Expr)
         return node
 
+    def handle_scope(self, scope: Scope, node: ast.AST) -> ScopeReference:
+        reference = self.scope.add_scope(scope)
+
+        prev_scope, self.scope = self.scope, scope
+        self.generic_visit(node)
+        self.scope = prev_scope
+
+        return reference
+
+    def handle_stmt_scope(self, scope: Scope, node: STMT_SCOPE) -> None:
+        self.scope.add_code(
+            ast.Assign(targets=[ast.Name(id=scope.name)],
+                       value=self.handle_scope(scope, node)))
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.FunctionDef:
+        self.handle_stmt_scope(
+            Function(node.name, node.args, node.decorator_list),
+            node)
+        return node
 
 
 def translate_ast_to_acr(tree: ast.Module, name: str) -> Module:
