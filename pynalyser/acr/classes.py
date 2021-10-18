@@ -90,6 +90,18 @@ class BlockContainer(ACR):  # XXX: maybe ControlFlowSomething?
     blocks: List[CONTROL_FLOW] = attr.ib(
         factory=list, init=False)
 
+    def add_code(self, code: CODE) -> None:
+        if len(self.blocks):
+            block = self.blocks[-1]
+            if type(block) is not CodeBlock:
+                block = CodeBlock()
+                self.blocks.append(block)
+        else:
+            block = CodeBlock()
+            self.blocks.append(block)
+
+        block.body.append(code)
+
 
 class ScopeType(Flag):  # XXX: maybe ScopeT?
     GLOBAL = auto()  # used with global keyword in this scope
