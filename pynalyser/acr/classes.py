@@ -3,7 +3,7 @@ import sys
 from collections import defaultdict
 from enum import Flag, auto
 from typing import (
-    Any, DefaultDict, Dict, Generic, List, Optional, Set, TypeVar, Union)
+    DefaultDict, Dict, List, Optional, Tuple, Union)
 
 import attr
 
@@ -26,9 +26,36 @@ class ACR:
     """The base class for each class of
     abstract representation of the code.
     """
-    pass
+
+    _attributes: Tuple[str, ...] = attr.ib(init=False, default=())
+    _fields: Tuple[str, ...] = attr.ib(init=False, default=())
+
+    # FIXME: this should run only on class creation, so metaclasses?
+    def __attrs_post_init__(self):
+        _fields = list(attr.fields_dict(type(self)).keys())
+
+        for name in self._attributes:
+            _fields.remove(name)
+        _fields.remove("_attributes")
+        _fields.remove("_fields")
+
+        self._fields = tuple(_fields)
 
     # TODO: abc ? dump(indent=None), from_ast, to_ast
+
+
+@attr.s(auto_attribs=True)
+class ACRWithAttributes(ACR):
+    lineno: int = attr.ib(kw_only=True)
+    col_offset: int = attr.ib(kw_only=True)
+    # TODO: make end_lineno and end_col_offset required fields
+    # after switching to python-version-independent ast generator
+    # (it will generate lastest ast for earsier python versions)
+    end_lineno: Optional[int] = attr.ib(kw_only=True, default=None)
+    end_col_offset: Optional[int] = attr.ib(kw_only=True, default=None)
+
+    _attributes: Tuple[str, ...] = attr.ib(init=False, default=(
+        "lineno", "col_offset", "end_lineno", "end_col_offset"))
 
 
 @attr.s(auto_attribs=True)
@@ -106,12 +133,19 @@ class CodeBlock(List[CODE]):
 
 # @attr.s(auto_attribs=True)
 class Block(ACR):
-    pass
+    _block_fields: Tuple[str, ...] = ()
+
+    def __attrs_post_init__(self):
+        super().__attrs_post_init__()
+        _fields = list(self._fields)
+        _fields.remove("_block_fields")
+        self._fields = tuple(_fields)
 
 
 @attr.s(auto_attribs=True)
 class BodyBlock(Block):
     body: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("body",))
 
 
 class ScopeType(Flag):  # XXX: maybe ScopeT?
@@ -192,7 +226,7 @@ class Module(Scope):
 
 
 @attr.s(auto_attribs=True)
-class Class(Scope):
+class Class(ACRWithAttributes, Scope):
     bases: List[ast.expr]  # parent-classes
     keywords: List[ast.keyword]  # initially metaclass and kws for it
     decorator_list: List[ast.expr]
@@ -200,7 +234,7 @@ class Class(Scope):
 
 
 @attr.s(auto_attribs=True)
-class Function(Scope):
+class Function(ACRWithAttributes, Scope):
     # XXX: how to deal with the function returns?
     args: ast.arguments = attr.ib(factory=ast.arguments)
     # returns: Optional[ast.expr] = attr.ib(factory=ast.expr)  # is needed?
@@ -210,13 +244,15 @@ class Function(Scope):
 # lambdas and comprehensions will be moved to the `scopes`
 # and reference will take the place of the ast node
 @attr.s(auto_attribs=True)
-class Lambda(Scope):
+class Lambda(ACRWithAttributes, Scope):
     name: str = attr.ib(default="<lambda>", init=False)
     args: ast.arguments = attr.ib(factory=ast.arguments)
 
 
 @attr.s(auto_attribs=True)
-class Comprehension(Scope):
+class Comprehension(ACRWithAttributes, Scope):
+    # XXX: shouldn't have `body` from Scope,
+    # but removing this will bring currently unneeded refactoring
     generators: List[ast.comprehension] = attr.ib(kw_only=True)
 
 
@@ -254,39 +290,44 @@ class MatchCase(BodyBlock):
 
 
 @attr.s(auto_attribs=True)
-class Match(Block):
+class Match(ACRWithAttributes, Block):
     subject: ast.expr
     cases: List[MatchCase] = attr.ib(init=False, factory=list)
+    _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("cases",))
 
 
 @attr.s(auto_attribs=True)
-class With(BodyBlock):
+class With(ACRWithAttributes, BodyBlock):
     items: List[ast.withitem]
 
 
 @attr.s(auto_attribs=True)
 class BodyElseBlock(BodyBlock):
     orelse: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    _block_fields: Tuple[str, ...] = attr.ib(
+        init=False, default=("body", "orelse"))
 
 
 @attr.s(auto_attribs=True)
-class If(BodyElseBlock):
+class If(ACRWithAttributes, BodyElseBlock):
     test: ast.expr
 
 
 @attr.s(auto_attribs=True)
-class ExceptHandler(BodyBlock):
+class ExceptHandler(ACRWithAttributes, BodyBlock):
     type: Optional[ast.expr]
     name: Optional[str]
 
 
 @attr.s(auto_attribs=True)
-class Try(BodyElseBlock):
+class Try(ACRWithAttributes, BodyElseBlock):
     handlers: List[ExceptHandler] = attr.ib(factory=list, init=False)
     finalbody: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    _block_fields: Tuple[str, ...] = attr.ib(
+        init=False, default=("body", "handlers", "orelse", "finalbody"))
 
 
-class Loop(BodyElseBlock):  # XXX: do we need this class?
+class Loop(ACRWithAttributes, BodyElseBlock):  # XXX: do we need this class?
     pass
 
 
