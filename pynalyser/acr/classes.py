@@ -1,10 +1,25 @@
 import ast
+import sys
 from collections import defaultdict
 from enum import Flag, auto
 from typing import (
     Any, DefaultDict, Dict, Generic, List, Optional, Set, TypeVar, Union)
 
 import attr
+
+# XXX
+if sys.version_info < (3, 10):
+    class ast_pattern(ast.AST):
+        pass
+else:
+    ast_pattern = ast.pattern
+
+if sys.version_info < (3, 8):
+    class ast_NamedExpr(ast.expr):
+        target: ast.expr
+        value: ast.expr
+else:
+    ast_NamedExpr = ast.NamedExpr
 
 
 class ACR:
@@ -37,7 +52,7 @@ CODE = Union[  # TODO: not finished
     ast.Global, ast.Nonlocal, ast.Expr,
 
     # expr - from breakdown of complex expressions
-    ast.BoolOp, ast.NamedExpr, ast.BinOp, ast.UnaryOp,
+    ast.BoolOp, ast_NamedExpr, ast.BinOp, ast.UnaryOp,
     ast.IfExp,  # ?
     ast.Dict, ast.Set, ast.Await,
     # XXX: YieldFrom don't affect object immediately ...
@@ -228,7 +243,7 @@ class DictComp(Comprehension):
 
 @attr.s(auto_attribs=True)
 class MatchCase(BlockContainer):
-    pattern: ast.AST  # ast.pattern  # XXX: 3.10+
+    pattern: ast_pattern
     guard: Optional[ast.expr]
 
 
