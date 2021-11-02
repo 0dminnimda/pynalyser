@@ -93,17 +93,25 @@ CONTROL_FLOW = Union[  # TODO: not finished
 ]
 
 
-@attr.s(auto_attribs=True)
-class CodeBlock(ACR):
+# @attr.s(auto_attribs=True)
+class FlowContainer(List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
+    pass
+
+
+# @attr.s(auto_attribs=True)
+class CodeBlock(List[CODE]):
     """a.k.a. Basic block"""
-    body: List[CODE] = attr.ib(
-        factory=list)
+    pass
+
+
+# @attr.s(auto_attribs=True)
+class Block(ACR):
+    pass
 
 
 @attr.s(auto_attribs=True)
-class BlockContainer(ACR):  # XXX: maybe ControlFlowSomething?
-    body: List[CONTROL_FLOW] = attr.ib(
-        factory=list, init=False)
+class BodyBlock(Block):
+    body: FlowContainer = attr.ib(factory=FlowContainer, init=False)
 
 
 class ScopeType(Flag):  # XXX: maybe ScopeT?
@@ -161,7 +169,7 @@ class ScopeDefs(Dict[int, "Scope"], ACR):
 
 
 @attr.s(auto_attribs=True)
-class Scope(Name, BlockContainer):
+class Scope(Name, BodyBlock):
     scopes: DefaultDict[str, ScopeDefs] = attr.ib(
         factory=lambda: defaultdict(ScopeDefs), init=False)
     symbol_table: SymbolTable = attr.ib(
@@ -242,53 +250,45 @@ class DictComp(Comprehension):
 
 
 @attr.s(auto_attribs=True)
-class MatchCase(BlockContainer):
+class MatchCase(BodyBlock):
     pattern: ast_pattern
     guard: Optional[ast.expr]
 
 
 @attr.s(auto_attribs=True)
-class Match(BlockContainer):
+class Match(Block):
     cases: List[MatchCase] = attr.ib(factory=list)
     # actions: List[MatchCase]  # XXX
 
 
 @attr.s(auto_attribs=True)
-class With(BlockContainer):
+class With(BodyBlock):
     items: List[ast.withitem]
 
 
-class Else(BlockContainer):
-    pass
+@attr.s(auto_attribs=True)
+class BodyElseBlock(BodyBlock):
+    orelse: FlowContainer = attr.ib(factory=FlowContainer, init=False)
 
 
 @attr.s(auto_attribs=True)
-class BlockWIthElse(BlockContainer):  # XXX: do we need this class?
-    orelse: Else
-
-
-@attr.s(auto_attribs=True)
-class If(BlockWIthElse):
+class If(BodyElseBlock):
     test: ast.expr
 
 
 @attr.s(auto_attribs=True)
-class ExceptHandler(BlockContainer):
+class ExceptHandler(BodyBlock):
     type: Optional[ast.expr] = None
     name: Optional[str] = None
 
 
-class Final(BlockContainer):
-    pass
-
-
 @attr.s(auto_attribs=True)
-class Try(BlockWIthElse):
-    handlers: List[ExceptHandler]
-    finalbody: Final
+class Try(BodyElseBlock):
+    handlers: List[ExceptHandler] = attr.ib(factory=list, init=False)
+    finalbody: FlowContainer = attr.ib(factory=FlowContainer, init=False)
 
 
-class Loop(BlockWIthElse):  # XXX: do we need this class?
+class Loop(BodyElseBlock):  # XXX: do we need this class?
     pass
 
 
