@@ -144,7 +144,7 @@ class Block(ACR):
 
 @attr.s(auto_attribs=True)
 class BodyBlock(Block):
-    body: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    body: FlowContainer = attr.ib(init=False, factory=FlowContainer)
     _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("body",))
 
 
@@ -205,9 +205,8 @@ class ScopeDefs(Dict[int, "Scope"]):
 @attr.s(auto_attribs=True)
 class Scope(Name, BodyBlock):
     scopes: DefaultDict[str, ScopeDefs] = attr.ib(
-        factory=lambda: defaultdict(ScopeDefs), init=False)
-    symbol_table: SymbolTable = attr.ib(
-        factory=SymbolTable, init=False)
+        init=False, factory=lambda: defaultdict(ScopeDefs))
+    symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
     # parent? probably nay
 
     def add_scope(self, scope: "Scope") -> ScopeReference:
@@ -236,17 +235,17 @@ class Class(ACRWithAttributes, Scope):
 @attr.s(auto_attribs=True)
 class Function(ACRWithAttributes, Scope):
     # XXX: how to deal with the function returns?
-    args: ast.arguments = attr.ib(factory=ast.arguments)
+    args: ast.arguments
     # returns: Optional[ast.expr] = attr.ib(factory=ast.expr)  # is needed?
-    decorator_list: List[ast.expr] = attr.ib(factory=list)
+    decorator_list: List[ast.expr]
 
 
 # lambdas and comprehensions will be moved to the `scopes`
 # and reference will take the place of the ast node
 @attr.s(auto_attribs=True)
 class Lambda(ACRWithAttributes, Scope):
-    name: str = attr.ib(default="<lambda>", init=False)
-    args: ast.arguments = attr.ib(factory=ast.arguments)
+    name: str = attr.ib(init=False, default="<lambda>")
+    args: ast.arguments
 
 
 @attr.s(auto_attribs=True)
@@ -263,24 +262,24 @@ class EltComprehension(Comprehension):
 
 @attr.s(auto_attribs=True)
 class ListComp(EltComprehension):
-    name: str = attr.ib(default="<listcomp>", init=False)
+    name: str = attr.ib(init=False, default="<listcomp>")
 
 
 @attr.s(auto_attribs=True)
 class SetComp(EltComprehension):
-    name: str = attr.ib(default="<setcomp>", init=False)
+    name: str = attr.ib(init=False, default="<setcomp>")
 
 
 @attr.s(auto_attribs=True)
 class GeneratorExp(EltComprehension):
-    name: str = attr.ib(default="<genexpr>", init=False)
+    name: str = attr.ib(init=False, default="<genexpr>")
 
 
 @attr.s(auto_attribs=True)
 class DictComp(Comprehension):
     key: ast.expr
     value: ast.expr
-    name: str = attr.ib(default="<dictcomp>", init=False)
+    name: str = attr.ib(init=False, default="<dictcomp>")
 
 
 @attr.s(auto_attribs=True)
@@ -303,7 +302,7 @@ class With(ACRWithAttributes, BodyBlock):
 
 @attr.s(auto_attribs=True)
 class BodyElseBlock(BodyBlock):
-    orelse: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    orelse: FlowContainer = attr.ib(init=False, factory=FlowContainer)
     _block_fields: Tuple[str, ...] = attr.ib(
         init=False, default=("body", "orelse"))
 
@@ -321,8 +320,8 @@ class ExceptHandler(ACRWithAttributes, BodyBlock):
 
 @attr.s(auto_attribs=True)
 class Try(ACRWithAttributes, BodyElseBlock):
-    handlers: List[ExceptHandler] = attr.ib(factory=list, init=False)
-    finalbody: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    handlers: List[ExceptHandler] = attr.ib(init=False, factory=list)
+    finalbody: FlowContainer = attr.ib(init=False, factory=FlowContainer)
     _block_fields: Tuple[str, ...] = attr.ib(
         init=False, default=("body", "handlers", "orelse", "finalbody"))
 
