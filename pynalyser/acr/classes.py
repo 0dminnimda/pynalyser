@@ -3,8 +3,7 @@ import sys
 from collections import defaultdict
 from enum import Flag, auto
 from typing import (
-    Any, DefaultDict, Dict, Generic, List, Optional, Set, Tuple, TypeVar,
-    Union)
+    DefaultDict, Dict, List, Optional, Tuple, Union)
 
 import attr
 
@@ -30,18 +29,10 @@ class ACR:
 
     _attributes: Tuple[str, ...] = attr.ib(init=False, default=())
     _fields: Tuple[str, ...] = attr.ib(init=False, default=())
-    # _nonblock_fields: Tuple[str, ...] = ()
-    # _block_fields: Tuple[str, ...] = attr.ib(init=False, default=())
-
-    # @abstractmethod
-    # def _format(self, ctx: Context, lvl: int) -> Tuple[List[str], bool]:
-    #     ...
-    # TODO: abc ? dump(indent=None), from_ast, to_ast
 
     # FIXME: this should run only on class creation, so metaclasses?
     def __attrs_post_init__(self):
         _fields = list(attr.fields_dict(type(self)).keys())
-        # print(type(self), _fields)
 
         for name in self._attributes:
             _fields.remove(name)
@@ -50,11 +41,7 @@ class ACR:
 
         self._fields = tuple(_fields)
 
-        # _nonblock_fields = []
-        # _block_fields = []
-
-        # for name in self._fields:
-        #     if isi
+    # TODO: abc ? dump(indent=None), from_ast, to_ast
 
 
 @attr.s(auto_attribs=True)
@@ -64,8 +51,8 @@ class ACRWithAttributes(ACR):
     # TODO: make end_lineno and end_col_offset required fields
     # after switching to python-version-independent ast generator
     # (it will generate lastest ast for earsier python versions)
-    end_lineno: Optional[int] = attr.ib(default=None, kw_only=True)
-    end_col_offset: Optional[int] = attr.ib(default=None, kw_only=True)
+    end_lineno: Optional[int] = attr.ib(kw_only=True, default=None)
+    end_col_offset: Optional[int] = attr.ib(kw_only=True, default=None)
 
     _attributes: Tuple[str, ...] = attr.ib(init=False, default=(
         "lineno", "col_offset", "end_lineno", "end_col_offset"))
