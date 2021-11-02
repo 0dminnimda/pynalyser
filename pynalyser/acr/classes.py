@@ -154,7 +154,7 @@ class ScopeReference(ACR):
 
 
 # do we need this class?
-class ScopeDefs(Dict[int, "Scope"], ACR):
+class ScopeDefs(Dict[int, "Scope"]):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(self, *args, **kwargs)
         self._last_index = 0
@@ -193,18 +193,17 @@ class Module(Scope):
 
 @attr.s(auto_attribs=True)
 class Class(Scope):
-    bases: List[ast.AST] = attr.ib(factory=list)  # parent-classes
-    metaclass: Optional[type] = None
-    # initially metaclass and kws for it
-    keywords: List[ast.keyword] = attr.ib(factory=list)
-    decorator_list: List[ast.AST] = attr.ib(factory=list)
+    bases: List[ast.expr]  # parent-classes
+    keywords: List[ast.keyword]  # initially metaclass and kws for it
+    decorator_list: List[ast.expr]
+    metaclass: Optional[type] = None  # XXX: it's probably not type really
 
 
 @attr.s(auto_attribs=True)
 class Function(Scope):
     # XXX: how to deal with the function returns?
     args: ast.arguments = attr.ib(factory=ast.arguments)
-    # returns: ast.expr = attr.ib(factory=ast.expr)  # is needed?
+    # returns: Optional[ast.expr] = attr.ib(factory=ast.expr)  # is needed?
     decorator_list: List[ast.expr] = attr.ib(factory=list)
 
 
@@ -218,8 +217,7 @@ class Lambda(Scope):
 
 @attr.s(auto_attribs=True)
 class Comprehension(Scope):
-    generators: List[ast.comprehension] = attr.ib(factory=list, kw_only=True)
-    # actions: List[ast.comprehension]  # XXX
+    generators: List[ast.comprehension] = attr.ib(kw_only=True)
 
 
 @attr.s(auto_attribs=True)
@@ -257,8 +255,8 @@ class MatchCase(BodyBlock):
 
 @attr.s(auto_attribs=True)
 class Match(Block):
-    cases: List[MatchCase] = attr.ib(factory=list)
-    # actions: List[MatchCase]  # XXX
+    subject: ast.expr
+    cases: List[MatchCase] = attr.ib(init=False, factory=list)
 
 
 @attr.s(auto_attribs=True)
@@ -278,8 +276,8 @@ class If(BodyElseBlock):
 
 @attr.s(auto_attribs=True)
 class ExceptHandler(BodyBlock):
-    type: Optional[ast.expr] = None
-    name: Optional[str] = None
+    type: Optional[ast.expr]
+    name: Optional[str]
 
 
 @attr.s(auto_attribs=True)
@@ -294,7 +292,7 @@ class Loop(BodyElseBlock):  # XXX: do we need this class?
 
 @attr.s(auto_attribs=True)
 class For(Loop):
-    target: Union[ast.Name, ast.Tuple, ast.List]
+    target: ast.expr  # ? Union[ast.Name, ast.Tuple, ast.List]
     iter: ast.expr
 
 
