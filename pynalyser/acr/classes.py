@@ -225,6 +225,11 @@ class DictComp(Comprehension):
     name: str = attr.ib(default="<dictcomp>", init=False)
 
 
+comprehensions = ListComp, SetComp, GeneratorExp, DictComp
+
+scopes = Module, Class, Function, Lambda, *comprehensions
+
+
 @attr.s(auto_attribs=True)
 class MatchCase(BlockContainer):
     pattern: ast.AST  # ast.pattern  # XXX: 3.10+
