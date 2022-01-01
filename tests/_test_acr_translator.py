@@ -6,60 +6,60 @@ from pynalyser.acr.utils import dump
 from collections import defaultdict
 
 tree = ast.parse(
-# """
-# if x:
-#     a = 69 + 42
-# """)
+    # """
+    # if x:
+    #     a = 69 + 42
+    # """)
 
-# (
-# """
+    # (
+    # """
 
-# # if a:
-# #     if b:
-# #         c
-# #     else:
-# #         d
-# # else:
-# #     if e:
-# #         f
-# #     else:
-# #         g
+    # # if a:
+    # #     if b:
+    # #         c
+    # #     else:
+    # #         d
+    # # else:
+    # #     if e:
+    # #         f
+    # #     else:
+    # #         g
 
-# # try:
-# #     8
-# # except x:
-# #     6
+    # # try:
+    # #     8
+    # # except x:
+    # #     6
 
-# # chain
-# # from itertools import chain as c
+    # # chain
+    # # from itertools import chain as c
 
-# if x:
-#     a, b[0] = 5, 8
-# else:
-#     7
+    # if x:
+    #     a, b[0] = 5, 8
+    # else:
+    #     7
 
 
 
-# # @lambda x: x
-# # def t():
-# #     pass
+    # # @lambda x: x
+    # # def t():
+    # #     pass
 
-# # try:
-# #     9
-# # except y:
-# #     8
+    # # try:
+    # #     9
+    # # except y:
+    # #     8
 
-# # if a:
-# #     def tt():
-# #         if h:
-# #             8
-# #         3
-# # else:
-# #     7
-# # 9
+    # # if a:
+    # #     def tt():
+    # #         if h:
+    # #             8
+    # #         3
+    # # else:
+    # #     7
+    # # 9
 
-# """)
-"""
+    # """)
+    """
 class T:
     7
 
@@ -80,7 +80,9 @@ def b():
 
 69
 """)
+
 print(ast.dump(tree, indent=4, include_attributes=True))
+
 # print(acr.ScopeWithAttributes("", lineno=0, col_offset=4)._attributes)
 # out = acr.Function(
 #     name='b',
@@ -103,7 +105,7 @@ out = translate_ast_to_acr(tree, "test")
 print(dump(out, indent="|   ", include_attributes=True))
 
 breakpoint
-#acr.dump(f))  # out.scopes["a"][0]))
+# acr.dump(f))  # out.scopes["a"][0]))
 # f = out.blocks[0].body[0].value.get_scope(out)
 quit()
 
