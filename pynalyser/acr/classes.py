@@ -1,106 +1,159 @@
 import ast
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Flag, auto
 from typing import (
-    Any, DefaultDict, Dict, Generic, List, Optional, Set, TypeVar, Union)
+    Any, Callable, Collection, DefaultDict, Dict, FrozenSet, Iterable,
+    Iterator, List, NamedTuple, Optional, Tuple, TypeVar, Union, Type)
 
 import attr
+import sys
 
 
+# XXX
+if sys.version_info < (3, 10):
+    ast_pattern = ast.AST
+else:
+    ast_pattern = ast.pattern
+
+if sys.version_info < (3, 8):
+    ast_NamedExpr = ast.AST
+else:
+    ast_NamedExpr = ast.NamedExpr
+
+
+ACR_T = TypeVar("ACR_T")
+
+
+@attr.s
 class ACR:
-    """The base class for each class of
-    abstract representation of the code.
+    """The base class for each class of abstract representation of the code.
+    Inherited classes could be dumpable by `acr.dump`,
+    but for that to work properly inherited class should use `attr.s`.
     """
-    pass
 
-    # TODO: abc ? dump(indent=None), from_ast, to_ast
+    _attributes: Tuple[str, ...] = attr.ib(init=False, default=())
+    _fields: Tuple[str, ...] = attr.ib(init=False, default=())
+    # _nonblock_fields: Tuple[str, ...] = ()
+    # _block_fields: Tuple[str, ...] = attr.ib(init=False, default=())
+
+    # @abstractmethod
+    # def _format(self, ctx: Context, lvl: int) -> Tuple[List[str], bool]:
+    #     ...
+    # TODO: abc ? from_ast, to_ast
+
+    @classmethod
+    def from_ast(cls: Type[ACR_T], node: ast.AST) -> ACR_T:
+        raise NotImplementedError
+
+    # FIXME: this should run only on class creation, so metaclasses?
+    def __attrs_post_init__(self):
+        _fields = list(attr.fields_dict(type(self)).keys())
+        # print(type(self), _fields)
+
+        for name in self._attributes:
+            _fields.remove(name)
+        _fields.remove("_attributes")
+        _fields.remove("_fields")
+
+        self._fields = tuple(_fields)
+
+        # _nonblock_fields = []
+        # _block_fields = []
+
+        # for name in self._fields:
+        #     if isi
 
 
 @attr.s(auto_attribs=True)
 class Name(ACR):
     name: str
+    is_symbol: bool = attr.ib(init=False, default=False)
+
+    _attributes: Tuple[str, ...] = attr.ib(init=False, default=("is_symbol",))
 
 
-# Import? ImportFrom?
-# imports will create new names / override existing ones
-# (single or several ones!) case with several ones is the problem
-# they also should be threated as a kind of function call,
-# because they execute the module's code upon import
-# and we also can monkey patch data inside those modules,
-# to effectively change the bahaviour of the imported module
-CODE = Union[  # TODO: not finished
+CODE = Union[
     # stmt - from scope body
     ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
-    # import will be splitted to initialize each name separately
-    # Import(original_name) # asname - variable names
-    # ImportFrom(module, original_name, level)
-    ast.Global, ast.Nonlocal, ast.Expr,
+    ast.Import, ast.ImportFrom,
+    # Nonlocal, Global - we have symbol's scope for that
+    # Expr, Pass - no need for it
+    ast.Break, ast.Continue,
 
     # expr - from breakdown of complex expressions
-    ast.BoolOp, ast.NamedExpr, ast.BinOp, ast.UnaryOp,
-    ast.IfExp,  # ?
-    ast.Dict, ast.Set, ast.Await,
-    # XXX: YieldFrom don't affect object immediately ...
-    ast.Compare, ast.Call, ast.FormattedValue,
-    # XXX: why should we have just JoinedStr? it can have
-    # several FormattedValue with different variables inside...
-    # it should appear in context of the Assign, i guess
-    ast.Attribute, ast.Subscript,
-    ast.Starred,  # can act on 'a' only in situations like 'f(*a)'
-    # other situations is in assigns,
-    # and we don't care about possible previous state here,
-    # because we're overriding it
-
-    # Name is used in other nodes, but we don't
-    # care about single name mention, it doesn't do anything
+    ast.BoolOp, ast_NamedExpr, ast.BinOp, ast.UnaryOp,
+    ast.IfExp, ast.Dict, ast.Set, ast.Await,
+    ast.Yield, ast.YieldFrom,  # special ones, can be removed later
+    ast.Compare, ast.Call, ast.JoinedStr,
+    # FormattedValue should not exist by itself (without JoinedStr)
+    ast.Constant, ast.Attribute, ast.Subscript,
+    # Starred should not exist by itself (without Call or Assign)
+    ast.Name,  # the only use for that to exit by itself
+    # is reporting a NameError: name 'xxx' is not defined
     ast.List, ast.Tuple,
-    # Slice can appear only in Subscript,
-    # and probably doesn't have any effect on the variables
+    # Slice can appear only in Subscript
 
+    # not ast
     "ScopeReference"
-
-    # block should include Constant, but variable actions shouldn't
 ]
 
-# Pass probably just shouldn't be included anywhere at all
-# python will check the correctness of the syntax,
-# but we don't care about that
 
-CONTROL_FLOW = Union[  # TODO: not finished
-    "CodeBlock", "BlockContainer",
+CONTROL_FLOW = Union[  # TODO: not finished?
+    "CodeBlock", "Block",
 
     # stmt - from scope body
     ast.Return, ast.Raise, ast.Assert,
     ast.Break, ast.Continue,
 
     # expr - from breakdown of complex expressions
-    ast.Yield, ast.YieldFrom
+    # ast.Yield, ast.YieldFrom for now it's in the CODE
 ]
 
 
-@attr.s(auto_attribs=True)
-class CodeBlock(ACR):
-    """a.k.a. Basic block"""
-    body: List[CODE] = attr.ib(
-        factory=list)
+T = TypeVar("T", contravariant=True)
 
 
-@attr.s(auto_attribs=True)
-class BlockContainer(ACR):  # XXX: maybe ControlFlowSomething?
-    blocks: List[CONTROL_FLOW] = attr.ib(
-        factory=list, init=False)
-
+# BlockContainer
+# @attr.s(auto_attribs=True)
+class FlowContainer(List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
     def add_code(self, code: CODE) -> None:
-        if len(self.blocks):
-            block = self.blocks[-1]
+        """Add code to latest block, if it's is not `CodeBlock`
+        function will add new `CodeBlock` to `blocks` and add code there"""
+
+        if len(self):
+            block = self[-1]
             if type(block) is not CodeBlock:
                 block = CodeBlock()
-                self.blocks.append(block)
+                self.append(block)
         else:
             block = CodeBlock()
-            self.blocks.append(block)
+            self.append(block)
 
-        block.body.append(code)
+        block.append(code)
+
+
+# @attr.s(auto_attribs=True)
+class CodeBlock(List[CODE]):
+    """a.k.a. Basic block"""
+    pass
+
+
+# @attr.s(auto_attribs=True)
+class Block(ACR):
+    _block_fields: Tuple[str, ...] = ()
+
+    def __attrs_post_init__(self):
+        super().__attrs_post_init__()
+        _fields = list(self._fields)
+        _fields.remove("_block_fields")
+        self._fields = tuple(_fields)
+
+
+@attr.s(auto_attribs=True)
+class BodyBlock(Block):
+    body: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("body",))
 
 
 class ScopeType(Flag):  # XXX: maybe ScopeT?
@@ -119,19 +172,28 @@ class SymbolData(ACR):
     # throughout the scope execution
     scope: ScopeType = ScopeType.UNKNOWN
 
+    imported: bool = False
+
     # if we change from UNKNOWN to more specific it's fine
     # but if we change from specific to other specific than
     # probably something went wrong
     # is it the responsibility of this class to check this?
-    # XXX: change_scope(self, new_scope: ScopeType) -> None
+    def change_scope(self, new_scope: ScopeType) -> None:
+        if self.scope is ScopeType.UNKNOWN:
+            self.scope = new_scope
+        else:
+            # TODO: change to custom class
+            raise ValueError(
+                f"changing the `scope` from {self.scope} to {new_scope}")
 
 
 class SymbolTable(DefaultDict[str, SymbolData]):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(SymbolData, *args, **kwargs)
 
 
 @attr.s(auto_attribs=True)
-class ScopeReference(ACR):
+class ScopeReference(ACR, ast.AST):  # so NodeTransformer could handle this
     """Refers to a single scope in the `scopes`
     of the local scope.
     """
@@ -143,7 +205,7 @@ class ScopeReference(ACR):
 
 
 # do we need this class?
-class ScopeDefs(Dict[int, "Scope"], ACR):
+class ScopeDefs(Dict[int, "Scope"]):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(self, *args, **kwargs)
         self._last_index = 0
@@ -158,7 +220,7 @@ class ScopeDefs(Dict[int, "Scope"], ACR):
 
 
 @attr.s(auto_attribs=True)
-class Scope(Name, BlockContainer):
+class Scope(Name, BodyBlock):
     scopes: DefaultDict[str, ScopeDefs] = attr.ib(
         factory=lambda: defaultdict(ScopeDefs), init=False)
     symbol_table: SymbolTable = attr.ib(
@@ -167,8 +229,9 @@ class Scope(Name, BlockContainer):
 
     def add_scope(self, scope: "Scope") -> ScopeReference:
         defs = self.scopes[scope.name]
+        reference = ScopeReference(scope.name, defs.last_index)
         defs.append(scope)
-        return ScopeReference(scope.name, defs.last_index)
+        return reference
 
 
 # all of the inner scopes inside of the scope will be moved
@@ -176,38 +239,73 @@ class Scope(Name, BlockContainer):
 class Module(Scope):
     """`name` is the name of the file that this module belongs to
     """
+    # path?
+    # XXX: is_symbol = True?
     pass
 
 
 @attr.s(auto_attribs=True)
-class Class(Scope):
-    bases: List[ast.AST] = attr.ib(factory=list)  # parent-classes
-    metaclass: Optional[type] = None
-    # initially metaclass and kws for it
-    keywords: List[ast.keyword] = attr.ib(factory=list)
-    decorator_list: List[ast.AST] = attr.ib(factory=list)
+class ACRWithAttributes(ACR):
+    lineno: int = attr.ib(kw_only=True)
+    col_offset: int = attr.ib(kw_only=True)
+    # TODO: make end_lineno and end_col_offset required fields
+    # after switching to python-version-independent ast generator
+    # (it will generate lastest ast for earsier python versions)
+    end_lineno: Optional[int] = attr.ib(default=None, kw_only=True)
+    end_col_offset: Optional[int] = attr.ib(default=None, kw_only=True)
+
+    _attributes: Tuple[str, ...] = attr.ib(init=False, default=(
+        "lineno", "col_offset", "end_lineno", "end_col_offset"))
 
 
 @attr.s(auto_attribs=True)
-class Function(Scope):
+class ScopeWithAttributes(ACRWithAttributes, Scope):
+    _attributes: Tuple[str, ...] = attr.ib(init=False, default=(
+        "lineno", "col_offset", "end_lineno", "end_col_offset", "is_symbol"))
+
+
+# we don't care about 'type_ignores'
+
+@attr.s(auto_attribs=True)
+class Class(ScopeWithAttributes):
+    bases: List[ast.expr]  # parent-classes
+    keywords: List[ast.keyword]  # initially metaclass and kws for it
+    decorator_list: List[ast.expr]
+    metaclass: Optional[type] = None  # XXX: it's probably not type really
+
+    is_symbol: bool = attr.ib(init=False, default=True)
+
+    @classmethod
+    def from_ast(cls: Type[ACR_T], node: ast.AST) -> ACR_T:
+        assert type(node) is ast.ClassDef
+        return cls(
+            node.name, node.bases, node.keywords, node.decorator_list,
+            lineno=node.lineno, col_offset=node.col_offset)
+
+
+@attr.s(auto_attribs=True)
+class Function(ScopeWithAttributes):
     # XXX: how to deal with the function returns?
     args: ast.arguments = attr.ib(factory=ast.arguments)
-    # returns: ast.expr = attr.ib(factory=ast.expr)  # is needed?
-    decorator_list: List[ast.AST] = attr.ib(factory=list)
+    # returns: Optional[ast.expr] = attr.ib(factory=ast.expr)  # is needed?
+    decorator_list: List[ast.expr] = attr.ib(factory=list)
+
+    is_symbol: bool = attr.ib(init=False, default=True)
 
 
 # lambdas and comprehensions will be moved to the `scopes`
 # and reference will take the place of the ast node
 @attr.s(auto_attribs=True)
-class Lambda(Scope):
+class Lambda(ScopeWithAttributes):
     name: str = attr.ib(default="<lambda>", init=False)
     args: ast.arguments = attr.ib(factory=ast.arguments)
 
 
 @attr.s(auto_attribs=True)
-class Comprehension(Scope):
-    generators: List[ast.comprehension] = attr.ib(factory=list, kw_only=True)
-    # actions: List[ast.comprehension]  # XXX
+class Comprehension(ScopeWithAttributes):
+    # XXX: shouldn't have `body` from Scope,
+    # but removing this will bring currently unneeded refactoring
+    generators: List[ast.comprehension] = attr.ib(kw_only=True)
 
 
 @attr.s(auto_attribs=True)
@@ -238,59 +336,64 @@ class DictComp(Comprehension):
 
 
 @attr.s(auto_attribs=True)
-class MatchCase(BlockContainer):
-    pattern: ast.AST  # ast.pattern  # XXX: 3.10+
+class MatchCase(BodyBlock):
+    pattern: ast_pattern
     guard: Optional[ast.expr]
 
 
 @attr.s(auto_attribs=True)
-class Match(BlockContainer):
-    cases: List[MatchCase] = attr.ib(factory=list)
-    # actions: List[MatchCase]  # XXX
+class Match(ACRWithAttributes, Block):
+    subject: ast.expr
+    cases: List[MatchCase] = attr.ib(init=False, factory=list)
+    _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("cases",))
 
 
 @attr.s(auto_attribs=True)
-class With(BlockContainer):
+class With(ACRWithAttributes, BodyBlock):
     items: List[ast.withitem]
 
 
-class Else(BlockContainer):
-    pass
+# python don't give us this info as attrs of the 'oresle'
+# it's just a list of the 'stmt', but if we want,
+# we can try to get this info from attrs of those 'stms's
+# the problem is that if we will remove pass-es
+# sometimes info will be lost, but now it's not needed so,
+# I'll left it like that
 
 
 @attr.s(auto_attribs=True)
-class BlockWIthElse(BlockContainer):  # XXX: do we need this class?
-    orelse: Else
+class BodyElseBlock(BodyBlock):
+    orelse: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    _block_fields: Tuple[str, ...] = attr.ib(
+        init=False, default=("body", "orelse"))
 
 
 @attr.s(auto_attribs=True)
-class If(BlockWIthElse):
+class If(ACRWithAttributes, BodyElseBlock):
     test: ast.expr
 
 
 @attr.s(auto_attribs=True)
-class ExceptHandler(BlockContainer):
-    type: Optional[ast.expr] = None
-    name: Optional[str] = None
-
-
-class Final(BlockContainer):
-    pass
+class ExceptHandler(ACRWithAttributes, BodyBlock):
+    type: Optional[ast.expr]
+    name: Optional[str]
 
 
 @attr.s(auto_attribs=True)
-class Try(BlockWIthElse):
-    handlers: List[ExceptHandler]
-    finalbody: Final
+class Try(ACRWithAttributes, BodyElseBlock):
+    handlers: List[ExceptHandler] = attr.ib(factory=list, init=False)
+    finalbody: FlowContainer = attr.ib(factory=FlowContainer, init=False)
+    _block_fields: Tuple[str, ...] = attr.ib(
+        init=False, default=("body", "handlers", "orelse", "finalbody"))
 
 
-class Loop(BlockWIthElse):  # XXX: do we need this class?
+class Loop(ACRWithAttributes, BodyElseBlock):  # XXX: do we need this class?
     pass
 
 
 @attr.s(auto_attribs=True)
 class For(Loop):
-    target: Union[ast.Name, ast.Tuple, ast.List]
+    target: ast.expr  # ? Union[ast.Name, ast.Tuple, ast.List]
     iter: ast.expr
 
 
