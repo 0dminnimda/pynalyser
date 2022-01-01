@@ -1,9 +1,10 @@
 import ast
 import sys
+from collections import defaultdict
+
+# from pynalyser.acr import classes as acr
 from pynalyser.acr.translation import Translator, translate_ast_to_acr
 from pynalyser.acr.utils import dump
-# from pynalyser.acr import classes as acr
-from collections import defaultdict
 
 tree = ast.parse(
     # """
@@ -121,7 +122,6 @@ quit()
 #       attr.fields(T))
 # del t.i
 # print(attr.asdict(t))
-
 
 
 [
