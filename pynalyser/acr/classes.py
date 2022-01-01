@@ -9,6 +9,20 @@ from typing import (
 import attr
 import sys
 
+# XXX
+if sys.version_info < (3, 10):
+    class ast_pattern(ast.AST):
+        pass
+else:
+    ast_pattern = ast.pattern
+
+if sys.version_info < (3, 8):
+    class ast_NamedExpr(ast.expr):
+        target: ast.expr
+        value: ast.expr
+else:
+    ast_NamedExpr = ast.NamedExpr
+
 
 # XXX
 if sys.version_info < (3, 10):
@@ -109,9 +123,6 @@ CONTROL_FLOW = Union[  # TODO: not finished?
     # expr - from breakdown of complex expressions
     # ast.Yield, ast.YieldFrom for now it's in the CODE
 ]
-
-
-T = TypeVar("T", contravariant=True)
 
 
 # BlockContainer
@@ -222,9 +233,8 @@ class ScopeDefs(Dict[int, "Scope"]):
 @attr.s(auto_attribs=True)
 class Scope(Name, BodyBlock):
     scopes: DefaultDict[str, ScopeDefs] = attr.ib(
-        factory=lambda: defaultdict(ScopeDefs), init=False)
-    symbol_table: SymbolTable = attr.ib(
-        factory=SymbolTable, init=False)
+        init=False, factory=lambda: defaultdict(ScopeDefs))
+    symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
     # parent? probably nay
 
     def add_scope(self, scope: "Scope") -> ScopeReference:
@@ -315,24 +325,24 @@ class EltComprehension(Comprehension):
 
 @attr.s(auto_attribs=True)
 class ListComp(EltComprehension):
-    name: str = attr.ib(default="<listcomp>", init=False)
+    name: str = attr.ib(init=False, default="<listcomp>")
 
 
 @attr.s(auto_attribs=True)
 class SetComp(EltComprehension):
-    name: str = attr.ib(default="<setcomp>", init=False)
+    name: str = attr.ib(init=False, default="<setcomp>")
 
 
 @attr.s(auto_attribs=True)
 class GeneratorExp(EltComprehension):
-    name: str = attr.ib(default="<genexpr>", init=False)
+    name: str = attr.ib(init=False, default="<genexpr>")
 
 
 @attr.s(auto_attribs=True)
 class DictComp(Comprehension):
     key: ast.expr
     value: ast.expr
-    name: str = attr.ib(default="<dictcomp>", init=False)
+    name: str = attr.ib(init=False, default="<dictcomp>")
 
 
 @attr.s(auto_attribs=True)
