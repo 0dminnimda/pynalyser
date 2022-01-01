@@ -1,11 +1,12 @@
-import sys
 import ast
-from typing import Dict, List, NoReturn, Optional, Union
+import sys
 from itertools import chain
+from typing import Dict, List, NoReturn, Optional, Union
 
 from .classes import (
-    Block, FlowContainer, Class, Comprehension, DictComp, ExceptHandler, For, Function,
-    GeneratorExp, If, Lambda, ListComp, Match, MatchCase, Module, Scope,
+    Block, Class, Comprehension, DictComp, ExceptHandler,
+    FlowContainer, For, Function, GeneratorExp, If, Lambda,
+    ListComp, Match, MatchCase, Module, Scope,
     ScopeReference, ScopeType, SetComp, Try, While, With)
 
 STMT_SCOPE = Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]
@@ -95,8 +96,8 @@ class Translator(ast.NodeTransformer):
             elif isinstance(maybe_flow_container, list):
                 # container should never be needed here
                 for sub_container in value:
-                    func = getattr(self, "my_visit_" +
-                                   type(sub_container).__name__)
+                    func = getattr(
+                        self, "my_visit_" + type(sub_container).__name__)
                     maybe_flow_container.append(func(sub_container))
             else:
                 raise TypeError("All `_block_fields` should be subclasses "
@@ -170,9 +171,9 @@ class Translator(ast.NodeTransformer):
             lineno=node.lineno, col_offset=node.col_offset)
         self.handle_block_without_appending(acr_handler, node)
         return acr_handler
-        # raise NotImplementedError(  # XXX: parsing error idk
-        #     "All of the `ast.ExceptHandler`s should be handled by `visit_Try` "
-        #     "but here we have a call to `visit_ExceptHandler` :(")
+    # raise NotImplementedError(  # XXX: parsing error idk
+    #     "All of the `ast.ExceptHandler`s should be handled by `visit_Try` "
+    #     "but here we have a call to `visit_ExceptHandler` :(")
 
     def visit_Try(self, node: ast.Try) -> ast.Try:
         block = Try(lineno=node.lineno, col_offset=node.col_offset)
