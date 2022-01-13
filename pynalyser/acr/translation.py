@@ -85,13 +85,10 @@ class Translator(ast.NodeTransformer):
 
         for name in block._block_fields:
             value = getattr(node, name)
-            # FunctionDef.body is list of nodes, Lambda.body is node
-            container = value[:] if isinstance(value, list) else [value]
-
             some_container = getattr(block, name)  # FIXME: bad name!
             if isinstance(some_container, FlowContainer):
                 self.container = some_container
-                self.generic_visit(ForBlocks(container))
+                self.generic_visit(ForBlocks(value[:]))
                 setattr(block, name, self.container)
             elif isinstance(some_container, list):
                 # container should never be needed here
@@ -247,6 +244,7 @@ class Translator(ast.NodeTransformer):
         lamb = Lambda(
             node.args, lineno=node.lineno, col_offset=node.col_offset)
         self.handle_arguments(lamb)
+        node.body = [ast.Expr(node.body)]  # type: ignore
         return self.handle_scope(lamb, node)
 
     def visit_ListComp(self, node: ast.ListComp) -> ScopeReference:
