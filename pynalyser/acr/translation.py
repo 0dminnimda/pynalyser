@@ -88,17 +88,17 @@ class Translator(ast.NodeTransformer):
             # FunctionDef.body is list of nodes, Lambda.body is node
             container = value[:] if isinstance(value, list) else [value]
 
-            maybe_flow_container = getattr(block, name)  # FIXME: bad name!
-            if isinstance(maybe_flow_container, FlowContainer):
-                self.container = maybe_flow_container
+            some_container = getattr(block, name)  # FIXME: bad name!
+            if isinstance(some_container, FlowContainer):
+                self.container = some_container
                 self.generic_visit(ForBlocks(container))
                 setattr(block, name, self.container)
-            elif isinstance(maybe_flow_container, list):
+            elif isinstance(some_container, list):
                 # container should never be needed here
                 for sub_container in value:
                     func = getattr(
                         self, "my_visit_" + type(sub_container).__name__)
-                    maybe_flow_container.append(func(sub_container))
+                    some_container.append(func(sub_container))
             else:
                 raise TypeError("All `_block_fields` should be subclasses "
                                 "of the `list` or `FlowContainer`")
