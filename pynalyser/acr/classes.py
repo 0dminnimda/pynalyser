@@ -1,13 +1,15 @@
 import ast
+import sys
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Flag, auto
-from typing import (
-    Any, Callable, Collection, DefaultDict, Dict, FrozenSet, Iterable,
-    Iterator, List, NamedTuple, Optional, Tuple, TypeVar, Union, Type)
+from typing import (Any, Callable, Collection, DefaultDict, Dict, FrozenSet,
+                    Iterable, Iterator, List, NamedTuple, Optional, Tuple,
+                    Type, TypeVar, Union)
 
 import attr
-import sys
+
+from ..types.classes import PynalyserType, objectType
 
 # XXX
 if sys.version_info < (3, 10):
@@ -185,6 +187,8 @@ class SymbolData(ACR):
 
     imported: bool = False
 
+    type: PynalyserType = objectType
+
     # if we change from UNKNOWN to more specific it's fine
     # but if we change from specific to other specific than
     # probably something went wrong
@@ -303,11 +307,14 @@ class Function(ScopeWithAttributes):
     is_symbol: bool = attr.ib(init=False, default=True)
 
 
+LAMBDA_NAME = "<lambda>"
+
+
 # lambdas and comprehensions will be moved to the `scopes`
 # and reference will take the place of the ast node
 @attr.s(auto_attribs=True)
 class Lambda(ScopeWithAttributes):
-    name: str = attr.ib(default="<lambda>", init=False)
+    name: str = attr.ib(default=LAMBDA_NAME, init=False)
     args: ast.arguments = attr.ib(factory=ast.arguments)
 
 
