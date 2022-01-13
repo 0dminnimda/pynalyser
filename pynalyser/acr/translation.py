@@ -230,11 +230,24 @@ class Translator(ast.NodeTransformer):
 
         return reference
 
+    def handle_arguments(self, scope: Union[Function, Lambda]) -> None:
+        all_args: List[ast.arg] = (
+            scope.args.posonlyargs + scope.args.args + scope.args.kwonlyargs)
+        if scope.args.vararg:
+            all_args.append(scope.args.vararg)
+        if scope.args.kwarg:
+            all_args.append(scope.args.kwarg)
+
+        assert len(scope.symbol_table) == 0
+
+        for arg in all_args:
+            scope.symbol_table[arg.arg].change_scope(ScopeType.LOCAL)
+
     def visit_Lambda(self, node: ast.Lambda) -> ScopeReference:
-        return self.handle_scope(
-            Lambda(node.args,
-                   lineno=node.lineno, col_offset=node.col_offset),
-            node)
+        lamb = Lambda(
+            node.args, lineno=node.lineno, col_offset=node.col_offset)
+        self.handle_arguments(lamb)
+        return self.handle_scope(lamb, node)
 
     def visit_ListComp(self, node: ast.ListComp) -> ScopeReference:
         return self.handle_scope(
@@ -284,10 +297,10 @@ class Translator(ast.NodeTransformer):
         #            value=self.handle_scope(scope, node)))
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.FunctionDef:
-        self.handle_stmt_scope(
-            Function(node.name, node.args, node.decorator_list,
-                     lineno=node.lineno, col_offset=node.col_offset),
-            node)
+        func = Function(node.name, node.args, node.decorator_list,
+                        lineno=node.lineno, col_offset=node.col_offset)
+        self.handle_arguments(func)
+        self.handle_stmt_scope(func, node)
         return node
 
     def visit_ClassDef(self, node: ast.ClassDef) -> ast.ClassDef:
