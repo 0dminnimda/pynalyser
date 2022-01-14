@@ -9,7 +9,7 @@ from typing import (Any, Callable, Collection, DefaultDict, Dict, FrozenSet,
 
 import attr
 
-from ..types.classes import PynalyserType, objectType
+from ..analysis.symbols import SymbolTable
 
 # XXX
 if sys.version_info < (3, 10):
@@ -175,52 +175,9 @@ class BodyBlock(Block):
     _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("body",))
 
 
-class ScopeType(Flag):  # XXX: maybe ScopeT?
-    GLOBAL = auto()  # used with global keyword in this scope
-    NONLOCAL = auto()  # used with nonlocal keyword in this scope
-    LOCAL = auto()  # has an assertion in this scope
-    # GLOBAL | NONLOCAL - not LOCAL
-    # NONLOCAL | LOCAL - can it happen?
-    # GLOBAL | LOCAL - can it happen?
-    UNKNOWN = GLOBAL | NONLOCAL | LOCAL
-
-
 @attr.s(auto_attribs=True)
-class SymbolData(ACR):
-    # it seems like symbol's scope doesn't change
-    # throughout the scope execution
-    scope: ScopeType = ScopeType.UNKNOWN
-
-    imported: bool = False
-    is_arg: bool = False
-
-    type: PynalyserType = objectType
-
-    # if we change from UNKNOWN to more specific it's fine
-    # but if we change from specific to other specific than
-    # probably something went wrong
-    # is it the responsibility of this class to check this?
-    def change_scope(self, new_scope: ScopeType, fail: bool = True) -> bool:
-        if self.scope is ScopeType.UNKNOWN:
-            self.scope = new_scope
-            return True
-        else:
-            if not fail:
-                return False
-
-            # TODO: change to custom class
-            raise ValueError(
-                f"changing the `scope` from {self.scope} to {new_scope}")
-
-
-class SymbolTable(DefaultDict[str, SymbolData]):
-    def __init__(self, *args, **kwargs):
-        super().__init__(SymbolData, *args, **kwargs)
-
-
-@attr.s(auto_attribs=True)
-class ScopeReference(ACR, ast.AST):  # so NodeTransformer could handle this
-    """Refers to a single scope in the `scopes`
+class ScopeReference(ACR, ast.AST):  # ast so NodeTransformer could handle this
+    """Refers to a single scope in the `.scopes`
     of the local scope.
     """
     name: str
