@@ -1,13 +1,13 @@
 import ast
 import sys
 from itertools import chain
-from typing import Dict, List, NoReturn, Optional, Union
+from typing import List, NoReturn, Optional, Union
 
-from .classes import (
-    Block, Class, Comprehension, DictComp, ExceptHandler,
-    FlowContainer, For, Function, GeneratorExp, If, Lambda,
-    ListComp, Match, MatchCase, Module, Scope,
-    ScopeReference, ScopeType, SetComp, Try, While, With)
+from ..analysis.symbols import ScopeType
+from .classes import (Block, Class, Comprehension, DictComp, ExceptHandler,
+                      FlowContainer, For, Function, GeneratorExp, If, Lambda,
+                      ListComp, Match, MatchCase, Module, Scope,
+                      ScopeReference, SetComp, Try, While, With)
 
 STMT_SCOPE = Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]
 
@@ -63,6 +63,7 @@ class AssignVisitor(ast.NodeVisitor):
         self.names.append(node.id)
 
 
+# XXX: restrict visit, so if there's ni visit_x then raise exception
 class Translator(ast.NodeTransformer):
     scope: Scope
     container: FlowContainer
@@ -101,34 +102,6 @@ class Translator(ast.NodeTransformer):
                                 "of the `list` or `FlowContainer`")
 
         self.container = prev_container
-
-    # # XXX: we can shrink down ast.AST to smaller subset
-    # def handle_block_without_appending__(
-    #         self, block: Block, node: ast.AST) -> None:
-
-    #     # we replace expr lists to emply ones and save them
-    #     # so we can safely generic_visit(node) and don't care that
-    #     # expr-s in expr lists will be visited before needed
-    #     containers: Dict[str, List[ast.expr]] = {}
-    #     for name in block._block_fields:
-    #         value = getattr(node, name)
-    #         if isinstance(value, list):
-    #             containers[name] = value[:]
-    #         else:
-    #             containers[name] = [value]
-    #         setattr(node, name, [])
-
-    #     self.generic_visit(node)
-
-    #     print(block._block_fields, dump(containers))
-    #     prev_container = self.container
-    #     for name, exprs in containers.items():
-    #         self.container = getattr(block, name)
-    #         self.generic_visit(ForBlocks(exprs))
-    #         setattr(block, name, self.container)
-    #         # print(dump(exprs), dump(self.block), dump(ForBlocks(exprs)))
-
-    #     self.container = prev_container
 
     def handle_block(self, block: Block, node: ast.AST) -> None:
         self.container.append(block)
@@ -175,31 +148,10 @@ class Translator(ast.NodeTransformer):
             lineno=node.lineno, col_offset=node.col_offset)
         self.handle_block_without_appending(acr_handler, node)
         return acr_handler
-    # raise NotImplementedError(  # XXX: parsing error idk
-    #     "All of the `ast.ExceptHandler`s should be handled by `visit_Try` "
-    #     "but here we have a call to `visit_ExceptHandler` :(")
 
     def visit_Try(self, node: ast.Try) -> ast.Try:
         block = Try(lineno=node.lineno, col_offset=node.col_offset)
         self.handle_block(block, node)
-
-        # for name, exprs in containers.items():
-        #     self.container = getattr(block, name)
-        #     self.generic_visit(ForBlocks(exprs))
-        #     setattr(block, name, self.container)
-        #     # print(dump(exprs), dump(self.block), dump(ForBlocks(exprs)))
-
-        # prev_container = self.container
-
-        # for handler in node.handlers:
-        #     acr_handler = ExceptHandler(
-        #         handler.type, handler.name,
-        #         lineno=handler.lineno, col_offset=handler.col_offset)
-        #     self.handle_block_without_appending(acr_handler, handler)
-        #     block.handlers.append(acr_handler)
-
-        # self.container = prev_container
-
         return node
 
     def visit_For(self, node: ast.For) -> ast.For:
@@ -225,7 +177,7 @@ class Translator(ast.NodeTransformer):
 
     #### expr scopes ####
 
-    # XXX: we can shrink down ast.AST to smaller subset
+    # XXX: we can shrink down node's ast.AST to smaller subset
     def handle_scope(self, scope: Scope, node: ast.AST) -> ScopeReference:
         reference = self.scope.add_scope(scope)
 
@@ -304,13 +256,9 @@ class Translator(ast.NodeTransformer):
             "Either you just called `visit` on the tree "
             "(which starts with `ast.Module`) - use `translate_from_module` "
             "or there's more than one `ast.Module` in the tree")
-        # "ast.Module is handled in the translate_from_module "
-        # "and there gotta be only one ast.Module in the tree")
 
     def handle_stmt_scope(self, scope: Scope, node: STMT_SCOPE) -> None:
         self.container.add_code(self.handle_scope(scope, node))
-        # ast.Assign(targets=[ast.Name(id=scope.name, ctx=ast.Load())],
-        #            value=self.handle_scope(scope, node)))
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.FunctionDef:
         func = Function(
@@ -366,11 +314,13 @@ class Translator(ast.NodeTransformer):
         self.container.append(node)
         return node
 
+    # TODO: handle yield
     # def visit_Yield(self, node: ast.Yield) -> ast.Yield:
     #     self.generic_visit(node)
     #     self.container.append(node)
     #     return node
 
+    # TODO: handle yield from
     # def visit_YieldFrom(self, node: ast.YieldFrom) -> ast.YieldFrom:
     #     self.generic_visit(node)
     #     self.container.append(node)
@@ -453,9 +403,6 @@ class Translator(ast.NodeTransformer):
         return node
 
     def visit_Expr(self, node: ast.Expr) -> ast.Expr:
-        # if type(node.value) in (ast.Yield, ast.YieldFrom):
-        #     raise NotImplementedError(
-        #         "implement handling of the Yield")  # TODO
         self.generic_visit(node)
         self.container.add_code(node.value)
         return node
