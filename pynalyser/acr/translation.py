@@ -238,7 +238,11 @@ class Translator(ast.NodeTransformer):
         assert len(scope.symbol_table) == 0
 
         for arg in all_args:
-            scope.symbol_table[arg.arg].change_scope(ScopeType.LOCAL)
+            symb = scope.symbol_table[arg.arg]
+            symb.is_arg = True
+            if not symb.change_scope(ScopeType.LOCAL, fail=False):
+                raise SyntaxError(
+                    f"duplicate argument '{arg.arg}' in function definition")
 
     def visit_Lambda(self, node: ast.Lambda) -> ScopeReference:
         lamb = Lambda(
