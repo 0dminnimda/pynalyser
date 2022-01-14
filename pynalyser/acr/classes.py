@@ -94,7 +94,8 @@ CODE = Union[
     ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
     ast.Import, ast.ImportFrom,
     # Nonlocal, Global - we have symbol's scope for that
-    # Expr, Pass - no need for it
+    # Expr - no need for it
+    ast.Pass,  # so blocks only with pass will be fine
     ast.Break, ast.Continue,
 
     # expr - from breakdown of complex expressions

@@ -430,7 +430,10 @@ class Translator(ast.NodeTransformer):
         self.container.add_code(node.value)
         return node
 
-    # no need to visit Pass, not reason to have it in acr
+    def visit_Pass(self, node: ast.Pass) -> ast.Pass:
+        self.generic_visit(node)
+        self.container.add_code(node)
+        return node
 
     #### Leftover expr-s ####
 
