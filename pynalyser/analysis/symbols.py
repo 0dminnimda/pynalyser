@@ -22,7 +22,7 @@ class SymbolData:
     # throughout the scope execution
     scope: ScopeType = ScopeType.UNKNOWN
 
-    imported: bool = False
+    imported: bool = False  # TODO: handle this in acr translation
     is_arg: bool = False
 
     type: PynalyserType = objectType
