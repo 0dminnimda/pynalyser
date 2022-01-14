@@ -329,6 +329,7 @@ class Comprehension(ScopeWithAttributes):
     # XXX: shouldn't have `body` from Scope,
     # but removing this will bring currently unneeded refactoring
     generators: List[ast.comprehension] = attr.ib(kw_only=True)
+    _block_fields: Tuple[str, ...] = attr.ib(init=False, default=())
 
 
 @attr.s(auto_attribs=True)
