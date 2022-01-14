@@ -6,6 +6,7 @@ from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union
 import attr
 
 from ..analysis.symbols import SymbolTable
+from ..analysis.types import PynalyserType, objectType
 
 # TODO: have python version independent ast parser
 if sys.version_info < (3, 10):
@@ -237,10 +238,9 @@ class Class(ScopeWithAttributes):
 class Function(ScopeWithAttributes, Asyncable):
     # TODO: create my out typed attributes (+ think about ease of str dumping)
     args: ast.arguments = attr.ib(factory=ast.arguments)
-    # XXX: how to deal with the function returns?
-    # returns: Optional[ast.expr] = attr.ib(factory=ast.expr)  # is needed?
     decorator_list: List[ast.expr] = attr.ib(factory=list)
 
+    return_type: PynalyserType = attr.ib(init=False, default=objectType)
     is_symbol: bool = attr.ib(init=False, default=True)
 
 
