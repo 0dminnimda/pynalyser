@@ -1,17 +1,13 @@
 import ast
 import sys
-from abc import ABC, abstractmethod
 from collections import defaultdict
-from enum import Flag, auto
-from typing import (Any, Callable, Collection, DefaultDict, Dict, FrozenSet,
-                    Iterable, Iterator, List, NamedTuple, Optional, Tuple,
-                    Type, TypeVar, Union)
+from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union
 
 import attr
 
 from ..analysis.symbols import SymbolTable
 
-# XXX
+# TODO: have python version independent ast parser
 if sys.version_info < (3, 10):
     class ast_pattern(ast.AST):
         pass
@@ -22,18 +18,6 @@ if sys.version_info < (3, 8):
     class ast_NamedExpr(ast.expr):
         target: ast.expr
         value: ast.expr
-else:
-    ast_NamedExpr = ast.NamedExpr
-
-
-# XXX
-if sys.version_info < (3, 10):
-    ast_pattern = ast.AST
-else:
-    ast_pattern = ast.pattern
-
-if sys.version_info < (3, 8):
-    ast_NamedExpr = ast.AST
 else:
     ast_NamedExpr = ast.NamedExpr
 
@@ -53,19 +37,14 @@ class ACR:
     # _nonblock_fields: Tuple[str, ...] = ()
     # _block_fields: Tuple[str, ...] = attr.ib(init=False, default=())
 
-    # @abstractmethod
-    # def _format(self, ctx: Context, lvl: int) -> Tuple[List[str], bool]:
-    #     ...
-    # TODO: abc ? from_ast, to_ast
-
-    @classmethod
-    def from_ast(cls: Type[ACR_T], node: ast.AST) -> ACR_T:
-        raise NotImplementedError
+    # XXX: abc ? from_ast, to_ast
+    # @classmethod
+    # def from_ast(cls: Type[ACR_T], node: ast.AST) -> ACR_T:
+    #     raise NotImplementedError
 
     # FIXME: this should run only on class creation, so metaclasses?
     def __attrs_post_init__(self):
         _fields = list(attr.fields_dict(type(self)).keys())
-        # print(type(self), _fields)
 
         for name in self._attributes:
             _fields.remove(name)
@@ -75,10 +54,7 @@ class ACR:
         self._fields = tuple(_fields)
 
         # _nonblock_fields = []
-        # _block_fields = []
-
-        # for name in self._fields:
-        #     if isi
+        # _block_fields = []  currently in Block
 
 
 @attr.s(auto_attribs=True)
@@ -134,7 +110,6 @@ CONTROL_FLOW = Union[  # TODO: not finished?
 
 
 # BlockContainer
-# @attr.s(auto_attribs=True)
 class FlowContainer(List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
     def add_code(self, code: CODE) -> None:
         """Add code to latest block, if it's is not `CodeBlock`
@@ -152,7 +127,6 @@ class FlowContainer(List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
         block.append(code)
 
 
-# @attr.s(auto_attribs=True)
 class CodeBlock(List[CODE]):
     """a.k.a. Basic block"""
     pass
@@ -179,6 +153,9 @@ class BodyBlock(Block):
 class ScopeReference(ACR, ast.AST):  # ast so NodeTransformer could handle this
     """Refers to a single scope in the `.scopes`
     of the local scope.
+
+    It replaces actual definition in the and gets put in the `CODE`
+    instead of scope.
     """
     name: str
     id: int
@@ -187,7 +164,7 @@ class ScopeReference(ACR, ast.AST):  # ast so NodeTransformer could handle this
         return local_scope.scopes[self.name][self.id]
 
 
-# do we need this class?
+# XXX: do we need this class?
 class ScopeDefs(Dict[int, "Scope"]):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(self, *args, **kwargs)
@@ -216,8 +193,6 @@ class Scope(Name, BodyBlock):
         return reference
 
 
-# all of the inner scopes inside of the scope will be moved
-# to the `scopes` and reference will take the place of the ast node
 class Module(Scope):
     """`name` is the name of the file that this module belongs to
     """
@@ -232,7 +207,7 @@ class ACRWithAttributes(ACR):
     col_offset: int = attr.ib(kw_only=True)
     # TODO: make end_lineno and end_col_offset required fields
     # after switching to python-version-independent ast generator
-    # (it will generate lastest ast for earsier python versions)
+    # (it will generate lastest ast for earlsier python versions)
     end_lineno: Optional[int] = attr.ib(default=None, kw_only=True)
     end_col_offset: Optional[int] = attr.ib(default=None, kw_only=True)
 
@@ -257,18 +232,12 @@ class Class(ScopeWithAttributes):
 
     is_symbol: bool = attr.ib(init=False, default=True)
 
-    @classmethod
-    def from_ast(cls: Type[ACR_T], node: ast.AST) -> ACR_T:
-        assert type(node) is ast.ClassDef
-        return cls(
-            node.name, node.bases, node.keywords, node.decorator_list,
-            lineno=node.lineno, col_offset=node.col_offset)
-
 
 @attr.s(auto_attribs=True)
 class Function(ScopeWithAttributes, Asyncable):
-    # XXX: how to deal with the function returns?
+    # TODO: create my out typed attributes (+ think about ease of str dumping)
     args: ast.arguments = attr.ib(factory=ast.arguments)
+    # XXX: how to deal with the function returns?
     # returns: Optional[ast.expr] = attr.ib(factory=ast.expr)  # is needed?
     decorator_list: List[ast.expr] = attr.ib(factory=list)
 
@@ -278,8 +247,6 @@ class Function(ScopeWithAttributes, Asyncable):
 LAMBDA_NAME = "<lambda>"
 
 
-# lambdas and comprehensions will be moved to the `scopes`
-# and reference will take the place of the ast node
 @attr.s(auto_attribs=True)
 class Lambda(ScopeWithAttributes):
     name: str = attr.ib(default=LAMBDA_NAME, init=False)
@@ -339,14 +306,6 @@ class With(ACRWithAttributes, BodyBlock, Asyncable):
     items: List[ast.withitem]
 
 
-# python don't give us this info as attrs of the 'oresle'
-# it's just a list of the 'stmt', but if we want,
-# we can try to get this info from attrs of those 'stms's
-# the problem is that if we will remove pass-es
-# sometimes info will be lost, but now it's not needed so,
-# I'll left it like that
-
-
 @attr.s(auto_attribs=True)
 class BodyElseBlock(BodyBlock):
     orelse: FlowContainer = attr.ib(factory=FlowContainer, init=False)
@@ -388,12 +347,8 @@ class While(Loop):
     test: ast.expr
 
 
-"""
-def f(a):
-    print(a)  # ???
-"""
-
-# class list
+# idea:
+# class "list"
 # def mark(index) -> id
 # marked item's index will be tracked
 # def get_index(id) -> index
