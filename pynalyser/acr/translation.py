@@ -149,7 +149,14 @@ class Translator(ast.NodeTransformer):
 
     def visit_With(self, node: ast.With) -> ast.With:
         self.handle_block(
-            With(node.items,
+            With(node.items, is_async=False,
+                 lineno=node.lineno, col_offset=node.col_offset),
+            node)
+        return node
+
+    def visit_AsyncWith(self, node: ast.AsyncWith) -> ast.AsyncWith:
+        self.handle_block(
+            With(node.items, is_async=True,
                  lineno=node.lineno, col_offset=node.col_offset),
             node)
         return node
@@ -197,7 +204,14 @@ class Translator(ast.NodeTransformer):
 
     def visit_For(self, node: ast.For) -> ast.For:
         self.handle_block(
-            For(node.target, node.iter,
+            For(node.target, node.iter, is_async=False,
+                lineno=node.lineno, col_offset=node.col_offset),
+            node)
+        return node
+
+    def visit_AsyncFor(self, node: ast.AsyncFor) -> ast.AsyncFor:
+        self.handle_block(
+            For(node.target, node.iter, is_async=True,
                 lineno=node.lineno, col_offset=node.col_offset),
             node)
         return node
@@ -299,8 +313,20 @@ class Translator(ast.NodeTransformer):
         #            value=self.handle_scope(scope, node)))
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.FunctionDef:
-        func = Function(node.name, node.args, node.decorator_list,
-                        lineno=node.lineno, col_offset=node.col_offset)
+        func = Function(
+            node.name, node.args, node.decorator_list, is_async=False,
+            lineno=node.lineno, col_offset=node.col_offset)
+        self.handle_arguments(func)
+        self.handle_stmt_scope(func, node)
+        return node
+
+    def visit_AsyncFunctionDef(
+        self, node: ast.AsyncFunctionDef
+    ) -> ast.AsyncFunctionDef:
+
+        func = Function(
+            node.name, node.args, node.decorator_list, is_async=True,
+            lineno=node.lineno, col_offset=node.col_offset)
         self.handle_arguments(func)
         self.handle_stmt_scope(func, node)
         return node

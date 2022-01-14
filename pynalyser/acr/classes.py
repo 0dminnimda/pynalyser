@@ -89,6 +89,11 @@ class Name(ACR):
     _attributes: Tuple[str, ...] = attr.ib(init=False, default=("is_symbol",))
 
 
+@attr.s(auto_attribs=True)
+class Asyncable(ACR):
+    is_async: bool = attr.ib(kw_only=True)
+
+
 CODE = Union[
     # stmt - from scope body
     ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
@@ -304,7 +309,7 @@ class Class(ScopeWithAttributes):
 
 
 @attr.s(auto_attribs=True)
-class Function(ScopeWithAttributes):
+class Function(ScopeWithAttributes, Asyncable):
     # XXX: how to deal with the function returns?
     args: ast.arguments = attr.ib(factory=ast.arguments)
     # returns: Optional[ast.expr] = attr.ib(factory=ast.expr)  # is needed?
@@ -373,7 +378,7 @@ class Match(ACRWithAttributes, Block):
 
 
 @attr.s(auto_attribs=True)
-class With(ACRWithAttributes, BodyBlock):
+class With(ACRWithAttributes, BodyBlock, Asyncable):
     items: List[ast.withitem]
 
 
@@ -416,7 +421,7 @@ class Loop(ACRWithAttributes, BodyElseBlock):  # XXX: do we need this class?
 
 
 @attr.s(auto_attribs=True)
-class For(Loop):
+class For(Loop, Asyncable):
     target: ast.expr  # ? Union[ast.Name, ast.Tuple, ast.List]
     iter: ast.expr
 
@@ -426,7 +431,6 @@ class While(Loop):
     test: ast.expr
 
 
-# async?? - Async class + inhertance
 """
 def f(a):
     print(a)  # ???
