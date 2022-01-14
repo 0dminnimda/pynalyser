@@ -187,6 +187,7 @@ class SymbolData(ACR):
     scope: ScopeType = ScopeType.UNKNOWN
 
     imported: bool = False
+    is_arg: bool = False
 
     type: PynalyserType = objectType
 
@@ -194,10 +195,14 @@ class SymbolData(ACR):
     # but if we change from specific to other specific than
     # probably something went wrong
     # is it the responsibility of this class to check this?
-    def change_scope(self, new_scope: ScopeType) -> None:
+    def change_scope(self, new_scope: ScopeType, fail: bool = True) -> bool:
         if self.scope is ScopeType.UNKNOWN:
             self.scope = new_scope
+            return True
         else:
+            if not fail:
+                return False
+
             # TODO: change to custom class
             raise ValueError(
                 f"changing the `scope` from {self.scope} to {new_scope}")
