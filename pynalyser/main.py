@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from .acr.classes import Module
 from .acr.translation import translate_ast_to_acr
+from .analysis.scope import ScopeAnalyser
 from .analysis.tools import Analyser, AnalysisContext
 from .normalize_ast import normalize_ast_module
 
@@ -39,7 +40,9 @@ def analyse(source: str,
             analysers: Optional[List[Analyser]] = None) -> AnalysisContext:
 
     if analysers is None:
-        analysers = []
+        analysers = [
+            ScopeAnalyser()
+        ]
 
     ctx = AnalysisContext([parse(source)])
 
