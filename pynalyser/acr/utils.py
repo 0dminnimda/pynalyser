@@ -3,7 +3,8 @@ from collections import defaultdict
 from typing import (Any, Collection, Iterator, List, NamedTuple, Optional,
                     Tuple, Union)
 
-from .classes import ACR, Block, CodeBlock, Module, Scope, ScopeReference
+from .classes import (ACR, Block, CodeBlock, FlowContainer, Module, Scope,
+                      ScopeReference)
 
 ### Dumping
 
@@ -121,34 +122,20 @@ def _format_ast_or_acr(obj: Union[ast.AST, ACR], ctx: Context,
 ### Tree traversing
 
 
-NODE_TUP = (ACR, ast.AST)
 NODE = Union[ACR, ast.AST]
-FIELD = Union[List[NODE], NODE]
-
-ACCEPTABLE_FIELD = (int, str, bool, defaultdict, type(None))
-ACCEPTABLE_ITEM = CodeBlock
 
 
 def do_nothing(*args, **kwargs):
     pass
 
 
-def iter_fields(node: NODE) -> Iterator[Tuple[str, FIELD]]:
-    for field in node._fields:
-        try:
-            yield field, getattr(node, field)
-        except AttributeError:
-            pass
-
-
-class NodeVisitor:
+class NodeVisitor(ast.NodeVisitor):
     scope: Scope
     block: Block
     strict: bool = False
 
     def start(self, module: Module) -> None:
-        self.scope = module
-        self.block = module
+        self.scope = self.block = module
 
         self.visit(module)
 
@@ -168,18 +155,16 @@ class NodeVisitor:
             visitor = do_nothing
 
         # handle acr
-        if isinstance(node, ScopeReference):
-            scope = node.get_scope(self.scope)
-
-            result = visitor(scope)
+        if isinstance(node, Scope):
+            result = visitor(node)
 
             previous_scope = self.scope
+            self.scope = node
+
             previous_block = self.block
+            self.block = node
 
-            self.scope = scope
-            self.block = scope
-
-            self.generic_visit(scope)
+            self.generic_visit(node)
 
             self.scope = previous_scope
             self.block = previous_block
@@ -200,27 +185,27 @@ class NodeVisitor:
         return result
 
     def generic_visit(self, node: NODE) -> Any:
-        for field, value in iter_fields(node):
-            if isinstance(value, list):
-                for item in value:
-                    if isinstance(item, NODE_TUP):
-                        self.visit(item)
-                    elif isinstance(item, ACCEPTABLE_ITEM):
-                        pass
-                    else:
-                        # XXX: is this nessesary?
-                        raise TypeError(
-                            "Expected node list item to be instance of "
-                            "ACR, AST or CodeBlock "
-                            f"but found {type(value).__name__}")
-            elif isinstance(value, NODE_TUP):
-                self.visit(value)
-            elif isinstance(value, ACCEPTABLE_FIELD):
-                pass
-            else:
-                # XXX: is this nessesary?
-                raise TypeError(
-                    "Expected node field to be instance of ACR, AST, list, "
-                    "int, str, bool, defaultdict or type(None) "
-                    f"but found {type(value).__name__}")
+        if isinstance(node, ScopeReference):
+            self.visit(node.get_scope(self.scope))
+
+        if isinstance(node, ast.AST):
+            return super().generic_visit(node)
+
+        assert isinstance(node, Block)
+        for name in node._block_fields:
+            container: FlowContainer = getattr(node, name)
+            for item in container:
+                if isinstance(item, CodeBlock):
+                    for code in item:
+                        self.visit(code)
+                elif isinstance(item, Block):
+                    self.visit(item)
+                elif isinstance(item, (ast.Return, ast.Raise, ast.Assert,
+                                       ast.Break, ast.Continue)):
+                    self.visit(item)
+                else:
+                    raise RuntimeError(
+                        "Unreachable: item in flow container that's not "
+                        "CodeBlock, Block, Return, Raise, Assert, "
+                        f"Break, Continue, but {type(item).__name__}")
 
