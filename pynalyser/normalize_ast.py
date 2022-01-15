@@ -32,3 +32,9 @@ class AstNormalizer(ast.NodeTransformer):
 
 def normalize_ast(tree: ast.AST) -> ast.AST:
     return AstNormalizer().visit(tree)
+
+
+def normalize_ast_module(module: ast.Module) -> ast.Module:
+    tree = normalize_ast(module)
+    assert isinstance(tree, ast.Module)
+    return tree
