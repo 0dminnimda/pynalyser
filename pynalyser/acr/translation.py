@@ -1,13 +1,12 @@
 import ast
 import sys
-from itertools import chain
 from typing import List, NoReturn, Optional, Union
 
 from ..analysis.symbols import ScopeType
-from .classes import (Block, Class, Comprehension, DictComp, ExceptHandler,
-                      FlowContainer, For, Function, GeneratorExp, If, Lambda,
-                      ListComp, Match, MatchCase, Module, Scope,
-                      ScopeReference, SetComp, Try, While, With)
+from .classes import (Block, Class, DictComp, ExceptHandler, FlowContainer,
+                      For, Function, GeneratorExp, If, Lambda, ListComp, Match,
+                      MatchCase, Module, Scope, ScopeReference, SetComp, Try,
+                      While, With)
 
 STMT_SCOPE = Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]
 
@@ -36,38 +35,10 @@ class ForBlocks(ast.AST):
     blocks: FlowContainer
 
 
-class AssignVisitor(ast.NodeVisitor):
-    names: List[str] = []
-
-    # accounted for:
-    # Attribute - don't visit fields, XXX: for now
-    # Subscript - don't visit fields
-    # Starred - just visit itself
-    # Name - add name, if we got here
-    # List - just visit itself
-    # Tuple - just visit itself
-    # other nodes AFAIK will not appear here
-
-    def get_names(self, node: ast.AST) -> List[str]:
-        self.names.clear()
-        self.visit(node)
-        return self.names
-
-    def visit_Attribute(self, node: ast.Attribute) -> None:
-        pass
-
-    def visit_Subscript(self, node: ast.Subscript) -> None:
-        pass
-
-    def visit_Name(self, node: ast.Name) -> None:
-        self.names.append(node.id)
-
-
-# XXX: restrict visit, so if there's ni visit_x then raise exception
+# XXX: restrict visit, so if there's no visit_x then raise exception
 class Translator(ast.NodeTransformer):
     scope: Scope
     container: FlowContainer
-    _assign_visitor: AssignVisitor = AssignVisitor()
 
     #### Transformations used only for expr scopes ####
 
@@ -187,33 +158,11 @@ class Translator(ast.NodeTransformer):
         self.handle_fields_of_block(scope, node)
         self.scope = prev_scope
 
-        if scope.is_symbol:
-            # this symbol is used in self.scope
-            self.scope.symbol_table[scope.name]
-
         return reference
-
-    def handle_arguments(self, scope: Union[Function, Lambda]) -> None:
-        all_args: List[ast.arg] = (
-            scope.args.posonlyargs + scope.args.args + scope.args.kwonlyargs)
-        if scope.args.vararg:
-            all_args.append(scope.args.vararg)
-        if scope.args.kwarg:
-            all_args.append(scope.args.kwarg)
-
-        assert len(scope.symbol_table) == 0
-
-        for arg in all_args:
-            symb = scope.symbol_table[arg.arg]
-            symb.is_arg = True
-            if not symb.change_scope(ScopeType.LOCAL, fail=False):
-                raise SyntaxError(
-                    f"duplicate argument '{arg.arg}' in function definition")
 
     def visit_Lambda(self, node: ast.Lambda) -> ScopeReference:
         lamb = Lambda(
             node.args, lineno=node.lineno, col_offset=node.col_offset)
-        self.handle_arguments(lamb)
         node.body = [ast.Expr(node.body)]  # type: ignore
         return self.handle_scope(lamb, node)
 
@@ -264,7 +213,6 @@ class Translator(ast.NodeTransformer):
         func = Function(
             node.name, node.args, node.decorator_list, is_async=False,
             lineno=node.lineno, col_offset=node.col_offset)
-        self.handle_arguments(func)
         self.handle_stmt_scope(func, node)
         return node
 
@@ -275,7 +223,6 @@ class Translator(ast.NodeTransformer):
         func = Function(
             node.name, node.args, node.decorator_list, is_async=True,
             lineno=node.lineno, col_offset=node.col_offset)
-        self.handle_arguments(func)
         self.handle_stmt_scope(func, node)
         return node
 
@@ -333,24 +280,8 @@ class Translator(ast.NodeTransformer):
         self.container.add_code(node)
         return node
 
-    def setup_symbols_by_assign(self, *targets: ast.AST) -> None:
-        names = chain(*(
-            self._assign_visitor.get_names(sub_node)
-            for sub_node in targets))
-        # for sub_node in node.targets:
-        #     names.extend(self._assign_visitor.get_names(sub_node))
-
-        for name in names:
-            symbol_data = self.scope.symbol_table[name]
-
-            # in the other case it's already defined
-            if symbol_data.scope is ScopeType.UNKNOWN:
-                symbol_data.change_scope(ScopeType.LOCAL)
-            symbol_data.imported = False
-
     def visit_Assign(self, node: ast.Assign) -> ast.Assign:
         self.generic_visit(node)
-        self.setup_symbols_by_assign(*node.targets)
         self.container.add_code(node)
         return node
 
@@ -361,26 +292,16 @@ class Translator(ast.NodeTransformer):
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> ast.AnnAssign:
         self.generic_visit(node)
-        # XXX: should be only one name in the end:
-        self.setup_symbols_by_assign(node.target)
         self.container.add_code(node)
         return node
 
-    def setup_symbols_by_import(self, targets: List[ast.alias]) -> None:
-        for alias in targets:
-            name = alias.asname or alias.name  # those are never == ""
-            symbol_data = self.scope.symbol_table[name]
-            symbol_data.imported = True
-
     def visit_Import(self, node: ast.Import) -> ast.Import:
         self.generic_visit(node)
-        self.setup_symbols_by_import(node.names)
         self.container.add_code(node)
         return node
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> ast.ImportFrom:
         self.generic_visit(node)
-        self.setup_symbols_by_import(node.names)
         self.container.add_code(node)
         return node
 
@@ -407,6 +328,7 @@ class Translator(ast.NodeTransformer):
         self.container.add_code(node.value)
         return node
 
+    # TODO: remove this
     def visit_Pass(self, node: ast.Pass) -> ast.Pass:
         self.generic_visit(node)
         self.container.add_code(node)
@@ -418,25 +340,6 @@ class Translator(ast.NodeTransformer):
 
     def visit_NamedExpr(self, node: ast.NamedExpr) -> ast.NamedExpr:
         self.generic_visit(node)
-
-        names = self._assign_visitor.get_names(node.target)
-        assert len(names) == 1
-        name, = names
-
-        symbol_data = self.scope.symbol_table[name]
-        if isinstance(self.scope, Comprehension):
-            # in the other case it's already defined
-            if symbol_data.scope is ScopeType.UNKNOWN:
-                symbol_data.change_scope(ScopeType.NONLOCAL)
-            raise NotImplementedError(
-                "NamedExpr should make symbol local for enclosing scope")
-        else:
-            # in the other case it's already defined
-            if symbol_data.scope is ScopeType.UNKNOWN:
-                symbol_data.change_scope(ScopeType.LOCAL)
-
-        symbol_data.imported = False
-
         self.container.add_code(node)
         return node
 
@@ -461,11 +364,7 @@ class Translator(ast.NodeTransformer):
     # Subscript
     # Starred
 
-    def visit_Name(self, node: ast.Name) -> ast.Name:
-        self.generic_visit(node)
-        # this name have been used in this scope
-        self.scope.symbol_table[node.id]
-        return node
+    # Name
 
     # List
     # Tuple
