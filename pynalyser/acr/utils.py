@@ -1,7 +1,11 @@
 import ast
-from .classes import ACR
-from typing import Any, List, NamedTuple, Optional, Union, Tuple, Collection
 from collections import defaultdict
+from typing import (Any, Collection, Iterator, List, NamedTuple, Optional,
+                    Tuple, Union)
+
+from .classes import ACR, Block, CodeBlock, Module, Scope, ScopeReference
+
+### Dumping
 
 
 class Context(NamedTuple):
@@ -112,3 +116,111 @@ def _format_ast_or_acr(obj: Union[ast.AST, ACR], ctx: Context,
             args.append(f"{name}={value}")
 
     return args, allsimple
+
+
+### Tree traversing
+
+
+NODE_TUP = (ACR, ast.AST)
+NODE = Union[ACR, ast.AST]
+FIELD = Union[List[NODE], NODE]
+
+ACCEPTABLE_FIELD = (int, str, bool, defaultdict, type(None))
+ACCEPTABLE_ITEM = CodeBlock
+
+
+def do_nothing(*args, **kwargs):
+    pass
+
+
+def iter_fields(node: NODE) -> Iterator[Tuple[str, FIELD]]:
+    for field in node._fields:
+        try:
+            yield field, getattr(node, field)
+        except AttributeError:
+            pass
+
+
+class NodeVisitor:
+    scope: Scope
+    block: Block
+    strict: bool = False
+
+    def start(self, module: Module) -> None:
+        self.scope = module
+        self.block = module
+
+        self.visit(module)
+
+        del self.scope, self.block
+
+    def visit(self, node: NODE) -> Any:
+        method = 'visit_' + type(node).__name__
+        visitor = getattr(self, method, None)
+
+        if visitor is None:
+            if self.strict:
+                raise ValueError(
+                    f"There are no '{method}' method. "
+                    "You see this message because you're in strict mode. "
+                    f"See {type(self).__name__}.strict")
+
+            visitor = do_nothing
+
+        # handle acr
+        if isinstance(node, ScopeReference):
+            scope = node.get_scope(self.scope)
+
+            result = visitor(scope)
+
+            previous_scope = self.scope
+            previous_block = self.block
+
+            self.scope = scope
+            self.block = scope
+
+            self.generic_visit(scope)
+
+            self.scope = previous_scope
+            self.block = previous_block
+        elif isinstance(node, Block):
+            result = visitor(node)
+
+            previous_block = self.block
+            self.block = node
+
+            self.generic_visit(node)
+
+            self.block = previous_block
+        else:
+            result = visitor(node)
+
+            self.generic_visit(node)
+
+        return result
+
+    def generic_visit(self, node: NODE) -> Any:
+        for field, value in iter_fields(node):
+            if isinstance(value, list):
+                for item in value:
+                    if isinstance(item, NODE_TUP):
+                        self.visit(item)
+                    elif isinstance(item, ACCEPTABLE_ITEM):
+                        pass
+                    else:
+                        # XXX: is this nessesary?
+                        raise TypeError(
+                            "Expected node list item to be instance of "
+                            "ACR, AST or CodeBlock "
+                            f"but found {type(value).__name__}")
+            elif isinstance(value, NODE_TUP):
+                self.visit(value)
+            elif isinstance(value, ACCEPTABLE_FIELD):
+                pass
+            else:
+                # XXX: is this nessesary?
+                raise TypeError(
+                    "Expected node field to be instance of ACR, AST, list, "
+                    "int, str, bool, defaultdict or type(None) "
+                    f"but found {type(value).__name__}")
+
