@@ -65,6 +65,9 @@ class ScopeAnalyser(Analyser):
                 raise SyntaxError(
                     f"duplicate argument '{arg.arg}' in function definition")
 
+    def visit_For(self, node: acr_c.For) -> None:
+        self.setup_symbols_by_assign(node.target)
+
     def visit_Lambda(self, node: acr_c.Lambda) -> None:
         self.handle_arguments(node)
         self.handle_scope(node)
