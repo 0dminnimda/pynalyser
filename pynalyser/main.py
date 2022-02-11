@@ -35,17 +35,26 @@ def analyse_context(analysers: List[Analyser], ctx: AnalysisContext) -> None:
     for analyser in analysers:
         analyser.analyse(ctx)
 
+DEFAULT_ANALYSERS = [
+    ScopeAnalyser(),
+]
 
-def analyse(source: str,
+
+def analyse(ctx: AnalysisContext,
             analysers: Optional[List[Analyser]] = None) -> AnalysisContext:
 
     if analysers is None:
-        analysers = [
-            ScopeAnalyser()
-        ]
-
-    ctx = AnalysisContext([parse(source)])
+        analysers = DEFAULT_ANALYSERS
+    assert analysers is not None  # for typechecker
 
     analyse_context(analysers, ctx)
 
     return ctx
+
+
+def analyse_file(source: str,
+                 analysers: Optional[List[Analyser]] = None) -> AnalysisContext:
+
+    ctx = AnalysisContext([parse(source)])
+
+    return analyse(ctx, analysers)
