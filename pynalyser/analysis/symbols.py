@@ -3,7 +3,7 @@ from typing import DefaultDict
 
 import attr
 
-from .types import PynalyserType, objectType
+from ._types import PynalyserType, objectType
 
 
 class ScopeType(Flag):  # XXX: maybe ScopeT?

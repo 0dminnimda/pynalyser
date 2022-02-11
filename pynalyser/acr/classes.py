@@ -6,7 +6,7 @@ from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union
 import attr
 
 from ..analysis.symbols import SymbolTable
-from ..analysis.types import PynalyserType, objectType
+from ..analysis._types import PynalyserType, objectType
 
 # TODO: have python version independent ast parser
 if sys.version_info < (3, 10):
