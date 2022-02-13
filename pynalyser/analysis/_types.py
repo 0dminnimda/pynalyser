@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Type, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import attr
 
@@ -23,7 +23,8 @@ class UnionType(PynalyserType):
         return f"Union[{', '.join(tp.as_str for tp in self.types)}]"
 
     @classmethod
-    def make(cls, *types: PynalyserType) -> PynalyserType:
+    def make(cls, *types: PynalyserType,
+             fallback: Optional[PynalyserType] = None) -> PynalyserType:
         new_types: List[PynalyserType] = []
 
         for tp in types:
@@ -32,12 +33,15 @@ class UnionType(PynalyserType):
             else:
                 new_types.append(tp)
 
-        if len(new_types) == 0:
+        unique_types = list(set(new_types))
+        if len(unique_types) == 0:
+            if fallback is not None:
+                return fallback
             raise ValueError("length of types should not be 0")
-        elif len(new_types) == 1:
+        elif len(unique_types) == 1:
             return types[0]
         else:
-            return cls(list(set(new_types)))
+            return cls(unique_types)
 
 
 DUNDER_SIGNATURE = List["SingleType"]
