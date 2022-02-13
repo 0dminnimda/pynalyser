@@ -135,12 +135,18 @@ class NodeVisitor(ast.NodeVisitor):
     # strict: bool = False
     # auto_global_visit: bool = True
 
-    def start(self, module: Module) -> None:
-        self.scope = self.block = module
+    def start(self, init_scope_block: Scope,
+              to_visit: Optional[NODE] = None) -> Any:
 
-        self.visit(module)
+        self.scope = self.block = init_scope_block
+
+        if to_visit is None:
+            result = self.visit(init_scope_block)
+        else:
+            result = self.visit(to_visit)
 
         del self.scope, self.block
+        return result
 
     def visit(self, node: NODE) -> Any:
         method = 'visit_' + type(node).__name__
