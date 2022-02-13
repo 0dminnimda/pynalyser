@@ -132,7 +132,8 @@ def do_nothing(*args, **kwargs):
 class NodeVisitor(ast.NodeVisitor):
     scope: Scope
     block: Block
-    strict: bool = False
+    # strict: bool = False
+    # auto_global_visit: bool = True
 
     def start(self, module: Module) -> None:
         self.scope = self.block = module
@@ -146,13 +147,16 @@ class NodeVisitor(ast.NodeVisitor):
         visitor = getattr(self, method, None)
 
         if visitor is None:
-            if self.strict:
-                raise ValueError(
-                    f"There are no '{method}' method. "
-                    "You see this message because you're in strict mode. "
-                    f"See {type(self).__name__}.strict")
+            # if self.strict:
+            #     raise ValueError(
+            #         f"There are no '{method}' method. "
+            #         "You see this message because you're in strict mode. "
+            #         f"See {type(self).__name__}.strict")
 
             visitor = do_nothing
+
+        # if not self.auto_global_visit:
+        #     return visitor(node)
 
         # handle acr
         if isinstance(node, Scope):
