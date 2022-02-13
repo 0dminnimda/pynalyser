@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from .acr.classes import Module
 from .acr.translation import translate_ast_to_acr
+from .analysis.types import TypeInference
 from .analysis.scope import ScopeAnalyser
 from .analysis.tools import Analyser, AnalysisContext
 from .normalize_ast import normalize_ast_module
@@ -37,6 +38,7 @@ def analyse_context(analysers: List[Analyser], ctx: AnalysisContext) -> None:
 
 DEFAULT_ANALYSERS = [
     ScopeAnalyser(),
+    TypeInference(),
 ]
 
 
