@@ -1,44 +1,50 @@
 import ast
 
-from cacher import Recorder, Reproducer
+from .cacher import Recorder, Reproducer
 
 
 class AstRecorder(ast.NodeVisitor):
-    def __init__(self, changes=None):
+    def __init__(self, data, changes=None):
         self.reset(changes)
 
-    def reset(self, changes=None) -> None:
+    def reset(self, data, changes=None) -> None:
         if changes is None:
             changes = []
-        self.data = {"cls": None}
+        self.data = data
         self.cacher = Recorder(self.data, changes)
 
     def visit(self, node):
         method = 'visit_' + node.__class__.__name__
         visitor = getattr(self, method, self.generic_visit)
-        self.cacher.visit()
+        self.cacher_visit()
         prev_data = {**self.data}
         result = visitor(node)
-        self.cacher.visit()
+        self.cacher_visit()
         self.cacher.change_data(**prev_data)
         return result
 
+    def cacher_visit(self):
+        self.cacher.visit()
+
 
 class AstReproducer(ast.NodeVisitor):
-    def __init__(self, changes):
-        self.reset(changes)
+    def __init__(self, data, changes):
+        self.reset(data, changes)
 
-    def reset(self, changes) -> None:
-        self.data = {"cls": None}
+    def reset(self, data, changes) -> None:
+        self.data = data
         self.cacher = Reproducer(self.data, changes)
 
     def visit(self, node):
         method = 'visit_' + node.__class__.__name__
         visitor = getattr(self, method, self.generic_visit)
-        self.cacher.visit()
+        self.cacher_visit()
         result = visitor(node)
-        self.cacher.visit()
+        self.cacher_visit()
         return result
+
+    def cacher_visit(self):
+        self.cacher.visit()
 
 if __name__ == "__main__":
     class Tst(AstRecorder):
@@ -68,9 +74,9 @@ pass
 """)
     # "a = b = c = d.d = 6"
 
-    t = Tst()
+    t = Tst({"cls": None})
     t.visit(tree)
-    t2 = Tst2(t.cacher.changes)
+    t2 = Tst2({"cls": None}, t.cacher.changes)
     t2.visit(tree)
     print("\n", t.cacher.changes)
 
