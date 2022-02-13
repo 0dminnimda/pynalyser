@@ -1,4 +1,4 @@
-from typing import List, Tuple, Type, TypeVar, Union
+from typing import Dict, List, Tuple, Type, TypeVar, Union
 
 import attr
 
@@ -40,10 +40,16 @@ class UnionType(PynalyserType):
             return cls(list(set(new_types)))
 
 
+DUNDER_SIGNATURE = List["SingleType"]
+
+
 @attr.s(auto_attribs=True, hash=True)
 class SingleType(PynalyserType):
     name: str = attr.ib(kw_only=True)
     is_builtin: bool = attr.ib(kw_only=True)
+
+    dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
+        factory=dict, init=False, hash=False)
 
     @property
     def as_str(self) -> str:
@@ -59,11 +65,30 @@ class IntType(SingleType):
     is_builtin: bool = True
 
 
-@attr.s(auto_attribs=True, hash=True)
+# T = TypeVar("T")
+
+NotImplementedType = type(NotImplemented)
+ReturnT = Union[PynalyserType, NotImplementedType]
+
+
+@attr.s(auto_attribs=True, hash=True, auto_detect=True)
 class SequenceType(SingleType):
     # TODO: not finshed, see docs.python.org/3/library/collections.abc.html
     item_type: PynalyserType
 
+    dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
+        factory=lambda: {"mul": [IntType()], "rmul": [IntType()]},
+        init=False, hash=False)
+
+    # see docs.python.org/3/c-api/typeobj.html
+    def __mul__(self, other: PynalyserType) -> ReturnT:
+        if isinstance(other, IntType):
+            return self
+        return NotImplemented
+    # dunder_signatures["mul"] = [IntType]
+
+    __rmul__ = __mul__
+    # dunder_signatures["rmul"] = [IntType]
 
     @property
     def as_str(self) -> str:
