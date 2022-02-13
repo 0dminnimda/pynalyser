@@ -42,8 +42,8 @@ class ExprTypeInference(NodeVisitor):
         return AnyType
 
     def visit_ListComp(self, node: acr_c.ListComp) -> PynalyserType:
-        return SequenceType(
-            name=list.__name__, item_type=AnyType, is_builtin=True)
+        return SequenceType(name=list.__name__, is_builtin=True,
+                            item_type=AnyType)  # TODO: infer item type
 
     def visit_Attribute(self, node: ast.Attribute) -> PynalyserType:
         return AnyType
@@ -61,12 +61,14 @@ class ExprTypeInference(NodeVisitor):
         return result
 
     def visit_List(self, node: ast.List) -> PynalyserType:
-        return SequenceType(
-            name=list.__name__, item_type=AnyType, is_builtin=True)
+        return SequenceType(name=list.__name__, is_builtin=True,
+                            item_type=UnionType.make(
+                                *map(self.visit, node.elts), fallback=AnyType))
 
     def visit_Tuple(self, node: ast.Tuple) -> PynalyserType:
-        return SequenceType(
-            name=tuple.__name__, item_type=AnyType, is_builtin=True)
+        return SequenceType(name=tuple.__name__, is_builtin=True,
+                            item_type=UnionType.make(
+                                *map(self.visit, node.elts), fallback=AnyType))
 
     def visit_Constant(self, node: ast.Constant) -> PynalyserType:
         if isinstance(node.value, int):
