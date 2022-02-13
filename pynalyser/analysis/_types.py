@@ -50,7 +50,7 @@ class SingleType(PynalyserType):
         return self.name
 
 
-objectType = SingleType(name="object", is_builtin=True)
+AnyType = SingleType(name="object", is_builtin=True)
 
 
 @attr.s(auto_attribs=True, hash=True)

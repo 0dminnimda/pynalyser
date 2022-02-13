@@ -3,7 +3,7 @@ from typing import DefaultDict
 
 import attr
 
-from ._types import PynalyserType, objectType
+from ._types import PynalyserType, AnyType
 
 
 class ScopeType(Flag):  # XXX: maybe ScopeT?
@@ -25,7 +25,7 @@ class SymbolData:
     imported: bool = False  # TODO: handle this in acr translation
     is_arg: bool = False
 
-    type: PynalyserType = objectType
+    type: PynalyserType = AnyType
 
     # if we change from UNKNOWN to more specific it's fine
     # but if we change from specific to other specific than

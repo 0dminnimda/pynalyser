@@ -3,8 +3,9 @@ from typing import List, Union
 from warnings import warn
 
 from ..acr import classes as acr_c
-from ..acr.utils import NodeVisitor, dump
-from ._types import PynalyserType, UnionType, SingleType, IntType, SequenceType, objectType
+from ..acr.utils import NodeVisitor, dump, NODE
+from ._types import (DUNDER_SIGNATURE, IntType, PynalyserType, SequenceType,
+                     SingleType, UnionType, AnyType)
 from .tools import Analyser
 
 
@@ -16,11 +17,10 @@ class CompTypeInference(NodeVisitor):
         res = self.start(scope, node)
         if isinstance(res, PynalyserType):
             return res
-        return objectType
+        return AnyType
 
     def visit_ListComp(self, node: acr_c.ListComp) -> PynalyserType:
         return SequenceType(
-            name=list.__name__, item_type=objectType, is_builtin=True)
 
 
 binop_s = {"Add": "+",
@@ -48,9 +48,10 @@ class ASTExprTypeInference(ast.NodeVisitor):
         if isinstance(res, PynalyserType):
             return res
         return objectType
+            name=list.__name__, item_type=AnyType, is_builtin=True)
 
     def visit_Attribute(self, node: ast.Attribute) -> PynalyserType:
-        return objectType
+        return AnyType
 
     def visit_BinOp(self, node: ast.BinOp) -> PynalyserType:
         return binop[type(node.op).__name__](
@@ -58,11 +59,11 @@ class ASTExprTypeInference(ast.NodeVisitor):
 
     def visit_List(self, node: ast.List) -> PynalyserType:
         return SequenceType(
-            name=list.__name__, item_type=objectType, is_builtin=True)
+            name=list.__name__, item_type=AnyType, is_builtin=True)
 
     def visit_Tuple(self, node: ast.Tuple) -> PynalyserType:
         return SequenceType(
-            name=tuple.__name__, item_type=objectType, is_builtin=True)
+            name=tuple.__name__, item_type=AnyType, is_builtin=True)
 
     def visit_Constant(self, node: ast.Constant) -> PynalyserType:
         if isinstance(node.value, int):
@@ -89,7 +90,7 @@ class TypeInference(Analyser):
     def mash_ast_and_type(self, node: ast.AST, tp: PynalyserType) -> None:
         if isinstance(node, ast.Name):
             symbol_data = self.scope.symbol_table[node.id]
-            if symbol_data.type is objectType:
+            if symbol_data.type is AnyType:
                 symbol_data.type = tp
             else:
                 symbol_data.type = UnionType.make(symbol_data.type, tp)
