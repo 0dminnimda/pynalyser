@@ -153,6 +153,9 @@ class NodeVisitor(ast.NodeVisitor):
             #         "You see this message because you're in strict mode. "
             #         f"See {type(self).__name__}.strict")
 
+            if isinstance(node, ScopeReference):
+                return self.generic_visit(node)
+
             visitor = do_nothing
 
         # if not self.auto_global_visit:
@@ -190,7 +193,7 @@ class NodeVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node: NODE) -> Any:
         if isinstance(node, ScopeReference):
-            self.visit(node.get_scope(self.scope))
+            return self.visit(node.get_scope(self.scope))
 
         if isinstance(node, ast.AST):
             return super().generic_visit(node)
