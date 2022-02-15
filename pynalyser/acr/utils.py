@@ -164,38 +164,44 @@ class NodeVisitor:
             if isinstance(node, ScopeReference):
                 return self.generic_visit(node)
 
-            visitor = do_nothing
+            # visitor = do_nothing
 
         # if not self.auto_global_visit:
         #     return visitor(node)
 
-        # handle acr
-        if isinstance(node, Scope):
+        if visitor is not None:
             result = visitor(node)
 
+        # handle acr
+        if isinstance(node, Scope):
             previous_scope = self.scope
             self.scope = node
 
             previous_block = self.block
             self.block = node
 
-            self.generic_visit(node)
+            if visitor is not None:
+                self.generic_visit(node)
+            else:
+                result = self.generic_visit(node)
 
             self.scope = previous_scope
             self.block = previous_block
         elif isinstance(node, Block):
-            result = visitor(node)
-
             previous_block = self.block
             self.block = node
 
-            self.generic_visit(node)
+            if visitor is not None:
+                self.generic_visit(node)
+            else:
+                result = self.generic_visit(node)
 
             self.block = previous_block
         else:
-            result = visitor(node)
-
-            self.generic_visit(node)
+            if visitor is not None:
+                self.generic_visit(node)
+            else:
+                result = self.generic_visit(node)
 
         return result
 
@@ -224,3 +230,43 @@ class NodeVisitor:
                         "CodeBlock, Block, Return, Raise, Assert, "
                         f"Break, Continue, but {type(item).__name__}")
 
+
+class ACRCodeTransformer(NodeVisitor):
+    """Allows to change contents of the code (of the CodeBlock)"""
+
+    _ast_visitor = ast.NodeTransformer
+
+    def generic_visit(self, node: NODE) -> Any:
+        if isinstance(node, ScopeReference):
+            return self.visit(node.get_scope(self.scope))
+
+        if isinstance(node, ast.AST):
+            return self._ast_visitor.generic_visit(self, node)
+
+        assert isinstance(node, Block)
+        for name in node._block_fields:
+            container: FlowContainer = getattr(node, name)
+            for i, item in enumerate(container):
+                if isinstance(item, CodeBlock):
+                    new_code_block: CodeBlock = CodeBlock()
+                    for code in item:
+                        value = self.visit(code)
+                        if value is None:
+                            pass
+                        elif isinstance(value, (ast.AST, ACR)):
+                            new_code_block.append(value)
+                        else:
+                            new_code_block.extend(value)
+                    container[i] = new_code_block
+                elif isinstance(item, Block):
+                    self.visit(item)
+                elif isinstance(item, (ast.Return, ast.Raise, ast.Assert,
+                                       ast.Break, ast.Continue)):
+                    self.visit(item)
+                else:
+                    raise RuntimeError(
+                        "Unreachable: item in flow container that's not "
+                        "CodeBlock, Block, Return, Raise, Assert, "
+                        f"Break, Continue, but {type(item).__name__}")
+
+        return node
