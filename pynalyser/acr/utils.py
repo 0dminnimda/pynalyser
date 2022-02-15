@@ -129,7 +129,9 @@ def do_nothing(*args, **kwargs):
     pass
 
 
-class NodeVisitor(ast.NodeVisitor):
+class NodeVisitor:
+    _ast_visitor = ast.NodeVisitor
+
     scope: Scope
     block: Block
     # strict: bool = False
@@ -202,7 +204,7 @@ class NodeVisitor(ast.NodeVisitor):
             return self.visit(node.get_scope(self.scope))
 
         if isinstance(node, ast.AST):
-            return super().generic_visit(node)
+            return self._ast_visitor.generic_visit(self, node)
 
         assert isinstance(node, Block)
         for name in node._block_fields:
