@@ -112,10 +112,7 @@ CONTROL_FLOW = Union[  # TODO: not finished?
 
 # BlockContainer
 class FlowContainer(List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
-    def add_code(self, code: CODE) -> None:
-        """Add code to latest block, if it's is not `CodeBlock`
-        function will add new `CodeBlock` to `blocks` and add code there"""
-
+    def get_code_block(self) -> "CodeBlock":
         if len(self):
             block = self[-1]
             if type(block) is not CodeBlock:
@@ -125,7 +122,13 @@ class FlowContainer(List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
             block = CodeBlock()
             self.append(block)
 
-        block.append(code)
+        return block
+
+    def add_code(self, code: CODE) -> None:
+        """Add code to latest block, if it's is not `CodeBlock`
+        function will add new `CodeBlock` to `blocks` and add code there"""
+
+        self.get_code_block().append(code)
 
 
 class CodeBlock(List[CODE]):
