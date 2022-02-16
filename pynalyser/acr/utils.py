@@ -125,10 +125,6 @@ def _format_ast_or_acr(obj: Union[ast.AST, ACR], ctx: Context,
 NODE = Union[ACR, ast.AST]
 
 
-def do_nothing(*args, **kwargs):
-    pass
-
-
 class NodeVisitor:
     _ast_visitor = ast.NodeVisitor
 
@@ -150,6 +146,31 @@ class NodeVisitor:
         del self.scope, self.block
         return result
 
+    def _acr_generic_visit(self, node: NODE) -> Any:
+        # handle acr
+        if isinstance(node, Scope):
+            previous_scope = self.scope
+            self.scope = node
+
+            previous_block = self.block
+            self.block = node
+
+            result = self.generic_visit(node)
+
+            self.scope = previous_scope
+            self.block = previous_block
+        elif isinstance(node, Block):
+            previous_block = self.block
+            self.block = node
+
+            result = self.generic_visit(node)
+
+            self.block = previous_block
+        else:
+            result = self.generic_visit(node)
+
+        return result
+
     def visit(self, node: NODE) -> Any:
         method = 'visit_' + type(node).__name__
         visitor = getattr(self, method, None)
@@ -164,44 +185,14 @@ class NodeVisitor:
             if isinstance(node, ScopeReference):
                 return self.generic_visit(node)
 
-            # visitor = do_nothing
-
         # if not self.auto_global_visit:
         #     return visitor(node)
 
         if visitor is not None:
             result = visitor(node)
-
-        # handle acr
-        if isinstance(node, Scope):
-            previous_scope = self.scope
-            self.scope = node
-
-            previous_block = self.block
-            self.block = node
-
-            if visitor is not None:
-                self.generic_visit(node)
-            else:
-                result = self.generic_visit(node)
-
-            self.scope = previous_scope
-            self.block = previous_block
-        elif isinstance(node, Block):
-            previous_block = self.block
-            self.block = node
-
-            if visitor is not None:
-                self.generic_visit(node)
-            else:
-                result = self.generic_visit(node)
-
-            self.block = previous_block
+            self._acr_generic_visit(node)
         else:
-            if visitor is not None:
-                self.generic_visit(node)
-            else:
-                result = self.generic_visit(node)
+            result = self._acr_generic_visit(node)
 
         return result
 
