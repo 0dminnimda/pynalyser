@@ -81,7 +81,10 @@ class SequenceType(SingleType):
     item_type: PynalyserType
 
     dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
-        factory=lambda: {"mul": [IntType()], "rmul": [IntType()]},
+        factory=lambda: {
+            "mul": [IntType()],
+            "rmul": [IntType()],
+            "getitem": [AnyType]},
         init=False, hash=False)
 
     # see docs.python.org/3/c-api/typeobj.html
@@ -94,18 +97,36 @@ class SequenceType(SingleType):
     __rmul__ = __mul__
     # dunder_signatures["rmul"] = [IntType]
 
+    def __getitem__(self, item: PynalyserType) -> PynalyserType:
+        return AnyType
+
     @property
     def as_str(self) -> str:
         return f"{super().as_str}[{self.item_type.as_str}]"
 
 
-# @attr.s(auto_attribs=True)
-# class ListType(SequenceType):
-#     is_builtin: bool = True
+@attr.s(auto_attribs=True, hash=True)
+class SliceType(SingleType):
+    name: str = "slice"
+    is_builtin: bool = True
 
-    # def __mul__(self, other: PynalyserType):
-    #     if isinstance(other, ListType):
-    #         pass
+
+@attr.s(auto_attribs=True, hash=True)
+class ListType(SequenceType):
+    name: str = "list"
+    is_builtin: bool = True
+
+    dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
+        factory=lambda: {
+            "mul": [IntType()],
+            "rmul": [IntType()],
+            "getitem": [IntType(), SliceType()]},
+        init=False, hash=False)
+
+    def __getitem__(self, item: PynalyserType) -> PynalyserType:
+        if isinstance(item, (IntType, SliceType)):
+            return self
+        return NotImplemented
 
 # @attr.s(auto_attribs=True)
 # class IterableType(PynalyserType):
