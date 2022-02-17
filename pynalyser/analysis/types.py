@@ -5,7 +5,7 @@ from warnings import warn
 from ..acr import classes as acr_c
 from ..acr.utils import NODE, NodeVisitor, dump
 from ._types import (DUNDER_SIGNATURE, AnyType, IntType, PynalyserType,
-                     SequenceType, SingleType, UnionType)
+                     SequenceType, SingleType, UnionType, ListType, SliceType)
 from .tools import Analyser
 
 binop_s = {"Add": "+",
@@ -42,11 +42,21 @@ class ExprTypeInference(NodeVisitor):
         return AnyType
 
     def visit_ListComp(self, node: acr_c.ListComp) -> PynalyserType:
-        return SequenceType(name=list.__name__, is_builtin=True,
-                            item_type=AnyType)  # TODO: infer item type
+        return ListType(item_type=AnyType)  # TODO: infer item type
 
     def visit_Attribute(self, node: ast.Attribute) -> PynalyserType:
         return AnyType
+
+    def visit_Subscript(self, node: ast.Subscript) -> PynalyserType:
+        value_type = self.visit(node.value)
+        slice_type = self.visit(node.slice)
+        if isinstance(value_type, SequenceType):
+            return value_type[slice_type]
+
+        raise NotImplementedError
+
+    def visit_Slice(self, node: ast.Slice) -> PynalyserType:
+        return SliceType()
 
     def visit_BinOp(self, node: ast.BinOp) -> PynalyserType:
         left, right, result = self.handle_op(
@@ -61,9 +71,8 @@ class ExprTypeInference(NodeVisitor):
         return result
 
     def visit_List(self, node: ast.List) -> PynalyserType:
-        return SequenceType(name=list.__name__, is_builtin=True,
-                            item_type=UnionType.make(
-                                *map(self.visit, node.elts), fallback=AnyType))
+        return ListType(item_type=UnionType.make(
+            *map(self.visit, node.elts), fallback=AnyType))
 
     def visit_Tuple(self, node: ast.Tuple) -> PynalyserType:
         return SequenceType(name=tuple.__name__, is_builtin=True,
@@ -122,7 +131,7 @@ class TypeInference(Analyser):
     def infer_acr_expr(self, node: Union[ast.AST, acr_c.ACR]) -> PynalyserType:
         return self.expr_type_inference.infer(self.scope, node)
 
-    def mash_ast_and_type(self, node: ast.AST, tp: PynalyserType) -> None:
+    def infer_assignment(self, node: ast.AST, tp: PynalyserType) -> None:
         if isinstance(node, ast.Name):
             symbol_data = self.scope.symbol_table[node.id]
             if symbol_data.type is AnyType:
@@ -134,14 +143,26 @@ class TypeInference(Analyser):
                 # anyways it's not handled here
                 # raise TypeError("symbol's type is already set to {}")
 
+        # in case of list or tuple we can infer number of elements
         # elif isinstance(node, ast.Name):
 
     def visit_Assign(self, node: ast.Assign) -> None:
         tp = self.infer_acr_expr(node.value)
         for target in node.targets:
-            self.mash_ast_and_type(target, tp)
+            self.infer_assignment(target, tp)
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         if node.value is not None:
             tp = self.infer_acr_expr(node.value)
-            self.mash_ast_and_type(node.target, tp)
+            self.infer_assignment(node.target, tp)
+
+    def visit_For(self, node: acr_c.For) -> None:
+        tp = self.infer_acr_expr(node.iter)
+
+        # TODO: BAD CODE, WE NEED IterableType
+        try:
+            tp = tp.item_type
+        except AttributeError:
+            pass
+
+        self.infer_assignment(node.target, tp)
