@@ -9,6 +9,9 @@ class PynalyserType:
     def as_str(self) -> str:
         raise NotImplementedError
 
+    def deref(self) -> "PynalyserType":
+        return self
+
 
 @attr.s(auto_attribs=True)
 class UnionType(PynalyserType):
@@ -75,10 +78,19 @@ NotImplementedType = type(NotImplemented)
 ReturnT = Union[PynalyserType, NotImplementedType]
 
 
-@attr.s(auto_attribs=True, hash=True, auto_detect=True)
-class SequenceType(SingleType):
-    # TODO: not finshed, see docs.python.org/3/library/collections.abc.html
+@attr.s(auto_attribs=True)
+class IterableType(SingleType):
     item_type: PynalyserType
+    name: str = "Iterable"
+
+    @property
+    def as_str(self) -> str:
+        return f"{super().as_str}[{self.item_type.as_str}]"
+
+
+@attr.s(auto_attribs=True, hash=True, auto_detect=True)
+class SequenceType(IterableType):
+    # TODO: not finshed, see docs.python.org/3/library/collections.abc.html
 
     dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
         factory=lambda: {
@@ -99,10 +111,6 @@ class SequenceType(SingleType):
 
     def __getitem__(self, item: PynalyserType) -> PynalyserType:
         return AnyType
-
-    @property
-    def as_str(self) -> str:
-        return f"{super().as_str}[{self.item_type.as_str}]"
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -128,6 +136,8 @@ class ListType(SequenceType):
             return self
         return NotImplemented
 
-# @attr.s(auto_attribs=True)
-# class IterableType(PynalyserType):
-#     name: str
+
+@attr.s(auto_attribs=True, hash=True)
+class TupleType(SequenceType):
+    name: str = "tuple"
+    is_builtin: bool = True
