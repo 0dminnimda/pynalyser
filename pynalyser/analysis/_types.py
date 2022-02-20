@@ -1,3 +1,4 @@
+from functools import total_ordering
 from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import attr
@@ -47,7 +48,7 @@ class UnionType(PynalyserType):
             return cls(unique_types)
 
 
-DUNDER_SIGNATURE = List["SingleType"]
+DUNDER_SIGNATURE = Tuple[Type["SingleType"], ...]
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -66,16 +67,53 @@ class SingleType(PynalyserType):
 AnyType = SingleType(name="object", is_builtin=True)
 
 
+# T = TypeVar("T")
+
+NotImplementedType = type(NotImplemented)
+ReturnT = Union[PynalyserType, NotImplementedType]
+
+
 @attr.s(auto_attribs=True, hash=True)
 class IntType(SingleType):
     name: str = "int"
     is_builtin: bool = True
 
+    dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
+        factory=lambda: {
+            "lt": (IntType,),
+            "gt": (IntType,),
+            "le": (IntType,),
+            "ge": (IntType,),
+            "eq": (IntType,),
+            "ne": (IntType,),
+        },
+        init=False, hash=False)
 
-# T = TypeVar("T")
+    # also see "long_compare" in cpython github
+    def _cmp(self, other) -> ReturnT:
+        if isinstance(other, IntType):
+            return BoolType()
+        return NotImplemented
 
-NotImplementedType = type(NotImplemented)
-ReturnT = Union[PynalyserType, NotImplementedType]
+    __lt__ = _cmp
+    __gt__ = _cmp
+    __le__ = _cmp
+    __ge__ = _cmp
+    __eq__ = _cmp
+    __ne__ = _cmp
+
+    # dunder_signatures["lt"] = [IntType]
+    # dunder_signatures["gt"] = [IntType]
+    # dunder_signatures["le"] = [IntType]
+    # dunder_signatures["ge"] = [IntType]
+    # dunder_signatures["eq"] = [IntType]
+    # dunder_signatures["ne"] = [IntType]
+
+
+@attr.s(auto_attribs=True, hash=True)
+class BoolType(IntType):
+    name: str = "bool"
+    is_builtin: bool = True
 
 
 @attr.s(auto_attribs=True)
@@ -94,9 +132,10 @@ class SequenceType(IterableType):
 
     dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
         factory=lambda: {
-            "mul": [IntType()],
-            "rmul": [IntType()],
-            "getitem": [AnyType]},
+            "mul":     (IntType,      ),
+            "rmul":    (IntType,      ),
+            "getitem": (type(AnyType),)
+        },
         init=False, hash=False)
 
     # see docs.python.org/3/c-api/typeobj.html
@@ -126,13 +165,16 @@ class ListType(SequenceType):
 
     dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
         factory=lambda: {
-            "mul": [IntType()],
-            "rmul": [IntType()],
-            "getitem": [IntType(), SliceType()]},
+            "mul":     (IntType,           ),
+            "rmul":    (IntType,           ),
+            "getitem": (IntType, SliceType,),
+        },
         init=False, hash=False)
 
     def __getitem__(self, item: PynalyserType) -> PynalyserType:
-        if isinstance(item, (IntType, SliceType)):
+        if isinstance(item, IntType):
+            return self.item_type
+        if isinstance(item, SliceType):
             return self
         return NotImplemented
 
