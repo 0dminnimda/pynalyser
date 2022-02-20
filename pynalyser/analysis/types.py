@@ -1,10 +1,11 @@
 import ast
-from typing import List, Tuple, Union
+from typing import Any, List, Tuple, Union
 from warnings import warn
 
 from ..acr import classes as acr_c
 from ..acr.utils import NODE, NodeVisitor, dump
-from ._ref_types import BinOpType, ItemType, SubscriptType, SymbolType, binop_s
+from ._ref_types import (BinOpType, CallType, ItemType, SubscriptType,
+                         SymbolType, CompareType)
 from ._types import (DUNDER_SIGNATURE, AnyType, IntType, ListType,
                      PynalyserType, SequenceType, SingleType, SliceType,
                      TupleType, UnionType)
@@ -21,6 +22,12 @@ class ExprTypeInference(NodeVisitor):
             return res
         return AnyType
 
+    def visit_Call(self, node: ast.Call) -> PynalyserType:
+        return CallType(
+            self.visit(node.func),
+            [self.visit(item) for item in node.args],
+            [(item.arg, self.visit(item.value)) for item in node.keywords])
+
     # def visit_Attribute(self, node: ast.Attribute) -> PynalyserType:
     #     return AnyType
 
@@ -30,6 +37,11 @@ class ExprTypeInference(NodeVisitor):
     def visit_BinOp(self, node: ast.BinOp) -> PynalyserType:
         return BinOpType(type(node.op).__name__,
                          self.visit(node.left), self.visit(node.right))
+
+    def visit_Compare(self, node: ast.Compare) -> PynalyserType:
+        return CompareType(self.visit(node.left),
+                           [type(op).__name__ for op in node.ops],
+                           [self.visit(item) for item in node.comparators])
 
     ### Comprehentions ###
 
@@ -57,7 +69,7 @@ class ExprTypeInference(NodeVisitor):
         return SingleType(name=type(node.value).__name__, is_builtin=True)
 
     def visit_Name(self, node: ast.Name) -> PynalyserType:
-        return SymbolType(self.scope.symbol_table[node.id])
+        return SymbolType(node.id, self.scope.symbol_table[node.id])
 
 
 class TypeInference(Analyser):
