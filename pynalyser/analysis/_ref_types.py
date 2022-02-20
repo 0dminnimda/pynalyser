@@ -206,9 +206,28 @@ class ItemType(PynalyserType):
 
     def __attrs_post_init__(self):
         tp = self.iterable.deref()
-        if tp is AnyType and isinstance(self.iterable, SymbolType):
-            self.iterable.symbol.type = IterableType(
-                item_type=AnyType, is_builtin=False)
+        if tp is AnyType:
+            if isinstance(self.iterable, SymbolType):
+                self.iterable.symbol.type = IterableType(
+                    item_type=AnyType, is_builtin=False)
+            # XXX: should we let it be and cause an error?
+            # else:
+            #     self.iterable = IterableType(
+            #         item_type=AnyType, is_builtin=False)
 
     def deref(self) -> PynalyserType:
         return self.iterable.deref().item_type.deref()
+
+
+@attr.s(auto_attribs=True)
+class CallType(PynalyserType):
+    func: PynalyserType
+    args: List[PynalyserType]
+    keywords: List[Tuple[Optional[str], PynalyserType]]
+
+    def deref(self) -> PynalyserType:
+        if isinstance(self.func, SymbolType) and self.func.name == "range":
+            return IterableType(item_type=IntType(),
+                                is_builtin=False)  # XXX: is_builtin??
+
+        return AnyType
