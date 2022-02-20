@@ -1,12 +1,13 @@
-from typing import Tuple
+from typing import List, Optional, Tuple
 import attr
 
-from ._types import PynalyserType, AnyType, SingleType, UnionType, IterableType
+from ._types import PynalyserType, AnyType, SingleType, UnionType, IterableType, IntType
 from .symbols import SymbolData
 
 
 @attr.s(auto_attribs=True)
 class SymbolType(PynalyserType):
+    name: str
     symbol: SymbolData
 
     def deref(self) -> PynalyserType:
@@ -61,7 +62,7 @@ class BinOpType(PynalyserType):
             sign = tp.dunder_signatures.get(this_method, None)
             if sign is not None:
                 # TODO: also add type that have __{other_method}__ op
-                other = UnionType.make(*sign)
+                other = UnionType.make(*(_tp() for _tp in sign))
                 assert isinstance(other, SingleType)
             else:
                 print(tp.dunder_signatures, method, sign)
@@ -74,10 +75,15 @@ class BinOpType(PynalyserType):
         if left is AnyType and right is AnyType:
             raise NotImplementedError
         elif left is AnyType:
-            raise NotImplementedError
+            print("LEFT")
+            left = narrow_type(
+                right, (right.name, left.name),
+                op_to_dunder[self.op], use_left=False)
         elif right is AnyType:
-            right = narrow_type(left, (left.name, right.name),
-                                op_to_dunder[self.op], use_left=True)
+            print("RIGHT")
+            right = narrow_type(
+                left, (left.name, right.name),
+                op_to_dunder[self.op], use_left=True)
         # else:
         #     raise NotImplementedError
         #     name = op_to_dunder[op]
@@ -101,6 +107,80 @@ class BinOpType(PynalyserType):
 
     def deref(self) -> PynalyserType:
         return binop[self.op](self.left.deref(), self.right.deref())
+
+
+cmp_s = {"Lt": "<"}
+
+cmp = {
+    name: eval(f"lambda a, b: a {op} b")
+    for name, op in cmp_s.items()}
+
+cmp_to_dunder = {"Lt": "lt"}
+
+
+@attr.s(auto_attribs=True)
+class CompareType(PynalyserType):
+    left: PynalyserType
+    ops: List[str]
+    comparators: List[PynalyserType]
+
+    def __attrs_post_init__(self):
+        left = self.left.deref()
+        assert isinstance(left, SingleType)
+        right = self.comparators[0].deref()
+        assert isinstance(right, SingleType)
+
+        def narrow_type(tp: SingleType, both: Tuple[str, str],
+                        method: str, use_left: bool):
+            if use_left:
+                this_method = method
+                # other_method = "r" + method
+                # swapped_cmp_op - lt <=> gt ..
+            else:
+                this_method = "r" + method
+                # other_method = method
+
+            sign = tp.dunder_signatures.get(this_method, None)
+            if sign is not None:
+                # TODO: also add type that have __{other_method}__ op
+                other = UnionType.make(*(_tp() for _tp in sign))
+                assert isinstance(other, SingleType)
+            else:
+                print(tp.dunder_signatures, method, sign)
+                raise TypeError(
+                    f"unsupported operand type(s) for {cmp_s[self.ops[0]]}: "
+                    f"'{both[0]}' and '{both[1]}'")
+
+            return other
+
+        if left is AnyType and right is AnyType:
+            raise NotImplementedError
+        elif left is AnyType:
+            left = narrow_type(
+                right, (right.name, left.name),
+                cmp_to_dunder[self.ops[0]], use_left=False)
+        elif right is AnyType:
+            right = narrow_type(
+                left, (left.name, right.name),
+                cmp_to_dunder[self.ops[0]], use_left=True)
+
+        if isinstance(self.left, SymbolType):
+            self.left.symbol.type = left
+        if isinstance(self.comparators[0], SymbolType):
+            self.comparators[0].symbol.type = right
+
+    def _deref(self, res: PynalyserType, ops,
+               vals: List[PynalyserType]) -> PynalyserType:
+        if ops and vals:
+            res = ops.pop(0)(res, vals.pop(0))
+            if ops and vals:
+                return self._deref(res, ops, vals)
+            else:
+                return res
+        raise ValueError("Empty 'ops' and 'val'")
+
+    def deref(self) -> PynalyserType:
+        return self._deref(self.left, self.ops, self.comparators)
 
 
 @attr.s(auto_attribs=True)
