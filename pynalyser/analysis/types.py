@@ -106,3 +106,10 @@ class TypeInference(Analyser):
     def visit_For(self, node: acr_c.For) -> None:
         tp = self.infer_acr_expr(node.iter)
         self.infer_assignment(node.target, ItemType(tp))
+
+    def visit_While(self, node: acr_c.While) -> None:
+        tp = self.infer_acr_expr(node.test)
+        # can be boolable
+        # if bool(test) is always True / False,
+        # then we have infinite loop or
+        # we can skip loop
