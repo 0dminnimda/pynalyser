@@ -14,11 +14,11 @@ class PynalyserType:
         return self
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, hash=True)
 class UnionType(PynalyserType):
-    types: List[PynalyserType] = attr.ib()
+    types: Tuple[PynalyserType, ...] = attr.ib()
     @types.validator
-    def check(self, attribute: attr.ib, value: List[PynalyserType]):
+    def check(self, attribute: attr.ib, value: Tuple[PynalyserType, ...]):
         if len(value) <= 1:
             raise ValueError("there should be more than 2 different types")
 
@@ -37,7 +37,7 @@ class UnionType(PynalyserType):
             else:
                 new_types.append(tp)
 
-        unique_types = list(set(new_types))
+        unique_types = tuple(set(new_types))
         if len(unique_types) == 0:
             if fallback is not None:
                 return fallback
