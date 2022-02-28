@@ -1,7 +1,9 @@
 from typing import List, Optional, Tuple
+
 import attr
 
-from ._types import PynalyserType, AnyType, SingleType, UnionType, IterableType, IntType
+from ._types import (AnyType, IntType, IterableType, PynalyserType, SingleType,
+                     UnionType, UnknownType)
 from .symbols import SymbolData
 
 
@@ -208,14 +210,14 @@ class ItemType(PynalyserType):
 
     def __attrs_post_init__(self):
         tp = self.iterable.deref()
-        if tp is AnyType:
+        if tp is UnknownType:
             if isinstance(self.iterable, SymbolType):
                 self.iterable.symbol.type = IterableType(
-                    item_type=AnyType, is_builtin=False)
+                    item_type=UnknownType, is_builtin=False)
             # XXX: should we let it be and cause an error?
             # else:
             #     self.iterable = IterableType(
-            #         item_type=AnyType, is_builtin=False)
+            #         item_type=UnknownType, is_builtin=False)
 
     def deref(self) -> PynalyserType:
         return self.iterable.deref().item_type.deref()

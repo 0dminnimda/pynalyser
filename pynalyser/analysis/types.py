@@ -6,7 +6,7 @@ from ..acr import classes as acr_c
 from ..acr.utils import NODE, NodeVisitor, dump
 from ._ref_types import (BinOpType, CallType, ItemType, SubscriptType,
                          SymbolType, CompareType)
-from ._types import (DUNDER_SIGNATURE, AnyType, IntType, ListType,
+from ._types import (DUNDER_SIGNATURE, UnknownType, AnyType, IntType, ListType,
                      PynalyserType, SequenceType, SingleType, SliceType,
                      TupleType, UnionType)
 from .tools import Analyser
@@ -46,17 +46,17 @@ class ExprTypeInference(NodeVisitor):
     ### Comprehentions ###
 
     def visit_ListComp(self, node: acr_c.ListComp) -> PynalyserType:
-        return ListType(item_type=AnyType)  # TODO: infer item type
+        return ListType(item_type=UnknownType)  # TODO: infer item type
 
     ### Builtin sequences ###
 
     def visit_List(self, node: ast.List) -> PynalyserType:
         return ListType(item_type=UnionType.make(
-            *map(self.visit, node.elts), fallback=AnyType))
+            *map(self.visit, node.elts), fallback=UnknownType))
 
     def visit_Tuple(self, node: ast.Tuple) -> PynalyserType:
         return TupleType(item_type=UnionType.make(
-            *map(self.visit, node.elts), fallback=AnyType))
+            *map(self.visit, node.elts), fallback=UnknownType))
 
     ### Basic "building blocks"  ###
 
@@ -81,7 +81,7 @@ class TypeInference(Analyser):
     def infer_assignment(self, node: ast.AST, tp: PynalyserType) -> None:
         if isinstance(node, ast.Name):
             symbol_data = self.scope.symbol_table[node.id]
-            if symbol_data.type is AnyType:
+            if symbol_data.type is UnknownType:
                 symbol_data.type = tp
             else:
                 symbol_data.type = UnionType.make(symbol_data.type, tp)

@@ -1,4 +1,3 @@
-from functools import total_ordering
 from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import attr
@@ -66,7 +65,8 @@ class SingleType(PynalyserType):
         return self.name
 
 
-AnyType = SingleType(name="object", is_builtin=True)
+AnyType = SingleType(name="object", is_builtin=False)
+UnknownType = SingleType(name="object", is_builtin=False)
 
 
 # T = TypeVar("T")
