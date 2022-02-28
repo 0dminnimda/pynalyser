@@ -5,13 +5,16 @@ from ._types import PynalyserType, AnyType, SingleType, UnionType, IterableType,
 from .symbols import SymbolData
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, auto_detect=True)
 class SymbolType(PynalyserType):
     name: str
     symbol: SymbolData
 
     def deref(self) -> PynalyserType:
         return self.symbol.type.deref()
+
+    def __hash__(self) -> int:
+        return hash((type(self), self.name))
 
 
 binop_s = {"Add": "+",
@@ -38,7 +41,7 @@ op_to_dunder = {
 }
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, hash=True)
 class BinOpType(PynalyserType):
     op: str
     left: PynalyserType
@@ -118,7 +121,7 @@ cmp = {
 cmp_to_dunder = {"Lt": "lt"}
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, hash=True)
 class CompareType(PynalyserType):
     left: PynalyserType
     ops: List[str]
@@ -183,7 +186,7 @@ class CompareType(PynalyserType):
         return self._deref(self.left, self.ops, self.comparators)
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, hash=True)
 class SubscriptType(PynalyserType):
     value: PynalyserType
     slice: PynalyserType
@@ -200,7 +203,7 @@ class SubscriptType(PynalyserType):
     #     raise NotImplementedError
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, hash=True)
 class ItemType(PynalyserType):
     iterable: PynalyserType
 
@@ -219,7 +222,7 @@ class ItemType(PynalyserType):
         return self.iterable.deref().item_type.deref()
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, hash=True)
 class CallType(PynalyserType):
     func: PynalyserType
     args: List[PynalyserType]
