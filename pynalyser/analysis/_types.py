@@ -59,6 +59,8 @@ class SingleType(PynalyserType):
     dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
         factory=dict, init=False, hash=False)
 
+    is_completed: bool = attr.ib(default=False, kw_only=True)
+
     @property
     def as_str(self) -> str:
         return self.name
@@ -89,6 +91,8 @@ class IntType(SingleType):
         },
         init=False, hash=False)
 
+    is_completed: bool = True
+
     # also see "long_compare" in cpython github
     def _cmp(self, other) -> ReturnT:
         if isinstance(other, IntType):
@@ -114,6 +118,8 @@ class IntType(SingleType):
 class BoolType(IntType):
     name: str = "bool"
     is_builtin: bool = True
+
+    is_completed: bool = True
 
 
 @attr.s(auto_attribs=True)
@@ -157,6 +163,8 @@ class SliceType(SingleType):
     name: str = "slice"
     is_builtin: bool = True
 
+    is_completed: bool = True
+
 
 @attr.s(auto_attribs=True, hash=True)
 class ListType(SequenceType):
@@ -171,6 +179,8 @@ class ListType(SequenceType):
         },
         init=False, hash=False)
 
+    is_completed: bool = True
+
     def __getitem__(self, item: PynalyserType) -> PynalyserType:
         if isinstance(item, IntType):
             return self.item_type
@@ -183,3 +193,5 @@ class ListType(SequenceType):
 class TupleType(SequenceType):
     name: str = "tuple"
     is_builtin: bool = True
+
+    is_completed: bool = True
