@@ -225,8 +225,8 @@ class ItemType(PynalyserType):
 @attr.s(auto_attribs=True, hash=True)
 class CallType(PynalyserType):
     func: PynalyserType
-    args: List[PynalyserType]
-    keywords: List[Tuple[Optional[str], PynalyserType]]
+    args: Tuple[PynalyserType, ...]
+    keywords: Tuple[Tuple[Optional[str], PynalyserType], ...]
 
     def deref(self) -> PynalyserType:
         if isinstance(self.func, SymbolType) and self.func.name == "range":
