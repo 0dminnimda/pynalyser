@@ -75,15 +75,13 @@ class BinOpType(PynalyserType):
 
             return other
 
-        if left is AnyType and right is AnyType:
+        if not left.is_completed and not right.is_completed:
             raise NotImplementedError
-        elif left is AnyType:
-            print("LEFT")
+        elif not left.is_completed:
             left = narrow_type(
                 right, (right.name, left.name),
                 op_to_dunder[self.op], use_left=False)
-        elif right is AnyType:
-            print("RIGHT")
+        elif not right.is_completed:
             right = narrow_type(
                 left, (left.name, right.name),
                 op_to_dunder[self.op], use_left=True)
@@ -156,13 +154,14 @@ class CompareType(PynalyserType):
 
             return other
 
-        if left is AnyType and right is AnyType:
-            raise NotImplementedError
-        elif left is AnyType:
+        if not left.is_completed and not right.is_completed:
+            pass
+            # raise NotImplementedError
+        elif not left.is_completed:
             left = narrow_type(
                 right, (right.name, left.name),
                 cmp_to_dunder[self.ops[0]], use_left=False)
-        elif right is AnyType:
+        elif not right.is_completed:
             right = narrow_type(
                 left, (left.name, right.name),
                 cmp_to_dunder[self.ops[0]], use_left=True)
