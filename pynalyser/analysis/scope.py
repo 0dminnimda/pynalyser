@@ -4,6 +4,7 @@ from typing import List, Union
 from ..acr import classes as acr_c
 from .symbols import ScopeType
 from .tools import Analyser
+from .types import FunctionType, Arguments, Arg
 
 
 class AssignVisitor(ast.NodeVisitor):
@@ -45,25 +46,33 @@ class ScopeAnalyser(Analyser):
             # this symbol is used in self.scope
             self.scope.symbol_table[scope.name]
 
-    def handle_arguments(
+    def handle_function(
         self, scope: Union[acr_c.Lambda, acr_c.Function]
     ) -> None:
 
-        all_args: List[ast.arg] = (
-            scope.args.posonlyargs + scope.args.args + scope.args.kwonlyargs)
-        if scope.args.vararg:
-            all_args.append(scope.args.vararg)
-        if scope.args.kwarg:
-            all_args.append(scope.args.kwarg)
-
         assert len(scope.symbol_table) == 0
 
-        for arg in all_args:
-            symb = scope.symbol_table[arg.arg]
-            symb.is_arg = True
-            if not symb.change_scope(ScopeType.LOCAL, fail=False):
-                raise SyntaxError(
-                    f"duplicate argument '{arg.arg}' in function definition")
+        args = Arguments()
+
+        for arg in scope.args.posonlyargs:
+            args.posargs.append(self.handle_arg(scope, arg.arg))
+
+        for arg in scope.args.args:
+            args.args.append(self.handle_arg(scope, arg.arg))
+
+        for arg in scope.args.kwonlyargs:
+            args.kwargs.append(self.handle_arg(scope, arg.arg))
+
+        if scope.args.vararg is not None:
+            args.stararg = self.handle_arg(scope, scope.args.vararg.arg)
+
+        if scope.args.kwarg is not None:
+            args.twostararg = self.handle_arg(scope, scope.args.kwarg.arg)
+
+        symbol = self.scope.symbol_table[scope.name]
+        symbol.type = FunctionType(args)
+        symbol.change_scope(ScopeType.LOCAL)
+        symbol.holds_symbol_table = True
 
     def visit_For(self, node: acr_c.For) -> None:
         self.setup_symbols_by_assign(node.target)
