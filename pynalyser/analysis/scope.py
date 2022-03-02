@@ -34,6 +34,8 @@ class AssignVisitor(ast.NodeVisitor):
         self.names.append(node.id)
 
 
+# TODO: scope should be separated from acr
+# it should yield it's oun result
 class ScopeAnalyser(Analyser):
     # we receive acr with global and nonlocal keywords
     # already transformed into symbol's scope value
@@ -45,6 +47,16 @@ class ScopeAnalyser(Analyser):
         if scope.is_symbol:
             # this symbol is used in self.scope
             self.scope.symbol_table[scope.name]
+
+    def handle_arg(self, scope: acr_c.Scope, name: str) -> Arg:
+        symbol = scope.symbol_table[name]
+        symbol.is_arg = True
+
+        if not symbol.change_scope(ScopeType.LOCAL, fail=False):
+            raise SyntaxError(
+                f"duplicate argument '{name}' in function definition")
+
+        return Arg(name, symbol)
 
     def handle_function(
         self, scope: Union[acr_c.Lambda, acr_c.Function]
@@ -77,25 +89,23 @@ class ScopeAnalyser(Analyser):
     def visit_For(self, node: acr_c.For) -> None:
         self.setup_symbols_by_assign(node.target)
 
+    # def visit_ListComp(self, node: acr_c.ListComp) -> None:
+    #     self.handle_scope(node)
+
+    # def visit_SetComp(self, node: acr_c.SetComp) -> None:
+    #     self.handle_scope(node)
+
+    # def visit_GeneratorExp(self, node: acr_c.GeneratorExp) -> None:
+    #     self.handle_scope(node)
+
+    # def visit_DictComp(self, node: acr_c.DictComp) -> None:
+    #     self.handle_scope(node)
+
     def visit_Lambda(self, node: acr_c.Lambda) -> None:
-        self.handle_arguments(node)
-        self.handle_scope(node)
-
-    def visit_ListComp(self, node: acr_c.ListComp) -> None:
-        self.handle_scope(node)
-
-    def visit_SetComp(self, node: acr_c.SetComp) -> None:
-        self.handle_scope(node)
-
-    def visit_GeneratorExp(self, node: acr_c.GeneratorExp) -> None:
-        self.handle_scope(node)
-
-    def visit_DictComp(self, node: acr_c.DictComp) -> None:
-        self.handle_scope(node)
+        self.handle_function(node)
 
     def visit_Function(self, node: acr_c.Function) -> None:
-        self.handle_arguments(node)
-        self.handle_scope(node)
+        self.handle_function(node)
 
     def visit_Class(self, node: acr_c.Class) -> None:
         self.handle_scope(node)
