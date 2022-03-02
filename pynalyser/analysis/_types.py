@@ -197,23 +197,3 @@ class TupleType(SequenceType):
     is_completed: bool = True
 
 
-@attr.s(auto_attribs=True, hash=True)
-class Arg:
-    name: str
-    type: PynalyserType
-    default: Optional[PynalyserType]
-
-
-@attr.s(auto_attribs=True, hash=True)
-class Arguments:
-    posargs: List[Arg]
-    args: List[Arg]
-    stararg: Optional[Arg]
-    kwargs: List[Arg]
-    twostararg: Optional[Arg]
-
-
-@attr.s(auto_attribs=True, hash=True)
-class FunctionType(PynalyserType):
-    args: Arguments
-    # return_type
