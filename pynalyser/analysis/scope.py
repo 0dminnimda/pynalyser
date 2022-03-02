@@ -119,7 +119,7 @@ class ScopeAnalyser(Analyser):
             symbol_data = self.scope.symbol_table[name]
 
             # in the other case it's already defined
-            symbol_data.change_scope(ScopeType.LOCAL, fail=False)
+            symbol_data.change_scope(ScopeType.LOCAL)
             symbol_data.imported = False
 
     def visit_Assign(self, node: ast.Assign) -> None:
@@ -157,7 +157,7 @@ class ScopeAnalyser(Analyser):
                     "NamedExpr should make symbol local for enclosing scope")
         else:
             # in the other case it's already defined
-            symbol.change_scope(ScopeType.LOCAL, fail=False)
+            symbol.change_scope(ScopeType.LOCAL)
 
         symbol.imported = False
 
