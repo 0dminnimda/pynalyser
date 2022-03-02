@@ -16,6 +16,7 @@ class ScopeType(Flag):  # XXX: maybe ScopeT?
     UNKNOWN = GLOBAL | NONLOCAL | LOCAL
 
 
+# TODO: rename to Symbol and look at variables that use this class
 @attr.s(auto_attribs=True)
 class SymbolData:
     # it seems like symbol's scope doesn't change
@@ -24,6 +25,7 @@ class SymbolData:
 
     imported: bool = False  # TODO: handle this in acr translation
     is_arg: bool = False
+    holds_symbol_table: bool = False
 
     type: PynalyserType = UnknownType
 
@@ -40,6 +42,8 @@ class SymbolData:
         if self.scope is ScopeType.UNKNOWN:
             self.scope = new_scope
             return True
+        elif self.scope == new_scope:
+            pass
         else:
             if not fail:
                 return False
