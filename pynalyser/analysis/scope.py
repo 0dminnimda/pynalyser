@@ -65,6 +65,11 @@ class ScopeAnalyser(Analyser):
         assert len(scope.symbol_table) == 0
 
         args = Arguments()
+        symbol = self.scope.symbol_table[scope.name]
+        symbol.type = FunctionType(args)
+        symbol.change_scope(ScopeType.LOCAL)
+        symbol.holds_symbol_table = True
+        scope.symbol_table = symbol.type.symbol_table
 
         for arg in scope.args.posonlyargs:
             args.posargs.append(self.handle_arg(scope, arg.arg))
@@ -80,11 +85,6 @@ class ScopeAnalyser(Analyser):
 
         if scope.args.kwarg is not None:
             args.twostararg = self.handle_arg(scope, scope.args.kwarg.arg)
-
-        symbol = self.scope.symbol_table[scope.name]
-        symbol.type = FunctionType(args)
-        symbol.change_scope(ScopeType.LOCAL)
-        symbol.holds_symbol_table = True
 
     def visit_For(self, node: acr_c.For) -> None:
         self.setup_symbols_by_assign(node.target)
