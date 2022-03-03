@@ -1,6 +1,6 @@
 from typing import List, Optional
 from ._types import PynalyserType, UnknownType
-from .symbols import SymbolData
+from .symbols import SymbolData, SymbolTable
 
 import attr
 
@@ -25,3 +25,4 @@ class Arguments:
 class FunctionType(PynalyserType):
     args: Arguments
     return_type: PynalyserType = UnknownType
+    symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
