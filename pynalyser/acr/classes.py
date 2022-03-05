@@ -111,7 +111,7 @@ CONTROL_FLOW = Union[  # TODO: not finished?
 
 
 # BlockContainer
-class FlowContainer(List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
+class FlowContainer(ACR, List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
     def get_code_block(self) -> "CodeBlock":
         if len(self):
             block = self[-1]
@@ -131,7 +131,7 @@ class FlowContainer(List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
         self.get_code_block().append(code)
 
 
-class CodeBlock(List[CODE]):
+class CodeBlock(ACR, List[CODE]):
     """a.k.a. Basic block"""
     pass
 
