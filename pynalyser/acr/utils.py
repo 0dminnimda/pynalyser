@@ -203,23 +203,20 @@ class NodeVisitor:
         if isinstance(node, ast.AST):
             return self._ast_visitor.generic_visit(self, node)
 
-        assert isinstance(node, Block)
-        for name in node._block_fields:
-            container: FlowContainer = getattr(node, name)
-            for item in container:
-                if isinstance(item, CodeBlock):
-                    for code in item:
-                        self.visit(code)
-                elif isinstance(item, Block):
+        if isinstance(node, Block):
+            for name in node._block_fields:
+                container: FlowContainer = getattr(node, name)
+                for item in container:
                     self.visit(item)
-                elif isinstance(item, (ast.Return, ast.Raise, ast.Assert,
-                                       ast.Break, ast.Continue)):
-                    self.visit(item)
-                else:
-                    raise RuntimeError(
-                        "Unreachable: item in flow container that's not "
-                        "CodeBlock, Block, Return, Raise, Assert, "
-                        f"Break, Continue, but {type(item).__name__}")
+            return node
+
+        if isinstance(node, CodeBlock):
+            for code in node:
+                self.visit(code)
+            return node
+
+        raise RuntimeError(
+            f"Expected ACR or AST, but got {type(node).__name__}")
 
 
 class ACRCodeTransformer(NodeVisitor):
@@ -234,30 +231,24 @@ class ACRCodeTransformer(NodeVisitor):
         if isinstance(node, ast.AST):
             return self._ast_visitor.generic_visit(self, node)
 
-        assert isinstance(node, Block)
-        for name in node._block_fields:
-            container: FlowContainer = getattr(node, name)
-            for i, item in enumerate(container):
-                if isinstance(item, CodeBlock):
-                    new_code_block: CodeBlock = CodeBlock()
-                    for code in item:
-                        value = self.visit(code)
-                        if value is None:
-                            pass
-                        elif isinstance(value, (ast.AST, ACR)):
-                            new_code_block.append(value)
-                        else:
-                            new_code_block.extend(value)
-                    container[i] = new_code_block
-                elif isinstance(item, Block):
-                    self.visit(item)
-                elif isinstance(item, (ast.Return, ast.Raise, ast.Assert,
-                                       ast.Break, ast.Continue)):
-                    self.visit(item)
-                else:
-                    raise RuntimeError(
-                        "Unreachable: item in flow container that's not "
-                        "CodeBlock, Block, Return, Raise, Assert, "
-                        f"Break, Continue, but {type(item).__name__}")
+        if isinstance(node, Block):
+            for name in node._block_fields:
+                container: FlowContainer = getattr(node, name)
+                for i, item in enumerate(container):
+                    container[i] = self.visit(item)
+            return node
 
-        return node
+        if isinstance(node, CodeBlock):
+            new_code_block: CodeBlock = CodeBlock()
+            for code in node:
+                value = self.visit(code)
+                if value is None:
+                    pass
+                elif isinstance(value, (ast.AST, ACR)):
+                    new_code_block.append(value)
+                else:
+                    new_code_block.extend(value)
+            return node
+
+        raise RuntimeError(
+            f"Expected ACR or AST, but got {type(node).__name__}")
