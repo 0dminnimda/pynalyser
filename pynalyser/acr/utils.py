@@ -130,8 +130,9 @@ class NodeVisitor:
 
     scope: Scope
     block: Block
-    # strict: bool = False
-    # auto_global_visit: bool = True
+
+    strict: bool = False
+    auto_global_visit: bool = True
 
     def start(self, init_scope_block: Scope,
               to_visit: Optional[NODE] = None) -> Any:
@@ -176,23 +177,20 @@ class NodeVisitor:
         visitor = getattr(self, method, None)
 
         if visitor is None:
-            # if self.strict:
-            #     raise ValueError(
-            #         f"There are no '{method}' method. "
-            #         "You see this message because you're in strict mode. "
-            #         f"See {type(self).__name__}.strict")
-
             if isinstance(node, ScopeReference):
                 return self.generic_visit(node)
+            if self.strict:
+                raise ValueError(
+                    f"There are no '{method}' method. "
+                    "You see this message because you're in strict mode. "
 
-        # if not self.auto_global_visit:
-        #     return visitor(node)
+                    f"See {type(self).__name__}.strict")
 
-        if visitor is not None:
-            result = visitor(node)
-            self._acr_generic_visit(node)
-        else:
             result = self._acr_generic_visit(node)
+        else:
+            result = visitor(node)
+            if self.auto_global_visit:
+                self._acr_generic_visit(node)
 
         return result
 
