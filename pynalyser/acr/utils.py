@@ -132,7 +132,7 @@ class NodeVisitor:
     block: Block
 
     strict: bool = False
-    auto_global_visit: bool = True
+    auto_generic_visit: bool = True
 
     def start(self, init_scope_block: Scope,
               to_visit: Optional[NODE] = None) -> Any:
@@ -189,7 +189,7 @@ class NodeVisitor:
             result = self._acr_generic_visit(node)
         else:
             result = visitor(node)
-            if self.auto_global_visit:
+            if self.auto_generic_visit:
                 self._acr_generic_visit(node)
 
         return result

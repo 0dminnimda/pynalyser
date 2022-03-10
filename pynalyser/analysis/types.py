@@ -14,7 +14,7 @@ from .tools import Analyser
 
 # XXX: merge into TypeInference?
 class ExprTypeInference(NodeVisitor):
-    # auto_global_visit: bool = True
+    # auto_generic_visit: bool = True
 
     def infer(self, scope: acr_c.Scope, node: NODE) -> PynalyserType:
         res = self.start(scope, node)
