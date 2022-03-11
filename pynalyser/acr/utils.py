@@ -203,9 +203,12 @@ class NodeVisitor:
 
         if isinstance(node, Block):
             for name in node._block_fields:
-                container: FlowContainer = getattr(node, name)
-                for item in container:
-                    self.visit(item)
+                self.visit(getattr(node, name))
+            return node
+
+        if isinstance(node, FlowContainer):
+            for item in node:
+                self.visit(item)
             return node
 
         if isinstance(node, CodeBlock):
@@ -231,9 +234,12 @@ class ACRCodeTransformer(NodeVisitor):
 
         if isinstance(node, Block):
             for name in node._block_fields:
-                container: FlowContainer = getattr(node, name)
-                for i, item in enumerate(container):
-                    container[i] = self.visit(item)
+                self.visit(getattr(node, name))
+            return node
+
+        if isinstance(node, FlowContainer):
+            for i, item in enumerate(node):
+                node[i] = self.visit(item)
             return node
 
         if isinstance(node, CodeBlock):
