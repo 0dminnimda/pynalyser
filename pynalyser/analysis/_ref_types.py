@@ -67,7 +67,9 @@ class BinOpType(PynalyserType):
             sign = tp.dunder_signatures.get(this_method, None)
             if sign is not None:
                 # TODO: also add type that have __{other_method}__ op
-                other = UnionType.make(*(_tp() for _tp in sign))
+                other = UnionType.make(*(
+                    _tp()  # type: ignore
+                    for _tp in sign))
                 assert isinstance(other, SingleType)
             else:
                 print(tp.dunder_signatures, method, sign)
@@ -146,7 +148,9 @@ class CompareType(PynalyserType):
             sign = tp.dunder_signatures.get(this_method, None)
             if sign is not None:
                 # TODO: also add type that have __{other_method}__ op
-                other = UnionType.make(*(_tp() for _tp in sign))
+                other = UnionType.make(*(
+                    _tp()  # type: ignore
+                    for _tp in sign))
                 assert isinstance(other, SingleType)
             else:
                 print(tp.dunder_signatures, method, sign)
@@ -193,7 +197,7 @@ class SubscriptType(PynalyserType):
     slice: PynalyserType
 
     def deref(self) -> PynalyserType:
-        return self.value.deref()[self.slice.deref()]
+        return self.value.deref()[self.slice.deref()]  # type: ignore
 
     # def visit_Subscript(self, node: ast.Subscript) -> PynalyserType:
     #     value_type = self.visit(node.value)
@@ -220,7 +224,7 @@ class ItemType(PynalyserType):
             #         item_type=UnknownType, is_builtin=False)
 
     def deref(self) -> PynalyserType:
-        return self.iterable.deref().item_type.deref()
+        return self.iterable.deref().item_type.deref()  # type: ignore
 
 
 @attr.s(auto_attribs=True, hash=True)

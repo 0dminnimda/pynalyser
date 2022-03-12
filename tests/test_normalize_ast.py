@@ -4,7 +4,8 @@ from pynalyser.normalize_ast import AstNormalizer, normalize_ast
 
 
 def assert_node_equality(node1: ast.AST, node2: ast.AST):
-    assert ast.dump(node1) == ast.dump(node2)
+    assert (ast.dump(node1, include_attributes=True) ==
+            ast.dump(node2, include_attributes=True))
 
 
 ############ AstNormalizer #############

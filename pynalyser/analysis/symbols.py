@@ -43,7 +43,7 @@ class SymbolData:
             self.scope = new_scope
             return True
         elif self.scope == new_scope:
-            pass
+            return True
         else:
             if not fail:
                 return False

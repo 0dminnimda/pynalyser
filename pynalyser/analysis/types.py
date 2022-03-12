@@ -26,7 +26,8 @@ class ExprTypeInference(NodeVisitor):
         return CallType(
             self.visit(node.func),
             tuple(self.visit(item) for item in node.args),
-            tuple((item.arg, self.visit(item.value)) for item in node.keywords))
+            tuple((item.arg, self.visit(item.value)) for item in node.keywords)
+        )
 
     # def visit_Attribute(self, node: ast.Attribute) -> PynalyserType:
     #     return AnyType

@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import attr
 
@@ -16,8 +16,9 @@ class PynalyserType:
 @attr.s(auto_attribs=True, hash=True)
 class UnionType(PynalyserType):
     types: Tuple[PynalyserType, ...] = attr.ib()
-    @types.validator
-    def check(self, attribute: attr.ib, value: Tuple[PynalyserType, ...]):
+
+    @types.validator  # type: ignore
+    def check(self, attribute: Any, value: Tuple[PynalyserType, ...]):
         if len(value) <= 1:
             raise ValueError("there should be more than 2 different types")
 
@@ -94,17 +95,17 @@ class IntType(SingleType):
     is_completed: bool = True
 
     # also see "long_compare" in cpython github
-    def _cmp(self, other) -> ReturnT:
+    def _cmp(self, other: PynalyserType) -> ReturnT:
         if isinstance(other, IntType):
             return BoolType()
         return NotImplemented
 
-    __lt__ = _cmp
-    __gt__ = _cmp
-    __le__ = _cmp
-    __ge__ = _cmp
-    __eq__ = _cmp
-    __ne__ = _cmp
+    __lt__ = _cmp  # type: ignore
+    __gt__ = _cmp  # type: ignore
+    __le__ = _cmp  # type: ignore
+    __ge__ = _cmp  # type: ignore
+    __eq__ = _cmp  # type: ignore
+    __ne__ = _cmp  # type: ignore
 
     # dunder_signatures["lt"] = [IntType]
     # dunder_signatures["gt"] = [IntType]

@@ -1,12 +1,12 @@
 import ast
 from collections import defaultdict
 from typing import (Any, Collection, Iterator, List, NamedTuple, Optional,
-                    Tuple, Union)
+                    Protocol, Tuple, Type, TypeVar, Union)
 
 from .classes import (ACR, Block, CodeBlock, FlowContainer, Module, Scope,
                       ScopeReference)
 
-### Dumping
+# Dumping
 
 
 class Context(NamedTuple):
@@ -119,14 +119,24 @@ def _format_ast_or_acr(obj: Union[ast.AST, ACR], ctx: Context,
     return args, allsimple
 
 
-### Tree traversing
+# Tree traversing
 
 
 NODE = Union[ACR, ast.AST]
 
+T_contra = TypeVar('T_contra', contravariant=True)
 
-class NodeVisitor:
-    _ast_visitor = ast.NodeVisitor
+
+class Visitor(Protocol[T_contra]):
+    def visit(self, node: T_contra) -> Any:
+        ...
+
+    def generic_visit(self, node: T_contra) -> Any:
+        ...
+
+
+class NodeVisitor(Visitor[NODE]):
+    _ast_visitor: Type[Visitor[ast.AST]] = ast.NodeVisitor
 
     scope: Scope
     block: Block
@@ -249,7 +259,7 @@ class ACRCodeTransformer(NodeVisitor):
                 if value is None:
                     pass
                 elif isinstance(value, (ast.AST, ACR)):
-                    new_code_block.append(value)
+                    new_code_block.append(value)  # type: ignore
                 else:
                     new_code_block.extend(value)
             return node
