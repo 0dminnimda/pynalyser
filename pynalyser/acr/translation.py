@@ -1,7 +1,7 @@
-import ast
 import sys
 from typing import List, NoReturn, Optional, Union
 
+from .. import portable_ast as ast
 from ..analysis.symbols import ScopeType
 from .classes import (Block, Class, DictComp, ExceptHandler, FlowContainer,
                       For, Function, GeneratorExp, If, Lambda, ListComp, Match,
@@ -9,25 +9,6 @@ from .classes import (Block, Class, DictComp, ExceptHandler, FlowContainer,
                       While, With)
 
 STMT_SCOPE = Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]
-
-
-if sys.version_info >= (3, 10):
-    ast_match_case = ast.match_case
-    ast_Match = ast.Match
-else:
-    class ast_pattern(ast.AST):
-        ...
-
-    _pattern = ast_pattern
-
-    class ast_match_case(ast.AST):
-        pattern: _pattern
-        guard: Optional[ast.expr]
-        body: List[ast.stmt]
-
-    class ast_Match(ast.stmt):
-        subject: ast.expr
-        cases: List[ast_match_case]
 
 
 class ForBlocks(ast.AST):
@@ -48,7 +29,7 @@ class Translator(ast.NodeTransformer):
     def handle_block_without_appending(
             self, block: Block, node: ast.AST) -> None:
 
-        self.generic_visit(block)
+        self.generic_visit(block)  # type: ignore
 
         self.handle_fields_of_block(block, node)
 
@@ -78,13 +59,13 @@ class Translator(ast.NodeTransformer):
         self.container.append(block)
         self.handle_block_without_appending(block, node)
 
-    def visit_match_case(self, node: ast_match_case) -> ast_match_case:
+    def visit_match_case(self, node: ast.match_case) -> ast.match_case:
         self.handle_block(
             MatchCase(node.pattern, node.guard),  # no attributes
             node)
         return node
 
-    def visit_Match(self, node: ast_Match) -> ast_Match:
+    def visit_Match(self, node: ast.Match) -> ast.Match:
         self.handle_block(
             Match(node.subject,
                   lineno=node.lineno, col_offset=node.col_offset),
@@ -152,7 +133,7 @@ class Translator(ast.NodeTransformer):
     def handle_scope(self, scope: Scope, node: ast.AST) -> ScopeReference:
         reference = self.scope.add_scope(scope)
 
-        self.generic_visit(scope)
+        self.generic_visit(scope)  # type: ignore
 
         prev_scope, self.scope = self.scope, scope
         self.handle_fields_of_block(scope, node)
@@ -325,10 +306,9 @@ class Translator(ast.NodeTransformer):
 
     def visit_Expr(self, node: ast.Expr) -> ast.Expr:
         self.generic_visit(node)
-        self.container.add_code(node.value)
+        self.container.add_code(node.value)  # type: ignore
         return node
 
-    # TODO: remove this
     def visit_Pass(self, node: ast.Pass) -> ast.Pass:
         self.generic_visit(node)
         self.container.add_code(node)

@@ -1,27 +1,11 @@
-import ast
-import sys
 from collections import defaultdict
 from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union
 
 import attr
 
-from ..analysis.symbols import SymbolTable
+from .. import portable_ast as ast
 from ..analysis._types import PynalyserType, UnknownType
-
-# TODO: have python version independent ast parser
-if sys.version_info < (3, 10):
-    class ast_pattern(ast.AST):
-        pass
-else:
-    ast_pattern = ast.pattern
-
-if sys.version_info < (3, 8):
-    class ast_NamedExpr(ast.expr):
-        target: ast.expr
-        value: ast.expr
-else:
-    ast_NamedExpr = ast.NamedExpr
-
+from ..analysis.symbols import SymbolTable
 
 ACR_T = TypeVar("ACR_T")
 
@@ -81,7 +65,7 @@ CODE = Union[
     ast.Break, ast.Continue,
 
     # expr - from breakdown of complex expressions
-    ast.BoolOp, ast_NamedExpr, ast.BinOp, ast.UnaryOp,
+    ast.BoolOp, ast.NamedExpr, ast.BinOp, ast.UnaryOp,
     ast.IfExp, ast.Dict, ast.Set, ast.Await,
     ast.Yield, ast.YieldFrom,  # special ones, can be removed later
     ast.Compare, ast.Call, ast.JoinedStr,
@@ -110,8 +94,8 @@ CONTROL_FLOW = Union[  # TODO: not finished?
 ]
 
 
-# BlockContainer
-class FlowContainer(ACR, List[CONTROL_FLOW]):  # XXX: maybe ControlFlowSomething?
+# XXX: ControlFlowSomething? BlockContainer?
+class FlowContainer(ACR, List[CONTROL_FLOW]):
     def get_code_block(self) -> "CodeBlock":
         if len(self):
             block = self[-1]
@@ -293,7 +277,7 @@ class DictComp(Comprehension):
 
 @attr.s(auto_attribs=True)
 class MatchCase(BodyBlock):
-    pattern: ast_pattern
+    pattern: ast.pattern
     guard: Optional[ast.expr]
 
 
