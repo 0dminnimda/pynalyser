@@ -197,4 +197,3 @@ class TupleType(SequenceType):
 
     is_completed: bool = True
 
-
