@@ -50,3 +50,7 @@ jobs:
 
       - name: Check the code with pycodestyle
         run: pycodestyle -v .
+
+      - name: Type check the code with mypy
+        if: ${{ always() }}
+        run: mypy . --config-file mypy.ini
