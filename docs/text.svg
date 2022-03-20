@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 180 115" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rainbow" x1="0" x2="0" y1="0" y2="100%" gradientUnits="userSpaceOnUse" >
+      <stop stop-color="#FF5B99" offset="0%"/>
+      <stop stop-color="#FF5447" offset="20%"/>
+      <stop stop-color="#FF7B21" offset="40%"/>
+      <stop stop-color="#EAFC37" offset="60%"/>
+      <stop stop-color="#4FCB6B" offset="80%"/>
+      <stop stop-color="#51F7FE" offset="100%"/>
+    </linearGradient>
+    <linearGradient id="my_palette" x1="0" x2="0" y1="0" y2="100%" gradientUnits="userSpaceOnUse" >
+      <stop stop-color="#95D240" offset="0%"/>
+      <stop stop-color="#3CB3C0" offset="100%"/>
+    </linearGradient>
+    <!-- <style type="text/css">
+      @import url(//fonts.googleapis.com/css?family=Oswald:700);
+
+      body {
+        font-family: "LIBRARY 3 AM", "Oswald", Impact, Charcoal, sans-serif;
+        text-transform: uppercase;
+        background: #000;
+      }
+
+      svg {
+        max-height: 100vh;
+        margin: 5vh auto;
+        display: block;
+      }
+    </style> -->
+  </defs>
+  <text fill="url(#rainbow)" font-family="'LIBRARY 3 AM'">
+    <tspan font-size="30" x="0" y="30">pynalyser</tspan>
+    <!-- <tspan font-size="65" x="0" dy="60">text</tspan>
+    <tspan font-size="20" x="0" dy="20">all up in here</tspan> -->
+  </text>
+</svg>
