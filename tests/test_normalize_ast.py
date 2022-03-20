@@ -128,8 +128,8 @@ def test_normalize_ast_Ellipsis():
 
 def test_normalize_ast_Index():
     assert_node_equality(
-      normalized_source("number_of_the_counting[3]").slice,  # type: ignore
-      ast.Constant(value=3, kind=None))
+        normalized_source("number_of_the_counting[3]").slice,  # type: ignore
+        ast.Constant(value=3, kind=None))
     id = "UnladenSwallow"
     assert_node_equality(
         normalized_source(f"airspeed_velocities[{id}]").slice,  # type: ignore
@@ -140,14 +140,14 @@ def test_normalize_ast_ExtSlice():
     assert_node_equality(
       normalized_source("pi[3:14, 15]").slice,  # type: ignore
       ast.Tuple(
-        elts=[
-            ast.Slice(
-                lower=ast.Constant(value=3, kind=None),
-                upper=ast.Constant(value=14, kind=None),
-                step=None),
-            ast.Constant(value=15, kind=None),
-        ],
-        ctx=ast.Load()))
+          elts=[
+              ast.Slice(
+                  lower=ast.Constant(value=3, kind=None),
+                  upper=ast.Constant(value=14, kind=None),
+                  step=None),
+              ast.Constant(value=15, kind=None),
+          ],
+          ctx=ast.Load()))
 
 
 if __name__ == "__main__":
