@@ -1,3 +1,2 @@
 setuptools
 attr
-typing_extensions
