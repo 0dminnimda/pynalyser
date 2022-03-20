@@ -173,7 +173,6 @@ class NodeVisitor:
 
         return self.generic_visit(node)
 
-
     def visit(self, node: NODE) -> Any:
         method = 'visit_' + type(node).__name__
         visitor = getattr(self, method, None)
