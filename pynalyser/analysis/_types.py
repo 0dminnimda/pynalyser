@@ -74,7 +74,7 @@ UnknownType = SingleType(name="object", is_builtin=False)
 # T = TypeVar("T")
 
 NotImplementedType = type(NotImplemented)
-ReturnT: TypeAlias = Union[PynalyserType, NotImplementedType]
+ReturnT = Union[PynalyserType, NotImplementedType]  # type: ignore
 
 
 @attr.s(auto_attribs=True, hash=True)
