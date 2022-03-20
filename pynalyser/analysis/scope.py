@@ -1,10 +1,13 @@
-import ast
-from typing import List, Union
+import sys
+from typing import Any, List, Union
 
+from pynalyser.acr.utils import NODE
+
+from .. import portable_ast as ast
 from ..acr import classes as acr_c
-from .symbols import ScopeType
+from .symbols import ScopeType, SymbolTable
 from .tools import Analyser
-from .types import FunctionType, Arguments, Arg
+from .types import Arg, Arguments, FunctionType, SymTabType
 
 
 class AssignVisitor(ast.NodeVisitor):
