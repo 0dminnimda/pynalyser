@@ -156,21 +156,23 @@ class NodeVisitor:
             previous_block = self.block
             self.block = node
 
-            result = self.generic_visit(node)
+            try:
+                return self.generic_visit(node)
+            finally:
+                self.scope = previous_scope
+                self.block = previous_block
 
-            self.scope = previous_scope
-            self.block = previous_block
-        elif isinstance(node, Block):
+        if isinstance(node, Block):
             previous_block = self.block
             self.block = node
 
-            result = self.generic_visit(node)
+            try:
+                return self.generic_visit(node)
+            finally:
+                self.block = previous_block
 
-            self.block = previous_block
-        else:
-            result = self.generic_visit(node)
+        return self.generic_visit(node)
 
-        return result
 
     def visit(self, node: NODE) -> Any:
         method = 'visit_' + type(node).__name__
