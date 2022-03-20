@@ -4,4 +4,4 @@
 - ACR (Abstract Code Representation) and tools for using it
 - Extendable system for analysis
 - Analysis of the scopes
-- Partial type inference
+- Partial type inference (and type system for it to work on)
