@@ -5,6 +5,10 @@ from .symbols import SymbolData, SymbolTable
 import attr
 
 
+class SymTabType(PynalyserType):
+    symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
+
+
 @attr.s(auto_attribs=True, hash=True)
 class Arg:
     name: str
@@ -22,7 +26,6 @@ class Arguments:
 
 
 @attr.s(auto_attribs=True, hash=True)
-class FunctionType(PynalyserType):
+class FunctionType(SymTabType):
     args: Arguments
     return_type: PynalyserType = UnknownType
-    symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
