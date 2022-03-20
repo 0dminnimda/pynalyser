@@ -18,7 +18,7 @@ def parse(path: str) -> Module:
 def parse_open(*args, **kwargs) -> Module:
     with open(*args, **kwargs) as stream:
         assert isinstance(stream, io.TextIOBase)
-        return parse_stream(stream)
+        return parse_stream(stream)  # type: ignore
 
 
 def parse_stream(stream: io.TextIOWrapper) -> Module:
