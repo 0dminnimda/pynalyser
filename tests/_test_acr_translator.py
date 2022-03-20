@@ -2,6 +2,7 @@ import ast
 import sys
 from collections import defaultdict
 
+from pynalyser.acr import classes as acr
 # from pynalyser.acr import classes as acr
 from pynalyser.acr.translation import Translator, translate_ast_to_acr
 from pynalyser.acr.utils import dump
@@ -82,7 +83,8 @@ def b():
 69
 """)
 
-print(ast.dump(tree, indent=4, include_attributes=True))
+if sys.version_info >= (3, 9):
+    print(ast.dump(tree, indent=4, include_attributes=True))
 
 # print(acr.ScopeWithAttributes("", lineno=0, col_offset=4)._attributes)
 # out = acr.Function(
@@ -105,7 +107,11 @@ print(ast.dump(tree, indent=4, include_attributes=True))
 out = translate_ast_to_acr(tree, "test")
 print(dump(out, indent="|   ", include_attributes=True))
 
+if sys.version_info < (3, 7):
+    breakpoint = object
+
 breakpoint
+
 # acr.dump(f))  # out.scopes["a"][0]))
 # f = out.blocks[0].body[0].value.get_scope(out)
 quit()
