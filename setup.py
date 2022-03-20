@@ -19,7 +19,7 @@ github_link = "https://github.com/0dminnimda/{0}".format(__name__)
 setup(
     name=__name__,
     version=__version__,
-    description="Python code analyzer.",
+    description="Static Python Code Analyzer",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="0dminnimda",
