@@ -9,6 +9,7 @@ from ._ref_types import (BinOpType, CallType, ItemType, SubscriptType,
 from ._types import (DUNDER_SIGNATURE, UnknownType, AnyType, IntType, ListType,
                      PynalyserType, SequenceType, SingleType, SliceType,
                      TupleType, UnionType)
+from ._symb_types import FunctionType, Arguments, Arg, SymTabType
 from .tools import Analyser
 
 
