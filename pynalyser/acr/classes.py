@@ -319,6 +319,7 @@ class Try(ACRWithAttributes, BodyElseBlock):
         init=False, default=("body", "handlers", "orelse", "finalbody"))
 
 
+@attr.s(auto_attribs=True)
 class Loop(ACRWithAttributes, BodyElseBlock):  # XXX: do we need this class?
     pass
 
