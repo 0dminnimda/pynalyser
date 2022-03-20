@@ -55,8 +55,9 @@ def analyse(ctx: AnalysisContext,
     return ctx
 
 
-def analyse_file(source: str,
-                 analysers: Optional[List[Analyser]] = None) -> AnalysisContext:
+def analyse_file(
+    source: str, analysers: Optional[List[Analyser]] = None
+) -> AnalysisContext:
 
     ctx = AnalysisContext([parse(source)])
 
