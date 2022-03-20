@@ -80,4 +80,3 @@ pass
     t2 = Tst2({"cls": None}, t.cacher.changes)
     t2.visit(tree)
     print("\n", t.cacher.changes)
-
