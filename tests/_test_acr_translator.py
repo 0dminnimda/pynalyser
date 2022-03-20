@@ -144,7 +144,7 @@ def test_Module():
     acr_module = translate_ast_to_acr(tree, name)
     assert type(acr_module) == acr.Module
     assert acr_module.name == name
-    assert acr_module.blocks == []
+    assert acr_module.body == []
     assert acr_module.scopes == defaultdict(acr.ScopeDefs)
     assert acr_module.symbol_table == acr.SymbolTable()
 
