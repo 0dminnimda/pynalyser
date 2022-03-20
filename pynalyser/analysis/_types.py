@@ -196,5 +196,3 @@ class TupleType(SequenceType):
     is_builtin: bool = True
 
     is_completed: bool = True
-
-
