@@ -127,11 +127,13 @@ def test_normalize_ast_Ellipsis():
 
 
 def test_normalize_ast_Index():
-    assert_node_equality(normalized_source("number_of_the_counting[3]").slice,  # type: ignore
-                         ast.Constant(value=3, kind=None))
     assert_node_equality(
-        normalized_source("airspeed_velocities[UnladenSwallow]").slice,  # type: ignore
-        ast.Name(id='UnladenSwallow', ctx=ast.Load()))
+      normalized_source("number_of_the_counting[3]").slice,  # type: ignore
+      ast.Constant(value=3, kind=None))
+    id = "UnladenSwallow"
+    assert_node_equality(
+        normalized_source(f"airspeed_velocities[{id}]").slice,  # type: ignore
+        ast.Name(id=id, ctx=ast.Load()))
 
 
 def test_normalize_ast_ExtSlice():
