@@ -147,7 +147,7 @@ class NodeVisitor:
         del self.scope, self.block
         return result
 
-    def _acr_generic_visit(self, node: NODE) -> Any:
+    def acr_generic_visit(self, node: NODE) -> Any:
         # handle acr
         if isinstance(node, Scope):
             previous_scope = self.scope
@@ -183,14 +183,13 @@ class NodeVisitor:
                 raise ValueError(
                     f"There are no '{method}' method. "
                     "You see this message because you're in strict mode. "
-
                     f"See {type(self).__name__}.strict")
 
-            result = self._acr_generic_visit(node)
+            result = self.acr_generic_visit(node)
         else:
             result = visitor(node)
             if self.auto_generic_visit:
-                self._acr_generic_visit(node)
+                self.acr_generic_visit(node)
 
         return result
 
