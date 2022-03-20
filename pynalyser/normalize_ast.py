@@ -27,7 +27,7 @@ class AstNormalizer(ast.NodeTransformer):
     # so we don't need a warning (see: NodeTransformer.visit_Constant)
     # Same as NodeTransformer.visit(node) with visit_Constant removed
     def visit_Constant(self, node: ast.Constant) -> ast.Constant:
-        return self.generic_visit(node)
+        return self.generic_visit(node)  # type: ignore
 
 
 def normalize_ast(tree: ast.AST) -> ast.AST:
