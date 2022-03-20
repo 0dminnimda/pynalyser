@@ -36,6 +36,7 @@ def analyse_context(analysers: List[Analyser], ctx: AnalysisContext) -> None:
     for analyser in analysers:
         analyser.analyse(ctx)
 
+
 DEFAULT_ANALYSERS = [
     ScopeAnalyser(),
     TypeInference(),
