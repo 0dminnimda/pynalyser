@@ -1,7 +1,7 @@
 import ast
 from collections import defaultdict
-from typing import (Any, Collection, Iterator, List, NamedTuple, Optional,
-                    Protocol, Tuple, Type, TypeVar, Union)
+from typing import (Any, Collection, List, NamedTuple, Optional, Tuple,
+                    TypeVar, Union)
 
 from .classes import (ACR, Block, CodeBlock, FlowContainer, Module, Scope,
                       ScopeReference)
@@ -124,19 +124,9 @@ def _format_ast_or_acr(obj: Union[ast.AST, ACR], ctx: Context,
 
 NODE = Union[ACR, ast.AST]
 
-T_contra = TypeVar('T_contra', contravariant=True)
 
-
-class Visitor(Protocol[T_contra]):
-    def visit(self, node: T_contra) -> Any:
-        ...
-
-    def generic_visit(self, node: T_contra) -> Any:
-        ...
-
-
-class NodeVisitor(Visitor[NODE]):
-    _ast_visitor: Type[Visitor[ast.AST]] = ast.NodeVisitor
+class NodeVisitor:
+    _ast_visitor = ast.NodeVisitor
 
     scope: Scope
     block: Block
@@ -209,7 +199,7 @@ class NodeVisitor(Visitor[NODE]):
             return self.visit(node.get_scope(self.scope))
 
         if isinstance(node, ast.AST):
-            return self._ast_visitor.generic_visit(self, node)
+            return self._ast_visitor.generic_visit(self, node)  # type: ignore
 
         if isinstance(node, Block):
             for name in node._block_fields:
@@ -240,7 +230,7 @@ class ACRCodeTransformer(NodeVisitor):
             return self.visit(node.get_scope(self.scope))
 
         if isinstance(node, ast.AST):
-            return self._ast_visitor.generic_visit(self, node)
+            return self._ast_visitor.generic_visit(self, node)  # type: ignore
 
         if isinstance(node, Block):
             for name in node._block_fields:
