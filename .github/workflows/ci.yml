@@ -45,7 +45,7 @@ jobs:
 
       - name: Install package and dependencies
         run: |
-          pip install --upgrade pip setuptools wheel
+          pip install --upgrade pip setuptools wheel --user
           pip install .[test]
 
       - name: Check the code with pycodestyle
