@@ -46,6 +46,7 @@ class AstReproducer(ast.NodeVisitor):
     def cacher_visit(self):
         self.cacher.visit()
 
+
 if __name__ == "__main__":
     class Tst(AstRecorder):
         def visit_ClassDef(self, node):
@@ -79,4 +80,5 @@ pass
     t2 = Tst2({"cls": None}, t.cacher.changes)
     t2.visit(tree)
     print("\n", t.cacher.changes)
+
 
