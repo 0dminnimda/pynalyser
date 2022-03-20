@@ -127,7 +127,7 @@ def test_normalize_ast_Ellipsis():
 
 
 def test_normalize_ast_Index():
-    assert_node_equality(normalized_source("number_of_the_counting[3]").slice,
+    assert_node_equality(normalized_source("number_of_the_counting[3]").slice,  # type: ignore
                          ast.Constant(value=3, kind=None))
     assert_node_equality(
         normalized_source("airspeed_velocities[UnladenSwallow]").slice,
