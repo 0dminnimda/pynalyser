@@ -86,7 +86,7 @@ def test_visit_ExtSlice():
 
 def normalized_source(*args, **kwargs) -> ast.AST:
     tree = ast.parse(*args, **kwargs)
-    return normalize_ast(tree).body[0].value
+    return normalize_ast(tree).body[0].value  # type: ignore
 
 
 def test_normalize_ast_Num():
@@ -137,7 +137,9 @@ def test_normalize_ast_Index():
 
 
 def test_normalize_ast_ExtSlice():
-    assert_node_equality(normalized_source("pi[3:14, 15]").slice, ast.Tuple(
+    assert_node_equality(
+      normalized_source("pi[3:14, 15]").slice,  # type: ignore
+      ast.Tuple(
         elts=[
             ast.Slice(
                 lower=ast.Constant(value=3, kind=None),
