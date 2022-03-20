@@ -74,8 +74,9 @@ class ScopeAnalyser(Analyser):
         symbol.holds_symbol_table = True
         scope.symbol_table = symbol.type.symbol_table
 
-        for arg in scope.args.posonlyargs:
-            args.posargs.append(self.handle_arg(scope, arg.arg))
+        if sys.version_info >= (3, 8):
+            for arg in scope.args.posonlyargs:
+                args.posargs.append(self.handle_arg(scope, arg.arg))
 
         for arg in scope.args.args:
             args.args.append(self.handle_arg(scope, arg.arg))
