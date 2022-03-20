@@ -5,8 +5,8 @@ from pynalyser.normalize_ast import AstNormalizer, normalize_ast
 
 def assert_node_equality(node1: ast.AST, node2: ast.AST,
                          include_attributes: bool = False):
-    assert (ast.dump(node1, include_attributes=include_attributes) ==
-            ast.dump(node2, include_attributes=include_attributes))
+    assert (ast.dump(node1, include_attributes=include_attributes)
+            == ast.dump(node2, include_attributes=include_attributes))
 
 
 ############ AstNormalizer #############
