@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing_extensions import TypeAlias
 
 import attr
 
@@ -73,7 +74,7 @@ UnknownType = SingleType(name="object", is_builtin=False)
 # T = TypeVar("T")
 
 NotImplementedType = type(NotImplemented)
-ReturnT = Union[PynalyserType, NotImplementedType]
+ReturnT: TypeAlias = Union[PynalyserType, NotImplementedType]
 
 
 @attr.s(auto_attribs=True, hash=True)
