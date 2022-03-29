@@ -59,7 +59,7 @@ CODE = Union[
     # stmt - from scope body
     ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
     ast.Import, ast.ImportFrom,
-    # Nonlocal, Global - we have symbol's scope for that
+    ast.Nonlocal, ast.Global,
     # Expr - no need for it
     ast.Pass,  # so blocks only with pass will be fine
     ast.Break, ast.Continue,
