@@ -14,13 +14,13 @@
     </a>
 </p>
 
+<!-- not yet, but in the future! -->
 <!-- <p align="center">Powerful static analysis open to the public to explore and create amazing tools for the Python environment</p> -->
 
 <br>
 
 ## 🎯 The goals of Pynalyser are
 
-<!-- - to check and infer types and other information about your Python code without having to provide any additional information such as annotations -->
 - to deeply analyze and check your Python code for types and other information
 - not to require any additional information such as annotations
 - to be cross-platform and do not oblige additional installation
