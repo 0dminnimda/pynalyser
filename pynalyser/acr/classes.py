@@ -78,7 +78,7 @@ CODE = Union[
     # Slice can appear only in Subscript
 
     # not ast
-    "ScopeReference"
+    "Scope"
 ]
 
 
@@ -137,21 +137,6 @@ class BodyBlock(Block):
     _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("body",))
 
 
-@attr.s(auto_attribs=True)
-class ScopeReference(ACR, ast.AST):  # ast so NodeTransformer could handle this
-    """Refers to a single scope in the `.scopes`
-    of the local scope.
-
-    It replaces actual definition in the and gets put in the `CODE`
-    instead of scope.
-    """
-    name: str
-    id: int
-
-    def get_scope(self, local_scope: "Scope") -> "Scope":
-        return local_scope.scopes[self.name][self.id]
-
-
 # XXX: do we need this class?
 class ScopeDefs(Dict[int, "Scope"]):
     def __init__(self, *args, **kwargs) -> None:
@@ -169,16 +154,8 @@ class ScopeDefs(Dict[int, "Scope"]):
 
 @attr.s(auto_attribs=True)
 class Scope(Name, BodyBlock):
-    scopes: DefaultDict[str, ScopeDefs] = attr.ib(
-        init=False, factory=lambda: defaultdict(ScopeDefs))
     symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
     # parent? probably nay
-
-    def add_scope(self, scope: "Scope") -> ScopeReference:
-        defs = self.scopes[scope.name]
-        reference = ScopeReference(scope.name, defs.last_index)
-        defs.append(scope)
-        return reference
 
 
 class Module(Scope):

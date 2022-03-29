@@ -3,8 +3,7 @@ from collections import defaultdict
 from typing import (Any, Collection, List, NamedTuple, Optional, Tuple,
                     TypeVar, Union)
 
-from .classes import (ACR, Block, CodeBlock, FlowContainer, Module, Scope,
-                      ScopeReference)
+from .classes import ACR, Block, CodeBlock, FlowContainer, Module, Scope
 
 # Dumping
 
@@ -178,8 +177,6 @@ class NodeVisitor:
         visitor = getattr(self, method, None)
 
         if visitor is None:
-            if isinstance(node, ScopeReference):
-                return self.generic_visit(node)
             if self.strict:
                 raise ValueError(
                     f"There are no '{method}' method. "
@@ -195,9 +192,6 @@ class NodeVisitor:
         return result
 
     def generic_visit(self, node: NODE) -> Any:
-        if isinstance(node, ScopeReference):
-            return self.visit(node.get_scope(self.scope))
-
         if isinstance(node, ast.AST):
             return self._ast_visitor.generic_visit(self, node)  # type: ignore
 
@@ -226,9 +220,6 @@ class ACRCodeTransformer(NodeVisitor):
     _ast_visitor = ast.NodeTransformer
 
     def generic_visit(self, node: NODE) -> Any:
-        if isinstance(node, ScopeReference):
-            return self.visit(node.get_scope(self.scope))
-
         if isinstance(node, ast.AST):
             return self._ast_visitor.generic_visit(self, node)  # type: ignore
 

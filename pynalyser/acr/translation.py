@@ -5,8 +5,7 @@ from .. import portable_ast as ast
 from ..analysis.symbols import ScopeType
 from .classes import (Block, Class, DictComp, ExceptHandler, FlowContainer,
                       For, Function, GeneratorExp, If, Lambda, ListComp, Match,
-                      MatchCase, Module, Scope, ScopeReference, SetComp, Try,
-                      While, With)
+                      MatchCase, Module, Scope, SetComp, Try, While, With)
 
 STMT_SCOPE = Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]
 
@@ -130,42 +129,40 @@ class Translator(ast.NodeTransformer):
     #### expr scopes ####
 
     # XXX: we can shrink down node's ast.AST to smaller subset
-    def handle_scope(self, scope: Scope, node: ast.AST) -> ScopeReference:
-        reference = self.scope.add_scope(scope)
-
+    def handle_scope(self, scope: Scope, node: ast.AST) -> Scope:
         self.generic_visit(scope)  # type: ignore
 
         prev_scope, self.scope = self.scope, scope
         self.handle_fields_of_block(scope, node)
         self.scope = prev_scope
 
-        return reference
+        return scope
 
-    def visit_Lambda(self, node: ast.Lambda) -> ScopeReference:
+    def visit_Lambda(self, node: ast.Lambda) -> Scope:
         lamb = Lambda(
             node.args, lineno=node.lineno, col_offset=node.col_offset)
         node.body = [ast.Expr(node.body)]  # type: ignore
         return self.handle_scope(lamb, node)
 
-    def visit_ListComp(self, node: ast.ListComp) -> ScopeReference:
+    def visit_ListComp(self, node: ast.ListComp) -> Scope:
         return self.handle_scope(
             ListComp(node.elt, generators=node.generators,
                      lineno=node.lineno, col_offset=node.col_offset),
             node)
 
-    def visit_SetComp(self, node: ast.SetComp) -> ScopeReference:
+    def visit_SetComp(self, node: ast.SetComp) -> Scope:
         return self.handle_scope(
             SetComp(node.elt, generators=node.generators,
                     lineno=node.lineno, col_offset=node.col_offset),
             node)
 
-    def visit_GeneratorExp(self, node: ast.GeneratorExp) -> ScopeReference:
+    def visit_GeneratorExp(self, node: ast.GeneratorExp) -> Scope:
         return self.handle_scope(
             GeneratorExp(node.elt, generators=node.generators,
                          lineno=node.lineno, col_offset=node.col_offset),
             node)
 
-    def visit_DictComp(self, node: ast.DictComp) -> ScopeReference:
+    def visit_DictComp(self, node: ast.DictComp) -> Scope:
         return self.handle_scope(
             DictComp(node.key, node.value, generators=node.generators,
                      lineno=node.lineno, col_offset=node.col_offset),
