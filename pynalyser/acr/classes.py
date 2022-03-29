@@ -235,13 +235,13 @@ LAMBDA_NAME = "<lambda>"
 
 
 @attr.s(auto_attribs=True)
-class Lambda(ScopeWithAttributes):
+class Lambda(ScopeWithAttributes, ast.expr):
     name: str = attr.ib(default=LAMBDA_NAME, init=False)
     args: ast.arguments = attr.ib(factory=ast.arguments)
 
 
 @attr.s(auto_attribs=True)
-class Comprehension(ScopeWithAttributes):
+class Comprehension(ScopeWithAttributes, ast.expr):
     # XXX: shouldn't have `body` from Scope,
     # but removing this will bring currently unneeded refactoring
     generators: List[ast.comprehension] = attr.ib(kw_only=True)
