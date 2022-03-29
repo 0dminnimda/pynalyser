@@ -137,21 +137,6 @@ class BodyBlock(Block):
     _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("body",))
 
 
-# XXX: do we need this class?
-class ScopeDefs(Dict[int, "Scope"]):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(self, *args, **kwargs)
-        self._last_index = 0
-
-    def append(self, value: "Scope") -> None:
-        self[self._last_index] = value
-        self._last_index += 1
-
-    @property
-    def last_index(self) -> int:
-        return self._last_index
-
-
 @attr.s(auto_attribs=True)
 class Scope(Name, BodyBlock):
     symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
