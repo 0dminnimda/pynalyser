@@ -7,7 +7,7 @@
 
 ### Removed
 - "Graph Visit Casher"
-- `acr.ScopeReference`
+- `ScopeReference` `ScopeDefs` from acr classes
 
 ### Fixed
 - `ACRCodeTransformer` now works properly
