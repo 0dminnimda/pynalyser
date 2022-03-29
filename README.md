@@ -1,8 +1,8 @@
 ![Pynalyser Logo](https://raw.githubusercontent.com/0dminnimda/pynalyser/main/docs/logo.svg)
 
-<h1 align="center" style="margin:-15px 0 15px 0">Static Python Code Analyzer</h1>
+<h1 align="center">Static Python Code Analyzer</h1>
 
-<p align="center" style="margin:0 0 -15px 0">
+<p align="center">
     <a href="https://github.com/0dminnimda/pynalyser/blob/main/LICENSE">
         <img alt="GitHub" src="https://img.shields.io/github/license/0dminnimda/pynalyser">
     </a>
@@ -16,7 +16,27 @@
 
 <!-- <p align="center">Powerful static analysis open to the public to explore and create amazing tools for the Python environment</p> -->
 
-# Installation
+<br>
+
+## 🎯 The goals of Pynalyser are
+
+<!-- - to check and infer types and other information about your Python code without having to provide any additional information such as annotations -->
+- to deeply analyze and check your Python code for types and other information
+- not to require any additional information such as annotations
+- to be cross-platform and do not oblige additional installation
+- to be modular and easily expandable
+<!-- - being able to choose between enforcing ... -->
+
+## 🗺 Mini roadmap
+
+- [X] More convenient representation of code
+- [ ] 👨‍🔧 Type inference
+- [ ] Symbolic evaluation
+- [ ] VSCode extension with smart hints and refactoring options
+
+## ✔ Installation
+
+Pynalyser is available on [PyPI](https://pypi.org/project/pynalyser/)
 
 ```console
 pip install pynalyser
