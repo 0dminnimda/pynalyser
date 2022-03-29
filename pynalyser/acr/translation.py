@@ -17,7 +17,6 @@ class ForBlocks(ast.AST):
 
 # XXX: restrict visit, so if there's no visit_x then raise exception
 class Translator(ast.NodeTransformer):
-    scope: Scope
     container: FlowContainer
 
     #### Transformations used only for expr scopes ####
@@ -131,11 +130,7 @@ class Translator(ast.NodeTransformer):
     # XXX: we can shrink down node's ast.AST to smaller subset
     def handle_scope(self, scope: Scope, node: ast.AST) -> Scope:
         self.generic_visit(scope)  # type: ignore
-
-        prev_scope, self.scope = self.scope, scope
         self.handle_fields_of_block(scope, node)
-        self.scope = prev_scope
-
         return scope
 
     def visit_Lambda(self, node: ast.Lambda) -> Scope:
@@ -172,10 +167,10 @@ class Translator(ast.NodeTransformer):
 
     def translate_from_module(self, module: ast.Module,
                               name: str) -> Module:
-        acr = self.scope = Module(name)
+        acr = Module(name)
         self.container = acr.body
         self.generic_visit(module)
-        del self.scope, self.container
+        del self.container
         return acr
 
     def visit_Module(self, node: ast.Module) -> NoReturn:
