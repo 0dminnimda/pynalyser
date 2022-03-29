@@ -145,7 +145,6 @@ def test_Module():
     assert type(acr_module) == acr.Module
     assert acr_module.name == name
     assert acr_module.body == []
-    assert acr_module.scopes == defaultdict(acr.ScopeDefs)
     assert acr_module.symbol_table == acr.SymbolTable()
 
 
