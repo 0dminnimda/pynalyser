@@ -46,7 +46,7 @@ class UnionType(PynalyserType):
         elif len(unique_types) == 1:
             return types[0]
         else:
-            return cls(unique_types)
+            return cls(tuple(sorted(unique_types, key=lambda x: str(x))))
 
 
 DUNDER_SIGNATURE = Tuple[Type["SingleType"], ...]
