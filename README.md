@@ -6,7 +6,9 @@
     <a href="https://github.com/0dminnimda/pynalyser/blob/main/LICENSE">
         <img alt="GitHub" src="https://img.shields.io/github/license/0dminnimda/pynalyser">
     </a>
-    <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/pynalyser">
+    <a href="https://pypi.org/project/pynalyser/">
+        <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/pynalyser">
+    </a>
     <a href="https://github.com/0dminnimda/pynalyser">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/0dminnimda/pynalyser?style=social">
     </a>
