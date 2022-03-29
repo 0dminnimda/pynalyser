@@ -287,21 +287,13 @@ class Translator(ast.NodeTransformer):
         return node
 
     def visit_Global(self, node: ast.Global) -> ast.Global:
-        # no need to visit - Global(names: list[str])
-        for name in node.names:
-            symbol_data = self.scope.symbol_table[name]
-            # generally imports before global should not be allowed,
-            # but cpython allows it https://tiny.one/global-in-docs
-            symbol_data.change_scope(ScopeType.GLOBAL)
+        self.generic_visit(node)
+        self.container.add_code(node)
         return node
 
     def visit_Nonlocal(self, node: ast.Nonlocal) -> ast.Nonlocal:
-        # no need to visit - Nonlocal(names: list[str])
-        for name in node.names:
-            symbol_data = self.scope.symbol_table[name]
-            # generally imports before nonlocal should not be allowed,
-            # but cpython allows it https://tiny.one/nonlocal-in-docs
-            symbol_data.change_scope(ScopeType.NONLOCAL)
+        self.generic_visit(node)
+        self.container.add_code(node)
         return node
 
     def visit_Expr(self, node: ast.Expr) -> ast.Expr:
