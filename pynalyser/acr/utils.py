@@ -223,14 +223,34 @@ class NodeVisitor:
 class ACRCodeTransformer(NodeVisitor):
     """Allows to change contents of the code (of the CodeBlock)"""
 
-    _ast_visitor = ast.NodeTransformer
+    # _ast_visitor = ast.NodeTransformer
 
     def generic_visit(self, node: NODE) -> Any:
         if isinstance(node, ScopeReference):
             return self.visit(node.get_scope(self.scope))
 
         if isinstance(node, ast.AST):
-            return self._ast_visitor.generic_visit(self, node)  # type: ignore
+            # return self._ast_visitor.generic_visit(self, node)  # type: ignore
+            for field, old_value in ast.iter_fields(node):
+                if isinstance(old_value, list):
+                    new_values = []
+                    for value in old_value:
+                        if isinstance(value, ast.AST):
+                            value = self.visit(value)
+                            if value is None:
+                                continue
+                            elif not isinstance(value, (ast.AST, ACR)):
+                                new_values.extend(value)
+                                continue
+                        new_values.append(value)
+                    old_value[:] = new_values
+                elif isinstance(old_value, ast.AST):
+                    new_node = self.visit(old_value)
+                    if new_node is None:
+                        delattr(node, field)
+                    else:
+                        setattr(node, field, new_node)
+            return node
 
         if isinstance(node, Block):
             for name in node._block_fields:
