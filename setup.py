@@ -7,11 +7,11 @@ from pynalyser import __name__, __version__
 
 requirements = {}
 for path in glob("requirements/*.txt"):
-    with open(path) as file:
+    with open(path, encoding="utf-8") as file:
         name = os.path.basename(path)[:-4]
         requirements[name] = [line.strip() for line in file]
 
-with open("README.md") as file:
+with open("README.md", encoding="utf-8") as file:
     long_description = file.read()
 
 github_link = "https://github.com/0dminnimda/{0}".format(__name__)
