@@ -5,6 +5,7 @@ from .symbols import SymbolData, SymbolTable
 import attr
 
 
+@attr.s(auto_attribs=True, hash=True)
 class SymTabType(PynalyserType):
     symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
 
