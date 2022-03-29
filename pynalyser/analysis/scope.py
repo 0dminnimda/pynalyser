@@ -148,6 +148,20 @@ class ScopeAnalyser(Analyser):
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         self.setup_symbols_by_import(node.names)
 
+    def visit_Global(self, node: ast.Global) -> None:
+        for name in node.names:
+            symbol_data = self.scope.symbol_table[name]
+            # generally imports before global should not be allowed,
+            # but cpython allows it https://tiny.one/global-in-docs
+            symbol_data.change_scope(ScopeType.GLOBAL)
+
+    def visit_Nonlocal(self, node: ast.Nonlocal) -> None:
+        for name in node.names:
+            symbol_data = self.scope.symbol_table[name]
+            # generally imports before nonlocal should not be allowed,
+            # but cpython allows it https://tiny.one/nonlocal-in-docs
+            symbol_data.change_scope(ScopeType.NONLOCAL)
+
     def visit_NamedExpr(self, node: ast.NamedExpr) -> None:
         names = self.assign_visitor.get_names(node.target)
         assert len(names) == 1
