@@ -73,6 +73,14 @@ class Recorder(Reproducer):
         super().__init__(data, changes)
         self._changes_made = set()
 
+    # def visit(self) -> None:
+    #     if self.index is None:
+    #         pass
+    #     elif self.changes[self.index].count == self.counter:
+    #         self.index = self.next_index(self.index)
+
+    #     self.counter += 1
+
     # def change_nodes(self, node_count_change: int) -> None:
     #     raise NotImplementedError("'change_nodes' is not supported yet")
     #     if not node_count_change:
