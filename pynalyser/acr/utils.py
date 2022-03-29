@@ -252,7 +252,7 @@ class ACRCodeTransformer(NodeVisitor):
                     new_code_block.append(value)  # type: ignore
                 else:
                     new_code_block.extend(value)
-            return node
+            return new_code_block
 
         raise RuntimeError(
             f"Expected ACR or AST, but got {type(node).__name__}")
