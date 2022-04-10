@@ -16,5 +16,5 @@ class Analyser(NodeVisitor):
     context: AnalysisContext
 
     def analyse(self, ctx: AnalysisContext) -> None:
-        self.start(ctx.modules[0])
         self.context = ctx
+        self.start(ctx.modules[0])
