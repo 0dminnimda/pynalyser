@@ -6,8 +6,9 @@ import attr
 
 
 @attr.s(auto_attribs=True, hash=True)
-class SymTabType(PynalyserType):
-    symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
+class SymTabType(SymbolTable, PynalyserType):
+    def __attrs_pre_init__(self):
+        super().__init__()  # for SymbolTable
 
 
 @attr.s(auto_attribs=True, hash=True)
