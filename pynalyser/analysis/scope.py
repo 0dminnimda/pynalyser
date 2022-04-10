@@ -126,7 +126,10 @@ class ScopeAnalyser(Analyser):
         self.handle_function(node)
 
     def visit_Class(self, node: acr_c.Class) -> None:
-        self.handle_scope(node)
+        self.symtab[node.name].type = self.symtab = SymTabType()
+
+    def visit_Module(self, node: acr_c.Module) -> None:
+        self.symtab[node.name].type = self.symtab = SymTabType()
 
     def setup_symbols_by_assign(self, *targets: ast.AST) -> None:
         names = []
