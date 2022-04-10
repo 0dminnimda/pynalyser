@@ -50,6 +50,28 @@ class ScopeAnalyser(Analyser):
         if scope.is_symbol:
             # this symbol is used in self.scope
             self.scope.symbol_table[scope.name]
+    symtab: SymTabType
+
+    def analyse(self, ctx: AnalysisContext) -> None:
+        if type(self).__name__ in ctx.results:
+            # TODO: use custom exception
+            raise Exception(f"Key '{type(self).__name__}' is already in use"
+                            " for other AnalysisContext.results")
+
+        self.symtab = ctx.results[type(self).__name__] = SymTabType()
+        super().analyse(ctx)
+
+    def visit(self, node: NODE) -> Any:
+        if isinstance(node, acr_c.Scope):
+            prev = self.symtab
+            if node.is_symbol:
+                # this symbol is used in self.scope
+                self.symtab[node.name]
+            try:
+                return super().visit(node)
+            finally:
+                self.symtab = prev
+        return super().visit(node)
 
     def handle_arg(self, name: str) -> Arg:
         symbol = self.symtab[name]
