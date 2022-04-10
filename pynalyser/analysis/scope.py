@@ -82,14 +82,11 @@ class ScopeAnalyser(Analyser):
         self, scope: Union[acr_c.Lambda, acr_c.Function]
     ) -> None:
 
-        assert len(scope.symbol_table) == 0
-
         args = Arguments()
-        symbol = self.scope.symbol_table[scope.name]
-        symbol.type = FunctionType(args)
+        symbol = self.symtab[scope.name]
+        symbol.type = self.symtab = FunctionType(args)
         symbol.change_scope(ScopeType.LOCAL)
         symbol.holds_symbol_table = True
-        scope.symbol_table = symbol.type.symbol_table
 
         if sys.version_info >= (3, 8):
             for arg in scope.args.posonlyargs:
