@@ -302,3 +302,44 @@ class While(Loop):
 # def mark(index) -> id
 # marked item's index will be tracked
 # def get_index(id) -> index
+
+
+### Tree traversing
+
+from ..graph_visit_casher.ast_cacher import AstRecorder
+
+
+class AcrRecorder(AstRecorder):
+    def start(self, module: Module) -> None:
+        self.reset()
+        self.scope = self.block = module
+
+        self.visit(module)
+
+        del self.scope, self.block
+
+    def visit_Block(self, node: ACR) -> None:
+        self.cacher.change_data(block=node)
+        self.generic_visit(node)
+
+    visit_MatchCase = visit_Block
+    visit_Match = visit_Block
+    visit_With = visit_Block
+    visit_If = visit_Block
+    visit_ExceptHandler = visit_Block
+    visit_Try = visit_Block
+    visit_For = visit_Block
+    visit_While = visit_Block
+
+    def visit_Scope(self, node: ACR) -> None:
+        self.cacher.change_data(scope=node, block=node)
+        self.generic_visit(node)
+
+    visit_Module = visit_Scope
+    visit_Class = visit_Scope
+    visit_Function = visit_Scope
+    visit_Lambda = visit_Scope
+    visit_ListComp = visit_Scope
+    visit_SetComp = visit_Scope
+    visit_GeneratorExp = visit_Scope
+    visit_DictComp = visit_Scope
