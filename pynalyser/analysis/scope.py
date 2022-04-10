@@ -45,11 +45,6 @@ class ScopeAnalyser(Analyser):
     # but everything else is unknown and have to be filled here
 
     assign_visitor: AssignVisitor = AssignVisitor()
-
-    def handle_scope(self, scope: acr_c.Scope) -> None:
-        if scope.is_symbol:
-            # this symbol is used in self.scope
-            self.scope.symbol_table[scope.name]
     symtab: SymTabType
 
     def analyse(self, ctx: AnalysisContext) -> None:
