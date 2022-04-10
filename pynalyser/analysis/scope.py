@@ -6,7 +6,7 @@ from pynalyser.acr.utils import NODE
 from .. import portable_ast as ast
 from ..acr import classes as acr_c
 from .symbols import ScopeType, SymbolTable
-from .tools import Analyser
+from .tools import Analyser, AnalysisContext
 from .types import Arg, Arguments, FunctionType, SymTabType
 
 
@@ -134,7 +134,7 @@ class ScopeAnalyser(Analyser):
             names.extend(self.assign_visitor.get_names(sub_node))
 
         for name in names:
-            symbol_data = self.scope.symbol_table[name]
+            symbol_data = self.symtab[name]
 
             # in the other case it's already defined
             symbol_data.change_scope(ScopeType.LOCAL)
@@ -153,7 +153,7 @@ class ScopeAnalyser(Analyser):
     def setup_symbols_by_import(self, targets: List[ast.alias]) -> None:
         for alias in targets:
             name = alias.asname or alias.name  # those are never == ""
-            symbol_data = self.scope.symbol_table[name]
+            symbol_data = self.symtab[name]
             symbol_data.imported = True
 
     def visit_Import(self, node: ast.Import) -> None:
@@ -164,14 +164,14 @@ class ScopeAnalyser(Analyser):
 
     def visit_Global(self, node: ast.Global) -> None:
         for name in node.names:
-            symbol_data = self.scope.symbol_table[name]
+            symbol_data = self.symtab[name]
             # generally imports before global should not be allowed,
             # but cpython allows it https://tiny.one/global-in-docs
             symbol_data.change_scope(ScopeType.GLOBAL)
 
     def visit_Nonlocal(self, node: ast.Nonlocal) -> None:
         for name in node.names:
-            symbol_data = self.scope.symbol_table[name]
+            symbol_data = self.symtab[name]
             # generally imports before nonlocal should not be allowed,
             # but cpython allows it https://tiny.one/nonlocal-in-docs
             symbol_data.change_scope(ScopeType.NONLOCAL)
@@ -181,7 +181,7 @@ class ScopeAnalyser(Analyser):
         assert len(names) == 1
         name, = names
 
-        symbol = self.scope.symbol_table[name]
+        symbol = self.symtab[name]
         if isinstance(self.scope, acr_c.Comprehension):
             # in the other case it's already defined
             if not symbol.change_scope(ScopeType.NONLOCAL, fail=False):
@@ -195,4 +195,4 @@ class ScopeAnalyser(Analyser):
 
     def visit_Name(self, node: ast.Name) -> None:
         # this name have been used in this scope
-        self.scope.symbol_table[node.id]
+        self.symtab[node.id]
