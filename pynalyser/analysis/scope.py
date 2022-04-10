@@ -51,8 +51,8 @@ class ScopeAnalyser(Analyser):
             # this symbol is used in self.scope
             self.scope.symbol_table[scope.name]
 
-    def handle_arg(self, scope: acr_c.Scope, name: str) -> Arg:
-        symbol = scope.symbol_table[name]
+    def handle_arg(self, name: str) -> Arg:
+        symbol = self.symtab[name]
         symbol.is_arg = True
 
         if not symbol.change_scope(ScopeType.LOCAL, fail=False):
@@ -76,19 +76,19 @@ class ScopeAnalyser(Analyser):
 
         if sys.version_info >= (3, 8):
             for arg in scope.args.posonlyargs:
-                args.posargs.append(self.handle_arg(scope, arg.arg))
+                args.posargs.append(self.handle_arg(arg.arg))
 
         for arg in scope.args.args:
-            args.args.append(self.handle_arg(scope, arg.arg))
+            args.args.append(self.handle_arg(arg.arg))
 
         for arg in scope.args.kwonlyargs:
-            args.kwargs.append(self.handle_arg(scope, arg.arg))
+            args.kwargs.append(self.handle_arg(arg.arg))
 
         if scope.args.vararg is not None:
-            args.stararg = self.handle_arg(scope, scope.args.vararg.arg)
+            args.stararg = self.handle_arg(scope.args.vararg.arg)
 
         if scope.args.kwarg is not None:
-            args.twostararg = self.handle_arg(scope, scope.args.kwarg.arg)
+            args.twostararg = self.handle_arg(scope.args.kwarg.arg)
 
     def visit_For(self, node: acr_c.For) -> None:
         self.setup_symbols_by_assign(node.target)
