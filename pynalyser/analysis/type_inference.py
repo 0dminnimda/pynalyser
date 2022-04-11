@@ -1,27 +1,17 @@
 import ast
-from typing import Any, List, Tuple, Union
-from warnings import warn
+from typing import Union
 
 from ..acr import classes as acr_c
-from ..acr.utils import NODE, NodeVisitor, dump
-from ._ref_types import (BinOpType, CallType, ItemType, SubscriptType,
-                         SymbolType, CompareType)
-from ._types import (DUNDER_SIGNATURE, UnknownType, AnyType, IntType, ListType,
-                     PynalyserType, SequenceType, SingleType, SliceType,
-                     TupleType, UnionType)
-from ._symb_types import FunctionType, Arguments, Arg, SymTabType
-from .tools import Analyser
+from ._ref_types import (BinOpType, CallType, CompareType, ItemType,
+                         SubscriptType, SymbolType)
+from ._types import (DUNDER_SIGNATURE, AnyType, IntType, ListType,
+                     PynalyserType, SingleType, SliceType, TupleType,
+                     UnionType, UnknownType)
+from .scope import SymTabAnalyser
 
 
-# XXX: merge into TypeInference?
-class ExprTypeInference(NodeVisitor):
-    # auto_generic_visit: bool = True
-
-    def infer(self, scope: acr_c.Scope, node: NODE) -> PynalyserType:
-        res = self.start(scope, node)
-        if isinstance(res, PynalyserType):
-            return res
-        return AnyType
+class TypeInference(SymTabAnalyser):
+    # Inferable expressions
 
     def visit_Call(self, node: ast.Call) -> PynalyserType:
         return CallType(
@@ -71,18 +61,25 @@ class ExprTypeInference(NodeVisitor):
         return SingleType(name=type(node.value).__name__, is_builtin=True)
 
     def visit_Name(self, node: ast.Name) -> PynalyserType:
-        return SymbolType(node.id, self.scope.symbol_table[node.id])
+        return SymbolType(node.id, self.symtab[node.id])
 
-
-class TypeInference(Analyser):
-    expr_type_inference: ExprTypeInference = ExprTypeInference()
+    # def infer(self, scope: acr_c.Scope, node: NODE) -> PynalyserType:
+    #     res = self.start(scope, node)
+    #     if isinstance(res, PynalyserType):
+    #         return res
+    #     return AnyType
 
     def infer_acr_expr(self, node: Union[ast.AST, acr_c.ACR]) -> PynalyserType:
-        return self.expr_type_inference.infer(self.scope, node)
+        # res = self.start(node, node)
+        res = self.visit(node)
+        if isinstance(res, PynalyserType):
+            return res
+        return AnyType
+        # return self.expr_type_inference.infer(self.scope, node)
 
     def infer_assignment(self, node: ast.AST, tp: PynalyserType) -> None:
         if isinstance(node, ast.Name):
-            symbol_data = self.scope.symbol_table[node.id]
+            symbol_data = self.symtab[node.id]
             if symbol_data.type is UnknownType:
                 symbol_data.type = tp
             else:
