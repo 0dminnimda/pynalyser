@@ -1,15 +1,15 @@
 import sys
 from typing import Any, List, Union
 
-from pynalyser.acr.utils import NODE
-
 from .. import portable_ast as ast
 from ..acr import classes as acr_c
-from .symbols import ScopeType, SymbolTable
+from ..acr.utils import NODE
+from .symbols import ScopeType
 from .tools import Analyser, AnalysisContext
-from .types import Arg, Arguments, FunctionType, SymTabType
+from .type_inference import Arg, Arguments, FunctionType, SymTabType
 
 
+# XXX: join with ScopeAnalyser?
 class AssignVisitor(ast.NodeVisitor):
     # accounted for:
     # Attribute - don't visit fields, XXX: for now
@@ -37,13 +37,7 @@ class AssignVisitor(ast.NodeVisitor):
         self.names.append(node.id)
 
 
-# TODO: scope should be separated from acr
-# it should yield it's oun result
 class ScopeAnalyser(Analyser):
-    # we receive acr with global and nonlocal keywords
-    # already transformed into symbol's scope value
-    # but everything else is unknown and have to be filled here
-
     assign_visitor: AssignVisitor = AssignVisitor()
     symtab: SymTabType
 
@@ -199,3 +193,30 @@ class ScopeAnalyser(Analyser):
     def visit_Name(self, node: ast.Name) -> None:
         # this name have been used in this scope
         self.symtab[node.id]
+
+
+class SymTabAnalyser(Analyser):
+    symtab: SymTabType
+
+    def analyse(self, ctx: AnalysisContext) -> None:
+        if ScopeAnalyser.__name__ not in ctx.results:
+            # XXX: use custom exception?
+            raise KeyError(f"Key '{ScopeAnalyser.__name__}' is"
+                           f" requeued by {type(self).__name__}")
+
+        self.symtab = ctx.results[ScopeAnalyser.__name__]
+        super().analyse(ctx)
+
+    def visit(self, node: NODE) -> Any:
+        if isinstance(node, acr_c.Scope):
+            prev = self.symtab
+            symtab = self.symtab[node.name].type
+            assert isinstance(symtab, SymTabType)
+            self.symtab = symtab
+
+            try:
+                return super().visit(node)
+            finally:
+                self.symtab = prev
+
+        return super().visit(node)
