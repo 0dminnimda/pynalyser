@@ -4,6 +4,8 @@
 
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
+- Remove `symbol_table` from `Scope` and make it a separate structure in the `AnalysisContext`
+- Minor updates of `NodeVisitor.start`
 
 ### Removed
 - "Graph Visit Casher"
