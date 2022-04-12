@@ -19,19 +19,22 @@ class SymbolType(PynalyserType):
         return hash((type(self), self.name))
 
 
-binop_s = {"Add": "+",
-           "Sub": "-",
-           "Mult": "*",
-           "MatMult": "@",
-           "Div": "/",
-           "Mod": "%",
-           "LShift": "<<",
-           "RShift": ">>",
-           "BitOr": "|",
-           "BitXor": "^",
-           "BitAnd": "&",
-           "FloorDiv": "//",
-           "Pow": "**"}
+binop_s = {
+    "Add": "+",
+    "Sub": "-",
+    "MatMult": "@",
+    "Mult": "*",
+    "Div": "/",
+    "Mod": "%",
+    "LShift": "<<",
+    "RShift": ">>",
+    "BitOr": "|",
+    "BitXor": "^",
+    "BitAnd": "&",
+    "FloorDiv": "//",
+    "Pow": "**"
+}
+
 
 binop = {
     name: eval(f"lambda a, b: a {op} b")
@@ -39,7 +42,9 @@ binop = {
 
 
 op_to_dunder = {
-    "Mult": "mul"
+    "Add": "add",
+    "Mult": "mul",
+    "MatMult": "matmul",
 }
 
 
