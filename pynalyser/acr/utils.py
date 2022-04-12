@@ -133,15 +133,9 @@ class NodeVisitor:
     strict: bool = False
     auto_generic_visit: bool = True
 
-    def start(self, init_scope_block: Scope,
-              to_visit: Optional[NODE] = None) -> Any:
-
+    def start(self, init_scope_block: Scope) -> Any:
         self.scope = self.block = init_scope_block
-
-        if to_visit is None:
-            result = self.visit(init_scope_block)
-        else:
-            result = self.visit(to_visit)
+        result = self.visit(init_scope_block)
 
         del self.scope, self.block
         return result
