@@ -114,13 +114,19 @@ class BinOpType(PynalyserType):
         return binop[self.op](self.left.deref(), self.right.deref())
 
 
-cmp_s = {"Lt": "<"}
+cmp_s = {
+    "Lt": "<",
+    "Gt": ">",
+}
 
 cmp = {
     name: eval(f"lambda a, b: a {op} b")
     for name, op in cmp_s.items()}
 
-cmp_to_dunder = {"Lt": "lt"}
+cmp_to_dunder = {
+    "Lt": "lt",
+    "Gt": "gt",
+}
 
 
 @attr.s(auto_attribs=True, hash=True)
