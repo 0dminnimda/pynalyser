@@ -101,17 +101,17 @@ class ScopeAnalyser(Analyser):
     def visit_For(self, node: acr_c.For) -> None:
         self.setup_symbols_by_assign(node.target)
 
-    # def visit_ListComp(self, node: acr_c.ListComp) -> None:
-    #     self.handle_scope(node)
+    def visit_ListComp(self, node: acr_c.ListComp) -> None:
+        self.symtab[node.name].type = self.symtab = SymTabType()
 
-    # def visit_SetComp(self, node: acr_c.SetComp) -> None:
-    #     self.handle_scope(node)
+    def visit_SetComp(self, node: acr_c.SetComp) -> None:
+        self.symtab[node.name].type = self.symtab = SymTabType()
 
-    # def visit_GeneratorExp(self, node: acr_c.GeneratorExp) -> None:
-    #     self.handle_scope(node)
+    def visit_GeneratorExp(self, node: acr_c.GeneratorExp) -> None:
+        self.symtab[node.name].type = self.symtab = SymTabType()
 
-    # def visit_DictComp(self, node: acr_c.DictComp) -> None:
-    #     self.handle_scope(node)
+    def visit_DictComp(self, node: acr_c.DictComp) -> None:
+        self.symtab[node.name].type = self.symtab = SymTabType()
 
     def visit_Lambda(self, node: acr_c.Lambda) -> None:
         self.handle_function(node)
