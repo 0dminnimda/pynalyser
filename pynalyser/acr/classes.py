@@ -1,11 +1,9 @@
-from collections import defaultdict
-from typing import DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import List, Optional, Tuple, TypeVar, Union
 
 import attr
 
 from .. import portable_ast as ast
 from ..analysis._types import PynalyserType, UnknownType
-from ..analysis.symbols import SymbolTable
 
 ACR_T = TypeVar("ACR_T")
 
@@ -139,8 +137,7 @@ class BodyBlock(Block):
 
 @attr.s(auto_attribs=True)
 class Scope(Name, BodyBlock):
-    symbol_table: SymbolTable = attr.ib(init=False, factory=SymbolTable)
-    # parent? probably nay
+    pass
 
 
 class Module(Scope):
@@ -185,11 +182,13 @@ class Class(ScopeWithAttributes):
 
 @attr.s(auto_attribs=True)
 class Function(ScopeWithAttributes, Asyncable):
-    # TODO: create my out typed attributes (+ think about ease of str dumping)
     args: ast.arguments = attr.ib(factory=ast.arguments)
     decorator_list: List[ast.expr] = attr.ib(factory=list)
 
     return_type: PynalyserType = attr.ib(init=False, default=UnknownType)
+    # TODO: move return_type from this class
+    # new data should be held in analysis context
+    # and not shoved in acr everytime
     is_symbol: bool = attr.ib(init=False, default=True)
 
 
