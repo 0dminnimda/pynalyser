@@ -192,12 +192,9 @@ class Function(ScopeWithAttributes, Asyncable):
     is_symbol: bool = attr.ib(init=False, default=True)
 
 
-LAMBDA_NAME = "<lambda>"
-
-
 @attr.s(auto_attribs=True)
 class Lambda(ScopeWithAttributes, ast.expr):
-    name: str = attr.ib(default=LAMBDA_NAME, init=False)
+    name: str = attr.ib(default="<lambda>", init=False)
     args: ast.arguments = attr.ib(factory=ast.arguments)
 
 
