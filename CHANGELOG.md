@@ -4,13 +4,17 @@
 
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
-- Remove `symbol_table` from `Scope` and make it a separate structure in the `AnalysisContext`
+- `NodeVisitor.start` now don't take the second argument
+- Move `symbol_table` from `Scope` and to be a separate structure in the `AnalysisContext`
 - Move `return_type` from `Function` to `FunctionType`
-- Minor updates of `NodeVisitor.start`
+- Renamed `symbols.py` to `symbol.py` and `SymbolData` to `Symbol`
+- Renamed `SymTabType` to `SymbolTableType`
+- `analysis.X_types.py` are all moved in `types\`
 
 ### Removed
 - "Graph Visit Casher"
-- `ScopeReference` `ScopeDefs` from acr classes
+- `ScopeReference` `ScopeDefs` from `acr.classes`
+- `symbols.SymbolTable`
 
 ### Fixed
 - `ACRCodeTransformer` now works properly
