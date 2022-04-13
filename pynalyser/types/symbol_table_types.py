@@ -1,9 +1,11 @@
+# XXX: this is also structure type, maybe merge?
+
 from typing import DefaultDict, List, Optional
 
 import attr
 
-from ._types import PynalyserType, UnknownType
-from .symbol import Symbol
+from .base_types import PynalyserType, UnknownType
+from ..symbol import Symbol
 
 
 @attr.s(auto_attribs=True, hash=True)

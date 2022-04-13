@@ -2,9 +2,10 @@ from typing import List, Optional, Tuple
 
 import attr
 
-from ._types import (AnyType, IntType, IterableType, PynalyserType, SingleType,
-                     UnionType, UnknownType)
-from .symbol import Symbol
+from ..symbol import Symbol
+from .base_types import (AnyType, PynalyserType, SingleType, UnionType,
+                         UnknownType)
+from .structure_types import IntType, IterableType
 
 
 @attr.s(auto_attribs=True, auto_detect=True)
