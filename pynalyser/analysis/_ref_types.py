@@ -4,7 +4,7 @@ import attr
 
 from ._types import (AnyType, IntType, IterableType, PynalyserType, SingleType,
                      UnionType, UnknownType)
-from .symbols import SymbolData
+from .symbol import SymbolData
 
 
 @attr.s(auto_attribs=True, auto_detect=True)

@@ -1,8 +1,9 @@
 from typing import List, Optional
-from ._types import PynalyserType, UnknownType
-from .symbols import SymbolData, SymbolTable
 
 import attr
+
+from ._types import PynalyserType, UnknownType
+from .symbol import SymbolData, SymbolTable
 
 
 @attr.s(auto_attribs=True, hash=True)
