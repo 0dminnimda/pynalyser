@@ -62,19 +62,11 @@ class TypeInference(SymTabAnalyser):
     def visit_Name(self, node: ast.Name) -> PynalyserType:
         return SymbolType(node.id, self.symtab[node.id])
 
-    # def infer(self, scope: acr_c.Scope, node: NODE) -> PynalyserType:
-    #     res = self.start(scope, node)
-    #     if isinstance(res, PynalyserType):
-    #         return res
-    #     return AnyType
-
     def infer_acr_expr(self, node: Union[ast.AST, acr_c.ACR]) -> PynalyserType:
-        # res = self.start(node, node)
         res = self.visit(node)
         if isinstance(res, PynalyserType):
             return res
         return AnyType
-        # return self.expr_type_inference.infer(self.scope, node)
 
     def infer_assignment(self, node: ast.AST, tp: PynalyserType) -> None:
         if isinstance(node, ast.Name):
@@ -111,3 +103,4 @@ class TypeInference(SymTabAnalyser):
         # if bool(test) is always True / False,
         # then we have infinite loop or
         # we can skip loop
+
