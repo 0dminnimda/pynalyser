@@ -53,6 +53,6 @@ class Symbol:
                 f"changing the `scope` from {self.scope} to {new_scope}")
 
 
-class SymbolTable(DefaultDict[str, SymbolData]):
+class SymbolTable(DefaultDict[str, Symbol]):
     def __init__(self, *args, **kwargs):
-        super().__init__(SymbolData, *args, **kwargs)
+        super().__init__(Symbol, *args, **kwargs)

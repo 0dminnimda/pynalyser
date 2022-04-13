@@ -4,7 +4,7 @@ from typing import Any, List, Union
 from .. import portable_ast as ast
 from ..acr import classes as acr_c
 from ..acr.utils import NODE
-from .symbol import ScopeType
+from ..symbol import ScopeType
 from .tools import Analyser, AnalysisContext
 from .type_inference import Arg, Arguments, FunctionType, SymbolTableType
 

@@ -2,7 +2,7 @@ import sys
 from typing import List, NoReturn, Optional, Union
 
 from .. import portable_ast as ast
-from ..analysis.symbol import ScopeType
+from ..symbol import ScopeType
 from .classes import (Block, Class, DictComp, ExceptHandler, FlowContainer,
                       For, Function, GeneratorExp, If, Lambda, ListComp, Match,
                       MatchCase, Module, Scope, SetComp, Try, While, With)
@@ -10,6 +10,7 @@ from .classes import (Block, Class, DictComp, ExceptHandler, FlowContainer,
 STMT_SCOPE = Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]
 
 
+# TODO: eliminate this class, it's still a kludge
 class ForBlocks(ast.AST):
     _fields = "blocks",
     blocks: FlowContainer
