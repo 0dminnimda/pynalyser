@@ -2,6 +2,9 @@
 
 ## 0.2.0 (???)
 
+### Added
+- `analysers.pipeline.py`
+
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
 - `NodeVisitor.start` now don't take the second argument
@@ -15,6 +18,7 @@
 - "Graph Visit Casher"
 - `ScopeReference` `ScopeDefs` from `acr.classes`
 - `symbols.SymbolTable`
+- `main.analyse_context` and `main.analyse`
 
 ### Fixed
 - `ACRCodeTransformer` now works properly
