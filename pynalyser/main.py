@@ -1,13 +1,11 @@
 import ast
 import io
 import os
-from typing import List, Optional
 
 from .acr.classes import Module
 from .acr.translation import translate_ast_to_acr
-from .analysers.type_inference import TypeInference
-from .analysers.scope import ScopeAnalyser
-from .analysers.tools import Analyser, AnalysisContext
+from .analysers.pipeline import PIPELINE_FACTORY, create_pipeline, run_pipeline
+from .analysers.tools import AnalysisContext
 from .normalize_ast import normalize_ast_module
 
 
@@ -32,33 +30,9 @@ def parse_ast(name: str, module: ast.Module) -> Module:
     return translate_ast_to_acr(normalize_ast_module(module), name)
 
 
-def analyse_context(analysers: List[Analyser], ctx: AnalysisContext) -> None:
-    for analyser in analysers:
-        analyser.analyse(ctx)
-
-
-DEFAULT_ANALYSERS = [
-    ScopeAnalyser(),
-    TypeInference(),
-]
-
-
-def analyse(ctx: AnalysisContext,
-            analysers: Optional[List[Analyser]] = None) -> AnalysisContext:
-
-    if analysers is None:
-        analysers = DEFAULT_ANALYSERS
-    assert analysers is not None  # for typechecker
-
-    analyse_context(analysers, ctx)
-
-    return ctx
-
-
 def analyse_file(
-    source: str, analysers: Optional[List[Analyser]] = None
+    source: str, factory: PIPELINE_FACTORY = create_pipeline
 ) -> AnalysisContext:
 
     ctx = AnalysisContext([parse(source)])
-
-    return analyse(ctx, analysers)
+    return run_pipeline(ctx, factory)
