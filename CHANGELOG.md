@@ -5,6 +5,7 @@
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
 - Remove `symbol_table` from `Scope` and make it a separate structure in the `AnalysisContext`
+- Move `return_type` from `Function` to `FunctionType`
 - Minor updates of `NodeVisitor.start`
 
 ### Removed
