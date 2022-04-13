@@ -1,15 +1,15 @@
-from typing import List, Optional
+from typing import DefaultDict, List, Optional
 
 import attr
 
 from ._types import PynalyserType, UnknownType
-from .symbol import SymbolData, SymbolTable
+from .symbol import SymbolData
 
 
 @attr.s(auto_attribs=True, hash=True)
-class SymTabType(SymbolTable, PynalyserType):
+class SymTabType(DefaultDict[str, SymbolData], PynalyserType):
     def __attrs_pre_init__(self):
-        super().__init__()  # for SymbolTable
+        super().__init__()  # for DefaultDict
 
 
 @attr.s(auto_attribs=True, hash=True)
