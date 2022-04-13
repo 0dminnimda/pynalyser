@@ -1,8 +1,6 @@
-import sys
-from typing import List, NoReturn, Optional, Union
+from typing import NoReturn, Union
 
 from .. import portable_ast as ast
-from ..symbol import ScopeType
 from .classes import (Block, Class, DictComp, ExceptHandler, FlowContainer,
                       For, Function, GeneratorExp, If, Lambda, ListComp, Match,
                       MatchCase, Module, Scope, SetComp, Try, While, With)
