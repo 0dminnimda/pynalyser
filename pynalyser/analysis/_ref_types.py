@@ -4,13 +4,13 @@ import attr
 
 from ._types import (AnyType, IntType, IterableType, PynalyserType, SingleType,
                      UnionType, UnknownType)
-from .symbol import SymbolData
+from .symbol import Symbol
 
 
 @attr.s(auto_attribs=True, auto_detect=True)
 class SymbolType(PynalyserType):
     name: str
-    symbol: SymbolData
+    symbol: Symbol
 
     def deref(self) -> PynalyserType:
         return self.symbol.type.deref()

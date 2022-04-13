@@ -3,11 +3,11 @@ from typing import DefaultDict, List, Optional
 import attr
 
 from ._types import PynalyserType, UnknownType
-from .symbol import SymbolData
+from .symbol import Symbol
 
 
 @attr.s(auto_attribs=True, hash=True)
-class SymbolTableType(DefaultDict[str, SymbolData], PynalyserType):
+class SymbolTableType(DefaultDict[str, Symbol], PynalyserType):
     def __attrs_pre_init__(self):
         super().__init__()  # for DefaultDict
 
@@ -15,7 +15,7 @@ class SymbolTableType(DefaultDict[str, SymbolData], PynalyserType):
 @attr.s(auto_attribs=True, hash=True)
 class Arg:
     name: str
-    symbol: SymbolData
+    symbol: Symbol
     default: Optional[PynalyserType] = None
 
 

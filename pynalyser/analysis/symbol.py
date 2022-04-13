@@ -18,7 +18,7 @@ class ScopeType(Flag):  # XXX: maybe ScopeT?
 
 # TODO: rename to Symbol and look at variables that use this class
 @attr.s(auto_attribs=True)
-class SymbolData:
+class Symbol:
     # it seems like symbol's scope doesn't change
     # throughout the scope execution
     scope: ScopeType = ScopeType.UNKNOWN
