@@ -1,5 +1,4 @@
 from enum import Flag, auto
-from typing import DefaultDict
 
 import attr
 
@@ -51,8 +50,3 @@ class Symbol:
             # TODO: change to custom class
             raise ValueError(
                 f"changing the `scope` from {self.scope} to {new_scope}")
-
-
-class SymbolTable(DefaultDict[str, Symbol]):
-    def __init__(self, *args, **kwargs):
-        super().__init__(Symbol, *args, **kwargs)
