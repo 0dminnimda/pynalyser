@@ -2,12 +2,10 @@ import ast
 from typing import Union
 
 from ..acr import classes as acr_c
-from ._ref_types import (BinOpType, CallType, CompareType, ItemType,
-                         SubscriptType, SymbolType)
-from ._symb_types import Arg, Arguments, FunctionType, SymbolTableType
-from ._types import (DUNDER_SIGNATURE, AnyType, IntType, ListType,
-                     PynalyserType, SingleType, SliceType, TupleType,
-                     UnionType, UnknownType)
+from ..types import (AnyType, BinOpType, CallType, CompareType, IntType,
+                     ItemType, ListType, PynalyserType, SingleType, SliceType,
+                     SubscriptType, SymbolType, TupleType, UnionType,
+                     UnknownType)
 from .scope import SymTabAnalyser
 
 
