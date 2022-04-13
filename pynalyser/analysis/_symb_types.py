@@ -7,7 +7,7 @@ from .symbol import SymbolData
 
 
 @attr.s(auto_attribs=True, hash=True)
-class SymTabType(DefaultDict[str, SymbolData], PynalyserType):
+class SymbolTableType(DefaultDict[str, SymbolData], PynalyserType):
     def __attrs_pre_init__(self):
         super().__init__()  # for DefaultDict
 
@@ -29,6 +29,6 @@ class Arguments:
 
 
 @attr.s(auto_attribs=True, hash=True)
-class FunctionType(SymTabType):
+class FunctionType(SymbolTableType):
     args: Arguments
     return_type: PynalyserType = UnknownType
