@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 import attr
@@ -53,6 +51,9 @@ class UnionType(PynalyserType):
             return cls(tuple(sorted(unique_types, key=lambda x: str(x))))
 
 
+DUNDER_SIGNATURE = Tuple[Type["SingleType"], ...]
+
+
 @attr.s(auto_attribs=True, hash=True)
 class SingleType(PynalyserType):
     name: str = attr.ib(kw_only=True)
@@ -66,9 +67,6 @@ class SingleType(PynalyserType):
     @property
     def as_str(self) -> str:
         return self.name
-
-
-DUNDER_SIGNATURE = Tuple[Type[SingleType], ...]
 
 
 AnyType = SingleType(name="object", is_builtin=False)
