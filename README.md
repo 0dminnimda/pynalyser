@@ -9,6 +9,9 @@
     <a href="https://pypi.org/project/pynalyser/">
         <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/pynalyser">
     </a>
+    <a href="https://pypi.org/project/pynalyser/">
+        <img alt="PyPI" src="https://img.shields.io/pypi/v/pynalyser">
+    </a>
     <a href="https://github.com/0dminnimda/pynalyser">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/0dminnimda/pynalyser?style=social">
     </a>
@@ -41,3 +44,9 @@ Pynalyser is available on [PyPI](https://pypi.org/project/pynalyser/)
 ```console
 pip install pynalyser
 ```
+
+---
+
+## 💗 Thanks to everyone who starred the repo
+
+[![Stargazers repo roster for @0dminnimda/pynalyser](https://reporoster.com/stars/dark/0dminnimda/pynalyser)](https://github.com/0dminnimda/pynalyser/stargazers)
