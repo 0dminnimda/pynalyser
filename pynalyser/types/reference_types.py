@@ -148,18 +148,8 @@ class CompareType(PynalyserType):
         if isinstance(self.comparators[0], SymbolType):
             self.comparators[0].symbol.type = right
 
-    def _deref(self, res: PynalyserType, ops,
-               vals: List[PynalyserType]) -> PynalyserType:
-        if ops and vals:
-            res = ops.pop(0)(res, vals.pop(0))
-            if ops and vals:
-                return self._deref(res, ops, vals)
-            else:
-                return res
-        raise ValueError("Empty 'ops' and 'val'")
-
     def deref(self) -> PynalyserType:
-        return self._deref(self.left, self.ops, self.comparators)
+        return BoolType()  # or exception raised
 
 
 @attr.s(auto_attribs=True, hash=True)
