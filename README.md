@@ -47,6 +47,6 @@ pip install pynalyser
 
 ---
 
-## 💗 Thanks to everyone who starred the repo
+## 💗 Thanks to everyone who starred the repository on GitHub
 
 [![Stargazers repo roster for @0dminnimda/pynalyser](https://reporoster.com/stars/dark/0dminnimda/pynalyser)](https://github.com/0dminnimda/pynalyser/stargazers)
