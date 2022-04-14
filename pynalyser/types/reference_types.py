@@ -1,17 +1,19 @@
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import attr
 
-from ..symbol import Symbol
 from .base_types import (AnyType, PynalyserType, SingleType, UnionType,
                          UnknownType)
 from .structure_types import IntType, IterableType
+
+if TYPE_CHECKING:
+    from ..symbol import Symbol
 
 
 @attr.s(auto_attribs=True, auto_detect=True)
 class SymbolType(PynalyserType):
     name: str
-    symbol: Symbol
+    symbol: "Symbol"
 
     def deref(self) -> PynalyserType:
         return self.symbol.type.deref()

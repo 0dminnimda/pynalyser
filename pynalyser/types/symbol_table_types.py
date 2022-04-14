@@ -1,15 +1,17 @@
 # XXX: this is also structure type, maybe merge?
 
-from typing import DefaultDict, List, Optional
+from typing import TYPE_CHECKING, DefaultDict, List, Optional
 
 import attr
 
 from .base_types import PynalyserType, UnknownType
-from ..symbol import Symbol
+
+if TYPE_CHECKING:
+    from ..symbol import Symbol
 
 
 @attr.s(auto_attribs=True, hash=True)
-class SymbolTableType(DefaultDict[str, Symbol], PynalyserType):
+class SymbolTableType(DefaultDict[str, "Symbol"], PynalyserType):
     def __attrs_pre_init__(self):
         super().__init__()  # for DefaultDict
 
@@ -17,7 +19,7 @@ class SymbolTableType(DefaultDict[str, Symbol], PynalyserType):
 @attr.s(auto_attribs=True, hash=True)
 class Arg:
     name: str
-    symbol: Symbol
+    symbol: "Symbol"
     default: Optional[PynalyserType] = None
 
 
