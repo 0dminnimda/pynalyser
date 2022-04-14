@@ -91,6 +91,41 @@ class FloatType(SingleType):
     is_builtin: bool = True
     is_completed: bool = True
 
+    @staticmethod
+    def _sig():
+        return (IntType(), FloatType())
+
+    def _binop(self, other: PynalyserType) -> ReturnT:
+        if isinstance(other, (IntType, FloatType)):
+            return FloatType()
+        return NotImplemented
+
+    __add__ = _binop
+    __sub__ = _binop
+    __mul__ = _binop
+    __truediv__ = _binop
+    __mod__ = _binop
+    __lshift__ = _binop
+    __rshift__ = _binop
+    __or__ = _binop
+    __xor__ = _binop
+    __and__ = _binop
+    __floordiv__ = _binop
+    # __pow__ = _binop
+
+    _sig_add: SIGNATURE = _sig
+    _sig_sub: SIGNATURE = _sig
+    _sig_mul: SIGNATURE = _sig
+    _sig_truediv: SIGNATURE = _sig
+    _sig_mod: SIGNATURE = _sig
+    _sig_lshift: SIGNATURE = _sig
+    _sig_rshift: SIGNATURE = _sig
+    _sig_or: SIGNATURE = _sig
+    _sig_xor: SIGNATURE = _sig
+    _sig_and: SIGNATURE = _sig
+    _sig_floordiv: SIGNATURE = _sig
+    # _sig_pow: SIGNATURE = _sig
+
 
 @attr.s(auto_attribs=True)
 class IterableType(SingleType):
