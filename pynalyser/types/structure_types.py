@@ -52,6 +52,13 @@ class BoolType(IntType):
     is_completed: bool = True
 
 
+@attr.s(auto_attribs=True, hash=True)
+class FloatType(SingleType):
+    name: str = "float"
+    is_builtin: bool = True
+    is_completed: bool = True
+
+
 @attr.s(auto_attribs=True)
 class IterableType(SingleType):
     item_type: PynalyserType
