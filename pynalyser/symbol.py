@@ -5,7 +5,8 @@ import attr
 from .types import PynalyserType, UnknownType
 
 
-class ScopeType(Flag):  # XXX: maybe ScopeT?
+# XXX: maybe ScopeKind?
+class ScopeType(Flag):
     GLOBAL = auto()  # used with global keyword in this scope
     NONLOCAL = auto()  # used with nonlocal keyword in this scope
     LOCAL = auto()  # has an assertion in this scope
