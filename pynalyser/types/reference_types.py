@@ -4,7 +4,8 @@ import attr
 
 from .base_types import (AnyType, PynalyserType, SingleType, UnionType,
                          UnknownType)
-from .structure_types import IntType, IterableType
+from .structure_types import BoolType, IntType, IterableType
+from .operations import BINOP_STR, BINOP_FUNC, DUNDER_BINOP, CMP_STR, CMP_FUNC, DUNDER_CMP
 
 if TYPE_CHECKING:
     from ..symbol import Symbol
@@ -20,35 +21,6 @@ class SymbolType(PynalyserType):
 
     def __hash__(self) -> int:
         return hash((type(self), self.name))
-
-
-binop_s = {
-    "Add": "+",
-    "Sub": "-",
-    "MatMult": "@",
-    "Mult": "*",
-    "Div": "/",
-    "Mod": "%",
-    "LShift": "<<",
-    "RShift": ">>",
-    "BitOr": "|",
-    "BitXor": "^",
-    "BitAnd": "&",
-    "FloorDiv": "//",
-    "Pow": "**"
-}
-
-
-binop = {
-    name: eval(f"lambda a, b: a {op} b")
-    for name, op in binop_s.items()}
-
-
-op_to_dunder = {
-    "Add": "add",
-    "Mult": "mul",
-    "MatMult": "matmul",
-}
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -82,7 +54,7 @@ class BinOpType(PynalyserType):
             else:
                 print(tp.dunder_signatures, method, sign)
                 raise TypeError(
-                    f"unsupported operand type(s) for {binop_s[self.op]}: "
+                    f"unsupported operand type(s) for {BINOP_STR[self.op]}: "
                     f"'{both[0]}' and '{both[1]}'")
 
             return other
@@ -92,11 +64,11 @@ class BinOpType(PynalyserType):
         elif not left.is_completed:
             left = narrow_type(
                 right, (right.name, left.name),
-                op_to_dunder[self.op], use_left=False)
+                DUNDER_BINOP[self.op], use_left=False)
         elif not right.is_completed:
             right = narrow_type(
                 left, (left.name, right.name),
-                op_to_dunder[self.op], use_left=True)
+                DUNDER_BINOP[self.op], use_left=True)
         # else:
         #     raise NotImplementedError
         #     name = op_to_dunder[op]
@@ -119,22 +91,7 @@ class BinOpType(PynalyserType):
             self.right.symbol.type = right
 
     def deref(self) -> PynalyserType:
-        return binop[self.op](self.left.deref(), self.right.deref())
-
-
-cmp_s = {
-    "Lt": "<",
-    "Gt": ">",
-}
-
-cmp = {
-    name: eval(f"lambda a, b: a {op} b")
-    for name, op in cmp_s.items()}
-
-cmp_to_dunder = {
-    "Lt": "lt",
-    "Gt": "gt",
-}
+        return BINOP_FUNC[self.op](self.left.deref(), self.right.deref())
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -169,7 +126,7 @@ class CompareType(PynalyserType):
             else:
                 print(tp.dunder_signatures, method, sign)
                 raise TypeError(
-                    f"unsupported operand type(s) for {cmp_s[self.ops[0]]}: "
+                    f"unsupported operand type(s) for {CMP_STR[self.ops[0]]}: "
                     f"'{both[0]}' and '{both[1]}'")
 
             return other
@@ -180,11 +137,11 @@ class CompareType(PynalyserType):
         elif not left.is_completed:
             left = narrow_type(
                 right, (right.name, left.name),
-                cmp_to_dunder[self.ops[0]], use_left=False)
+                DUNDER_CMP[self.ops[0]], use_left=False)
         elif not right.is_completed:
             right = narrow_type(
                 left, (left.name, right.name),
-                cmp_to_dunder[self.ops[0]], use_left=True)
+                DUNDER_CMP[self.ops[0]], use_left=True)
 
         if isinstance(self.left, SymbolType):
             self.left.symbol.type = left
