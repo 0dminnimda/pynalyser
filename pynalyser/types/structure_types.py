@@ -9,6 +9,9 @@ NotImplementedType = type(NotImplemented)
 ReturnT = Union[PynalyserType, NotImplementedType]  # type: ignore
 
 
+# TODO: make a base class with __X__ and _sig_X annotated and defaulted
+# the default value must be equal to a field not defined in the simulated class
+
 @attr.s(auto_attribs=True, hash=True)
 class IntType(SingleType):
     name: str = "int"
@@ -39,11 +42,40 @@ class IntType(SingleType):
     _sig_eq: SIGNATURE = _sig
     _sig_ne: SIGNATURE = _sig
 
-    def __add__(self, other: PynalyserType) -> ReturnT:
+    def _binop(self, other: PynalyserType) -> ReturnT:
         if isinstance(other, IntType):
             return IntType()
         return NotImplemented
-    _sig_add: SIGNATURE = lambda: (IntType(),)
+
+    __add__ = _binop
+    __sub__ = _binop
+    __mul__ = _binop
+    __mod__ = _binop
+    __lshift__ = _binop
+    __rshift__ = _binop
+    __or__ = _binop
+    __xor__ = _binop
+    __and__ = _binop
+    __floordiv__ = _binop
+    # __pow__ = _binop
+
+    _sig_add: SIGNATURE = _sig
+    _sig_sub: SIGNATURE = _sig
+    _sig_mul: SIGNATURE = _sig
+    _sig_mod: SIGNATURE = _sig
+    _sig_lshift: SIGNATURE = _sig
+    _sig_rshift: SIGNATURE = _sig
+    _sig_or: SIGNATURE = _sig
+    _sig_xor: SIGNATURE = _sig
+    _sig_and: SIGNATURE = _sig
+    _sig_floordiv: SIGNATURE = _sig
+    # _sig_pow: SIGNATURE = _sig
+
+    def __truediv__(self, other: PynalyserType) -> ReturnT:
+        if isinstance(other, IntType):
+            return FloatType()
+        return NotImplemented
+    _sig_truediv: SIGNATURE = _sig
 
 
 @attr.s(auto_attribs=True, hash=True)
