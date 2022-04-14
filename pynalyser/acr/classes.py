@@ -25,7 +25,7 @@ class ACR:
     #     raise NotImplementedError
 
     # FIXME: this should run only on class creation, so metaclasses?
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         _fields = list(attr.fields_dict(type(self)).keys())
 
         for name in self._attributes:
@@ -121,7 +121,7 @@ class CodeBlock(ACR, List[CODE]):
 class Block(ACR):
     _block_fields: Tuple[str, ...] = ()
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         super().__attrs_post_init__()
         _fields = list(self._fields)
         _fields.remove("_block_fields")
