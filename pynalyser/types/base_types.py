@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 import attr
 
@@ -51,22 +51,18 @@ class UnionType(PynalyserType):
             return cls(tuple(sorted(unique_types, key=lambda x: str(x))))
 
 
-DUNDER_SIGNATURE = Tuple[Type["SingleType"], ...]
-
-
 @attr.s(auto_attribs=True, hash=True)
 class SingleType(PynalyserType):
     name: str = attr.ib(kw_only=True)
     is_builtin: bool = attr.ib(kw_only=True)
-
-    dunder_signatures: Dict[str, DUNDER_SIGNATURE] = attr.ib(
-        factory=dict, init=False, hash=False)
-
     is_completed: bool = attr.ib(default=False, kw_only=True)
 
     @property
     def as_str(self) -> str:
         return self.name
+
+
+SIGNATURE = Callable[[], Tuple[SingleType, ...]]
 
 
 AnyType = SingleType(name="object", is_builtin=False)
