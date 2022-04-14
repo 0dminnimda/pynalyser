@@ -10,8 +10,8 @@
 - `NodeVisitor.start` now don't take the second argument
 - Move `symbol_table` from `Scope` and to be a separate structure in the `AnalysisContext`
 - Move `return_type` from `Function` to `FunctionType`
-- Renamed `symbols.py` to `symbol.py` and `SymbolData` to `Symbol`
-- Renamed `SymTabType` to `SymbolTableType`
+- Moved `analysis.symbols.py` to `symbol.py`
+- Renamed `SymbolData` to `Symbol` and `SymTabType` to `SymbolTableType`
 - `analysis.X_types.py` are all moved in `types\`
 
 ### Removed
