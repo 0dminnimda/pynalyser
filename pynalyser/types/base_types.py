@@ -55,6 +55,7 @@ class UnionType(PynalyserType):
 class SingleType(PynalyserType):
     name: str = attr.ib(kw_only=True)
     is_builtin: bool = attr.ib(kw_only=True)
+    # XXX: why do we need is_completed?
     is_completed: bool = attr.ib(default=False, kw_only=True)
 
     @property
