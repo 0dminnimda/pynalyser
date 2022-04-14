@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 @attr.s(auto_attribs=True, hash=True)
 class SymbolTableType(DefaultDict[str, "Symbol"], PynalyserType):
     def __attrs_pre_init__(self):
-        super().__init__()  # for DefaultDict
+        from ..symbol import Symbol
+        super().__init__(Symbol)  # for defaultdict
 
 
 @attr.s(auto_attribs=True, hash=True)
