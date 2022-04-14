@@ -1,3 +1,3 @@
-# Analysis
+# Analysers
 
-Here all of the analysis things will be done :)
+All `Analyser`s and tools for working with them are stored here.
