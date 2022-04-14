@@ -24,7 +24,9 @@ class SymbolType(PynalyserType):
 
 
 def narrow_type(tp: SingleType, both: Tuple[str, str],
-                method: str, op_str: str, use_left: bool):
+                method: str, op_str: str,
+                use_left: bool) -> SingleType:
+
     if use_left:
         this_method = method
         # other_method = "r" + method
@@ -55,7 +57,7 @@ class BinOpType(PynalyserType):
     left: PynalyserType
     right: PynalyserType
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         left = self.left.deref()
         assert isinstance(left, SingleType)
         right = self.right.deref()
@@ -104,7 +106,7 @@ class CompareType(PynalyserType):
     ops: List[str]
     comparators: List[PynalyserType]
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         left = self.left.deref()
         assert isinstance(left, SingleType)
         right = self.comparators[0].deref()
@@ -154,7 +156,7 @@ class SubscriptType(PynalyserType):
 class ItemType(PynalyserType):
     iterable: PynalyserType
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         tp = self.iterable.deref()
         if tp is UnknownType:
             if isinstance(self.iterable, SymbolType):
