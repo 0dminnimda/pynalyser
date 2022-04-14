@@ -4,6 +4,7 @@ import attr
 
 from .base_types import SIGNATURE, AnyType, PynalyserType, SingleType
 
+
 NotImplementedType = type(NotImplemented)
 ReturnT = Union[PynalyserType, NotImplementedType]  # type: ignore
 
@@ -14,15 +15,15 @@ class IntType(SingleType):
     is_builtin: bool = True
     is_completed: bool = True
 
+    @staticmethod
+    def _sig():
+        return (IntType(),)
+
     # also see "long_compare" in cpython github
     def _cmp(self, other: PynalyserType) -> ReturnT:
         if isinstance(other, IntType):
             return BoolType()
         return NotImplemented
-
-    @staticmethod
-    def _sig():
-        return (IntType(),)
 
     __lt__ = _cmp  # type: ignore
     __gt__ = _cmp  # type: ignore
@@ -89,13 +90,6 @@ class SequenceType(IterableType):
 
 
 @attr.s(auto_attribs=True, hash=True)
-class SliceType(SingleType):
-    name: str = "slice"
-    is_builtin: bool = True
-    is_completed: bool = True
-
-
-@attr.s(auto_attribs=True, hash=True)
 class ListType(SequenceType):
     name: str = "list"
     is_builtin: bool = True
@@ -113,5 +107,12 @@ class ListType(SequenceType):
 @attr.s(auto_attribs=True, hash=True)
 class TupleType(SequenceType):
     name: str = "tuple"
+    is_builtin: bool = True
+    is_completed: bool = True
+
+
+@attr.s(auto_attribs=True, hash=True)
+class SliceType(SingleType):
+    name: str = "slice"
     is_builtin: bool = True
     is_completed: bool = True
