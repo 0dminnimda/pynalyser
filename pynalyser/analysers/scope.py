@@ -1,9 +1,8 @@
 import sys
 from typing import Any, List, Union
 
+from .. import acr
 from .. import portable_ast as ast
-from ..acr import classes as acr_c
-from ..acr.utils import NODE
 from ..symbol import ScopeType
 from ..types import Arg, Arguments, FunctionType, SymbolTableType
 from .tools import Analyser, AnalysisContext
@@ -51,8 +50,8 @@ class ScopeAnalyser(Analyser):
         self.symtab = ctx.results[type(self).__name__] = SymbolTableType()
         super().analyse(ctx)
 
-    def visit(self, node: NODE) -> Any:
-        if isinstance(node, acr_c.Scope):
+    def visit(self, node: acr.NODE) -> Any:
+        if isinstance(node, acr.Scope):
             prev = self.symtab
             if node.is_symbol:
                 # this symbol is used in self.scope
@@ -74,7 +73,7 @@ class ScopeAnalyser(Analyser):
         return Arg(name, symbol.current_symbol)
 
     def handle_function(
-        self, scope: Union[acr_c.Lambda, acr_c.Function]
+        self, scope: Union[acr.Lambda, acr.Function]
     ) -> None:
 
         args = Arguments()
@@ -99,31 +98,31 @@ class ScopeAnalyser(Analyser):
         if scope.args.kwarg is not None:
             args.twostararg = self.handle_arg(scope.args.kwarg.arg)
 
-    def visit_For(self, node: acr_c.For) -> None:
+    def visit_For(self, node: acr.For) -> None:
         self.setup_symbols_by_assign(node.target)
 
-    def visit_ListComp(self, node: acr_c.ListComp) -> None:
+    def visit_ListComp(self, node: acr.ListComp) -> None:
         self.symtab[node.name].type = self.symtab = SymbolTableType()
 
-    def visit_SetComp(self, node: acr_c.SetComp) -> None:
+    def visit_SetComp(self, node: acr.SetComp) -> None:
         self.symtab[node.name].type = self.symtab = SymbolTableType()
 
-    def visit_GeneratorExp(self, node: acr_c.GeneratorExp) -> None:
+    def visit_GeneratorExp(self, node: acr.GeneratorExp) -> None:
         self.symtab[node.name].type = self.symtab = SymbolTableType()
 
-    def visit_DictComp(self, node: acr_c.DictComp) -> None:
+    def visit_DictComp(self, node: acr.DictComp) -> None:
         self.symtab[node.name].type = self.symtab = SymbolTableType()
 
-    def visit_Lambda(self, node: acr_c.Lambda) -> None:
+    def visit_Lambda(self, node: acr.Lambda) -> None:
         self.handle_function(node)
 
-    def visit_Function(self, node: acr_c.Function) -> None:
+    def visit_Function(self, node: acr.Function) -> None:
         self.handle_function(node)
 
-    def visit_Class(self, node: acr_c.Class) -> None:
+    def visit_Class(self, node: acr.Class) -> None:
         self.symtab[node.name].type = self.symtab = SymbolTableType()
 
-    def visit_Module(self, node: acr_c.Module) -> None:
+    def visit_Module(self, node: acr.Module) -> None:
         self.symtab[node.name].type = self.symtab = SymbolTableType()
 
     def setup_symbols_by_assign(self, *targets: ast.AST) -> None:
@@ -180,7 +179,7 @@ class ScopeAnalyser(Analyser):
         name, = names
 
         symbol = self.symtab[name]
-        if isinstance(self.scope, acr_c.Comprehension):
+        if isinstance(self.scope, acr.Comprehension):
             # in the other case it's already defined
             if not symbol.change_scope(ScopeType.NONLOCAL, fail=False):
                 raise NotImplementedError(
@@ -208,8 +207,8 @@ class SymTabAnalyser(Analyser):
         self.symtab = ctx.results[ScopeAnalyser.__name__]
         super().analyse(ctx)
 
-    def visit(self, node: NODE) -> Any:
-        if isinstance(node, acr_c.Scope):
+    def visit(self, node: acr.NODE) -> Any:
+        if isinstance(node, acr.Scope):
             prev = self.symtab
             symtab = self.symtab[node.name].type
             assert isinstance(symtab, SymbolTableType)
