@@ -17,11 +17,15 @@ class SymbolTableType(DefaultDict[str, "Symbol"], PynalyserType):
         super().__init__(Symbol)  # for defaultdict
 
 
-@attr.s(auto_attribs=True, hash=True)
+@attr.s(auto_attribs=True, hash=True, auto_detect=True)
 class Arg:
     name: str
     symbol: "Symbol"
     default: Optional[PynalyserType] = None
+
+    def __repr__(self) -> str:
+        default = "" if self.default is None else " = " + str(self.default)
+        return f"<{self.name}: {self.symbol.type.as_str}{default}>"
 
 
 @attr.s(auto_attribs=True, hash=True)
