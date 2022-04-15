@@ -1,4 +1,4 @@
-import ast
+from . import portable_ast as ast
 
 
 class AstNormalizer(ast.NodeTransformer):
