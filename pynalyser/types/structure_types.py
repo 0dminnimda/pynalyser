@@ -11,6 +11,8 @@ ReturnT = Union[PynalyserType, NotImplementedType]  # type: ignore
 
 # TODO: make a base class with __X__ and _sig_X annotated and defaulted
 # the default value must be equal to a field not defined in the simulated class
+# INFO: docs.python.org/3/reference/datamodel.html#object.__lt__
+# INFO: docs.python.org/3/reference/datamodel.html#emulating-numeric-types
 
 @attr.s(auto_attribs=True, hash=True)
 class IntType(SingleType):
