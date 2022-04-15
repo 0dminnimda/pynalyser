@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 import attr
 
@@ -57,11 +57,25 @@ class IntType(SingleType):
     __xor__ = _binop
     __and__ = _binop
     __floordiv__ = _binop
-    # __pow__ = _binop
+
+    def __truediv__(self, other: PynalyserType) -> ReturnT:
+        if isinstance(other, IntType):
+            return FloatType()
+        return NotImplemented
+
+    def __pow__(self, value: PynalyserType,
+                mod: Optional[PynalyserType] = None) -> ReturnT:
+        if isinstance(value, IntType):
+            if isinstance(mod, IntType) or mod is None:
+                # FIXME: this is true only if 'value' is negative
+                # otherwise it's int
+                return FloatType()
+        return NotImplemented
 
     _sig_add: SIGNATURE = _sig
     _sig_sub: SIGNATURE = _sig
     _sig_mul: SIGNATURE = _sig
+    _sig_truediv: SIGNATURE = _sig
     _sig_mod: SIGNATURE = _sig
     _sig_lshift: SIGNATURE = _sig
     _sig_rshift: SIGNATURE = _sig
@@ -69,13 +83,7 @@ class IntType(SingleType):
     _sig_xor: SIGNATURE = _sig
     _sig_and: SIGNATURE = _sig
     _sig_floordiv: SIGNATURE = _sig
-    # _sig_pow: SIGNATURE = _sig
-
-    def __truediv__(self, other: PynalyserType) -> ReturnT:
-        if isinstance(other, IntType):
-            return FloatType()
-        return NotImplemented
-    _sig_truediv: SIGNATURE = _sig
+    _sig_pow: SIGNATURE = _sig
 
 
 @attr.s(auto_attribs=True, hash=True)
