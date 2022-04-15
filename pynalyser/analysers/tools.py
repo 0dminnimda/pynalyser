@@ -2,17 +2,16 @@ from typing import Any, Dict, List
 
 import attr
 
-from ..acr import classes as acr_c
-from ..acr.utils import NodeVisitor
+from .. import acr
 
 
 @attr.s(auto_attribs=True)
 class AnalysisContext:
-    modules: List[acr_c.Module]
+    modules: List[acr.Module]
     results: Dict[str, Any] = attr.ib(init=False, factory=lambda: dict())
 
 
-class Analyser(NodeVisitor):
+class Analyser(acr.NodeVisitor):
     context: AnalysisContext
 
     def analyse(self, ctx: AnalysisContext) -> None:
