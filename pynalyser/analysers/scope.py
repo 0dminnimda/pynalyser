@@ -9,7 +9,7 @@ from ..types import Arg, Arguments, FunctionType, SymbolTableType
 from .tools import Analyser, AnalysisContext
 
 
-# XXX: join with ScopeAnalyser?
+# TODO: join with ScopeAnalyser
 class AssignVisitor(ast.NodeVisitor):
     # accounted for:
     # Attribute - don't visit fields, XXX: for now
@@ -37,6 +37,7 @@ class AssignVisitor(ast.NodeVisitor):
         self.names.append(node.id)
 
 
+# XXX: split into creation of symtab and symbols
 class ScopeAnalyser(Analyser):
     assign_visitor: AssignVisitor = AssignVisitor()
     symtab: SymbolTableType
