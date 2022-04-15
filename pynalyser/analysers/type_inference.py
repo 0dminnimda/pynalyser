@@ -1,8 +1,8 @@
-import ast
 
 from typing import Union
 
 from .. import acr
+from .. import portable_ast as ast
 from ..types import (AnyType, BinOpType, CallType, CompareType, IntType,
                      ItemType, ListType, PynalyserType, SingleType, SliceType,
                      SubscriptType, SymbolType, TupleType, UnionType,
