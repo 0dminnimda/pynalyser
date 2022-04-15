@@ -112,6 +112,18 @@ class FloatType(SingleType):
     __and__ = _binop
     __floordiv__ = _binop
     # __pow__ = _binop
+    __radd__ = _binop
+    __rsub__ = _binop
+    __rmul__ = _binop
+    __rtruediv__ = _binop
+    __rmod__ = _binop
+    __rlshift__ = _binop
+    __rrshift__ = _binop
+    __ror__ = _binop
+    __rxor__ = _binop
+    __rand__ = _binop
+    __rfloordiv__ = _binop
+    # __rpow__ = _binop
 
     _sig_add: SIGNATURE = _sig
     _sig_sub: SIGNATURE = _sig
@@ -125,6 +137,18 @@ class FloatType(SingleType):
     _sig_and: SIGNATURE = _sig
     _sig_floordiv: SIGNATURE = _sig
     # _sig_pow: SIGNATURE = _sig
+    _sig_radd: SIGNATURE = _sig
+    _sig_rsub: SIGNATURE = _sig
+    _sig_rmul: SIGNATURE = _sig
+    _sig_rtruediv: SIGNATURE = _sig
+    _sig_rmod: SIGNATURE = _sig
+    _sig_rlshift: SIGNATURE = _sig
+    _sig_rrshift: SIGNATURE = _sig
+    _sig_ror: SIGNATURE = _sig
+    _sig_rxor: SIGNATURE = _sig
+    _sig_rand: SIGNATURE = _sig
+    _sig_rfloordiv: SIGNATURE = _sig
+    # _sig_rpow: SIGNATURE = _sig
 
 
 @attr.s(auto_attribs=True)
