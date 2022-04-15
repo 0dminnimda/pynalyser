@@ -1,4 +1,5 @@
 from enum import Flag, auto
+from typing import Any, List
 
 import attr
 
@@ -51,3 +52,40 @@ class Symbol:
             # TODO: change to custom class
             raise ValueError(
                 f"changing the `scope` from {self.scope} to {new_scope}")
+
+
+class MultiDefSymbol:
+    _symbols: List[Symbol]
+    _i: int
+
+    def __init__(self) -> None:
+        self._symbols = [Symbol()]
+        self._i = 0
+
+    @property
+    def current_symbol(self) -> Symbol:
+        return self._symbols[self._i]
+
+    scope: ScopeType
+
+    imported: bool
+    is_arg: bool
+    holds_symbol_table: bool
+
+    type: PynalyserType
+
+    # change_scope: Callable[[Symbol, ScopeType, bool], bool]
+
+    _names = ("scope", "imported", "is_arg",
+              "holds_symbol_table", "type", "change_scope")
+
+    def __getattr__(self, name: str) -> Any:
+        # return getattr(self.current_symbol, name)
+        if name in self._names:
+            return getattr(self.current_symbol, name)
+        super().__getattribute__(name)  # no return
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name in self._names:
+            return setattr(self.current_symbol, name, value)
+        super().__setattr__(name, value)
