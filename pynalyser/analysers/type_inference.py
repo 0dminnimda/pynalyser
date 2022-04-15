@@ -1,7 +1,8 @@
 import ast
+
 from typing import Union
 
-from ..acr import classes as acr_c
+from .. import acr
 from ..types import (AnyType, BinOpType, CallType, CompareType, IntType,
                      ItemType, ListType, PynalyserType, SingleType, SliceType,
                      SubscriptType, SymbolType, TupleType, UnionType,
@@ -36,7 +37,7 @@ class TypeInference(SymTabAnalyser):
 
     ### Comprehentions ###
 
-    def visit_ListComp(self, node: acr_c.ListComp) -> PynalyserType:
+    def visit_ListComp(self, node: acr.ListComp) -> PynalyserType:
         return ListType(item_type=UnknownType)  # TODO: infer item type
 
     ### Builtin sequences ###
@@ -62,7 +63,7 @@ class TypeInference(SymTabAnalyser):
     def visit_Name(self, node: ast.Name) -> PynalyserType:
         return SymbolType(node.id, self.symtab[node.id].current_symbol)
 
-    def infer_acr_expr(self, node: Union[ast.AST, acr_c.ACR]) -> PynalyserType:
+    def infer_acr_expr(self, node: Union[ast.AST, acr.ACR]) -> PynalyserType:
         res = self.visit(node)
         if isinstance(res, PynalyserType):
             return res
@@ -95,11 +96,11 @@ class TypeInference(SymTabAnalyser):
             tp = self.infer_acr_expr(node.value)
             self.infer_assignment(node.target, tp)
 
-    def visit_For(self, node: acr_c.For) -> None:
+    def visit_For(self, node: acr.For) -> None:
         tp = self.infer_acr_expr(node.iter)
         self.infer_assignment(node.target, ItemType(tp))
 
-    def visit_While(self, node: acr_c.While) -> None:
+    def visit_While(self, node: acr.While) -> None:
         tp = self.infer_acr_expr(node.test)
         # can be boolable
         # if bool(test) is always True / False,
