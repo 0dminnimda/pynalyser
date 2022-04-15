@@ -2,8 +2,7 @@ import ast
 import io
 import os
 
-from .acr.classes import Module
-from .acr.translation import translate_ast_to_acr
+from .acr import Module, translate_ast_to_acr
 from .analysers.pipeline import PIPELINE_FACTORY, create_pipeline, run_pipeline
 from .analysers.tools import AnalysisContext
 from .normalize_ast import normalize_ast_module
