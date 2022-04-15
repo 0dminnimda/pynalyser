@@ -60,7 +60,7 @@ class TypeInference(SymTabAnalyser):
         return SingleType(name=type(node.value).__name__, is_builtin=True)
 
     def visit_Name(self, node: ast.Name) -> PynalyserType:
-        return SymbolType(node.id, self.symtab[node.id])
+        return SymbolType(node.id, self.symtab[node.id].current_symbol)
 
     def infer_acr_expr(self, node: Union[ast.AST, acr_c.ACR]) -> PynalyserType:
         res = self.visit(node)
@@ -82,6 +82,8 @@ class TypeInference(SymTabAnalyser):
 
         # in case of list or tuple we can infer number of elements
         # elif isinstance(node, ast.Name):
+
+    ### Statements
 
     def visit_Assign(self, node: ast.Assign) -> None:
         tp = self.infer_acr_expr(node.value)
