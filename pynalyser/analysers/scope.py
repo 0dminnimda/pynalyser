@@ -8,8 +8,7 @@ from ..types import Arg, Arguments, FunctionType, SymbolTableType
 from .tools import Analyser, AnalysisContext
 
 
-# TODO: join with ScopeAnalyser
-class AssignVisitor(ast.NodeVisitor):
+class NameCollector(acr.NodeVisitor):
     # accounted for:
     # Attribute - don't visit fields, XXX: for now
     # Subscript - don't visit fields
@@ -19,12 +18,12 @@ class AssignVisitor(ast.NodeVisitor):
     # Tuple - just visit itself
     # other nodes AFAIK will not appear here
 
-    names: List[str] = []
+    _collected_names: List[str] = []
 
-    def get_names(self, node: ast.AST) -> List[str]:
-        self.names.clear()
+    def collect_names(self, node: ast.AST) -> List[str]:
+        self._collected_names.clear()
         self.visit(node)
-        return self.names
+        return self._collected_names
 
     def visit_Attribute(self, node: ast.Attribute) -> None:
         pass
@@ -33,12 +32,11 @@ class AssignVisitor(ast.NodeVisitor):
         pass
 
     def visit_Name(self, node: ast.Name) -> None:
-        self.names.append(node.id)
+        self._collected_names.append(node.id)
 
 
 # XXX: split into creation of symtab and symbols
-class ScopeAnalyser(Analyser):
-    assign_visitor: AssignVisitor = AssignVisitor()
+class ScopeAnalyser(Analyser, NameCollector):
     symtab: SymbolTableType
 
     def analyse(self, ctx: AnalysisContext) -> None:
@@ -128,7 +126,7 @@ class ScopeAnalyser(Analyser):
     def setup_symbols_by_assign(self, *targets: ast.AST) -> None:
         names = []
         for sub_node in targets:
-            names.extend(self.assign_visitor.get_names(sub_node))
+            names.extend(self.collect_names(sub_node))
 
         for name in names:
             symbol_data = self.symtab[name]
@@ -174,7 +172,7 @@ class ScopeAnalyser(Analyser):
             symbol_data.change_scope(ScopeType.NONLOCAL)
 
     def visit_NamedExpr(self, node: ast.NamedExpr) -> None:
-        names = self.assign_visitor.get_names(node.target)
+        names = self.collect_names(node.target)
         assert len(names) == 1
         name, = names
 
