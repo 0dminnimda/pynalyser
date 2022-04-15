@@ -7,14 +7,14 @@ import attr
 from .base_types import PynalyserType, UnknownType
 
 if TYPE_CHECKING:
-    from ..symbol import Symbol
+    from ..symbol import Symbol, MultiDefSymbol
 
 
 @attr.s(auto_attribs=True, hash=True)
-class SymbolTableType(DefaultDict[str, "Symbol"], PynalyserType):
+class SymbolTableType(DefaultDict[str, "MultiDefSymbol"], PynalyserType):
     def __attrs_pre_init__(self):
-        from ..symbol import Symbol
-        super().__init__(Symbol)  # for defaultdict
+        from ..symbol import MultiDefSymbol
+        super().__init__(MultiDefSymbol)  # for defaultdict
 
 
 @attr.s(auto_attribs=True, hash=True, auto_detect=True)
