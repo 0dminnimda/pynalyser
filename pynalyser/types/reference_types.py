@@ -35,6 +35,7 @@ def narrow_type(tp: SingleType, both: Tuple[str, str],
     else:
         this_method = "r" + method
         # other_method = method
+        both = both[::-1]
 
     signature_name = f"_sig_{this_method}"
     try:
@@ -68,7 +69,7 @@ class BinOpType(PynalyserType):
             raise NotImplementedError
         elif not left.is_completed:
             left = narrow_type(
-                right, (right.name, left.name),
+                right, (left.name, right.name),
                 DUNDER_BINOP[self.op], BINOP_STR[self.op],
                 use_left=False)
         elif not right.is_completed:
@@ -118,7 +119,7 @@ class CompareType(PynalyserType):
             # raise NotImplementedError
         elif not left.is_completed:
             left = narrow_type(
-                right, (right.name, left.name),
+                right, (left.name, right.name),
                 DUNDER_CMP[self.ops[0]], CMP_STR[self.ops[0]],
                 use_left=False)
         elif not right.is_completed:
