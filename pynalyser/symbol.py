@@ -74,10 +74,10 @@ class MultiDefSymbol:
 
     type: PynalyserType
 
-    # change_scope: Callable[[Symbol, ScopeType, bool], bool]
+    def change_scope(self, new_scope: ScopeType, fail: bool = True) -> bool:
+        return self.current_symbol.change_scope(new_scope, fail)
 
-    _names = ("scope", "imported", "is_arg",
-              "holds_symbol_table", "type", "change_scope")
+    _names = "scope", "imported", "is_arg", "holds_symbol_table", "type"
 
     def __getattr__(self, name: str) -> Any:
         # return getattr(self.current_symbol, name)
