@@ -1,7 +1,7 @@
-import ast
 import io
 import os
 
+from . import portable_ast as ast
 from .acr import Module, translate_ast_to_acr
 from .analysers.pipeline import PIPELINE_FACTORY, create_pipeline, run_pipeline
 from .analysers.tools import AnalysisContext
