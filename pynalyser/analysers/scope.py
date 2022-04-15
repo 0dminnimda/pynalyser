@@ -70,7 +70,7 @@ class ScopeAnalyser(Analyser):
             raise SyntaxError(
                 f"duplicate argument '{name}' in function definition")
 
-        return Arg(name, symbol)
+        return Arg(name, symbol.current_symbol)
 
     def handle_function(
         self, scope: Union[acr_c.Lambda, acr_c.Function]
