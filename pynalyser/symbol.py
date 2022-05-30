@@ -60,11 +60,19 @@ class MultiDefSymbol:
 
     def __init__(self) -> None:
         self._symbols = [Symbol()]
-        self._i = 0
+        self.reset()
 
     @property
     def current_symbol(self) -> Symbol:
         return self._symbols[self._i]
+
+    def next_def(self) -> None:
+        self._i += 1
+        if len(self._symbols) == self._i:
+            self._symbols.append(Symbol())
+
+    def reset(self):
+        self._i = 0
 
     scope: ScopeType
 
