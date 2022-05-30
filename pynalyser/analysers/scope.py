@@ -185,6 +185,9 @@ class SymTabAnalyser(Analyser):
             assert isinstance(symtab, SymbolTableType)
             self.symtab = symtab
 
+            for symbol in symtab.values():
+                symbol.reset()
+
             try:
                 return super().visit(node)
             finally:
