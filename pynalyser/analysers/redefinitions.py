@@ -7,7 +7,7 @@ from .scope import SymTabAnalyser
 from .tools import Analyser, NameCollector
 
 
-class RedefinitionAnalyserBase(Analyser):
+class RedefinitionAnalyser(SymTabAnalyser):
     symtab: SymbolTableType
 
     _name_collector: NameCollector = NameCollector()
@@ -30,7 +30,3 @@ class RedefinitionAnalyserBase(Analyser):
             self.symtab[name].next_def()
 
         return super().visit(node)
-
-
-class RedefinitionAnalyser(SymTabAnalyser, RedefinitionAnalyserBase):
-    pass
