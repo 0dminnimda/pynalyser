@@ -1,5 +1,6 @@
 from typing import Callable, List, Type
 
+from .redefinitions import RedefinitionAnalyser
 from .scope import ScopeAnalyser
 from .tools import Analyser, AnalysisContext
 from .type_inference import TypeInference
@@ -12,6 +13,7 @@ PIPELINE_FACTORY = Callable[[], PIPELINE]
 def create_pipeline() -> PIPELINE:
     return [
         ScopeAnalyser(),
+        RedefinitionAnalyser(),
         TypeInference(),
     ]
 
