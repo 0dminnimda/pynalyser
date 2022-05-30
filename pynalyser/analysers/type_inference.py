@@ -7,10 +7,10 @@ from ..types import (AnyType, BinOpType, CallType, CompareType, IntType,
                      ItemType, ListType, PynalyserType, SingleType, SliceType,
                      SubscriptType, SymbolType, TupleType, UnionType,
                      UnknownType)
-from .scope import SymTabAnalyser
+from .redefinitions import RedefinitionAnalyser
 
 
-class TypeInference(SymTabAnalyser):
+class TypeInference(RedefinitionAnalyser):
     # Inferable expressions
 
     def visit_Call(self, node: ast.Call) -> PynalyserType:
@@ -84,7 +84,7 @@ class TypeInference(SymTabAnalyser):
         # in case of list or tuple we can infer number of elements
         # elif isinstance(node, ast.Name):
 
-    ### Statements
+    ### Statements ###
 
     def visit_Assign(self, node: ast.Assign) -> None:
         tp = self.infer_acr_expr(node.value)
