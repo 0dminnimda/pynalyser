@@ -11,6 +11,10 @@ PIPE_FACTORY = Callable[[], PIPELINE]
 
 
 def default_pipe() -> PIPELINE:
+    """
+    The default pipeline factory. Creates the default pipeline.
+    """
+
     return [
         ScopeAnalyser(),
         RedefinitionAnalyser(),
@@ -22,7 +26,7 @@ def insert_in_pipeline(pipeline: PIPELINE, to_be_inserted: Analyser,
                        mode: str, relative_to: Type[Analyser]):
     """
     Create a copy of the pipeline with a new analyzer inserted into
-    the pipeline after or before an instance of the given class
+    the pipeline after or before an instance of the given class.
 
     `pipeline = insert_into_pipeline(`
     `    pipeline, MyAnalyser(), "after", AnalyserInThePipeline)`
@@ -47,6 +51,9 @@ def insert_in_pipeline(pipeline: PIPELINE, to_be_inserted: Analyser,
 
 def run_pipeline(ctx: AnalysisContext,
                  factory: PIPE_FACTORY) -> AnalysisContext:
+    """
+    Run each factory analyser on modules in the given context.
+    """
 
     for analyser in factory():
         analyser.analyse(ctx)
