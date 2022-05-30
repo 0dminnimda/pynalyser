@@ -10,7 +10,7 @@ PIPELINE = List[Analyser]
 PIPE_FACTORY = Callable[[], PIPELINE]
 
 
-def create_pipeline() -> PIPELINE:
+def default_pipe() -> PIPELINE:
     return [
         ScopeAnalyser(),
         RedefinitionAnalyser(),
