@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import attr
 
@@ -9,7 +9,10 @@ from .. import portable_ast as ast
 @attr.s(auto_attribs=True)
 class AnalysisContext:
     modules: List[acr.Module]
-    results: Dict[str, Any] = attr.ib(init=False, factory=lambda: dict())
+    results: Dict[str, Any] = attr.ib(init=False, factory=dict)
+
+    def unpack(self) -> Tuple[List[acr.Module], Dict[str, Any]]:
+        return self.modules, self.results
 
 
 class Analyser(acr.NodeVisitor):
