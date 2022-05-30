@@ -3,7 +3,7 @@ from typing import Iterable, List
 
 from . import portable_ast as ast
 from .acr import Module, translate_ast_to_acr
-from .analysers.pipeline import PIPELINE_FACTORY, create_pipeline, run_pipeline
+from .analysers.pipeline import PIPE_FACTORY, create_pipeline, run_pipeline
 from .analysers.tools import AnalysisContext
 from .normalize_ast import normalize_ast_module
 
@@ -24,14 +24,14 @@ def parse_ast(filename: str, module: ast.Module) -> Module:
 
 
 def analyse_files(
-    paths: Iterable[str], factory: PIPELINE_FACTORY = create_pipeline
+    paths: Iterable[str], factory: PIPE_FACTORY = create_pipeline
 ) -> AnalysisContext:
 
     return analyse_modules([parse_file(p) for p in paths], factory)
 
 
 def analyse_modules(
-    modules: List[Module], factory: PIPELINE_FACTORY = create_pipeline
+    modules: List[Module], factory: PIPE_FACTORY = create_pipeline
 ) -> AnalysisContext:
 
     return run_pipeline(AnalysisContext(modules), factory)

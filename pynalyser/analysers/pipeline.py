@@ -7,7 +7,7 @@ from .type_inference import TypeInference
 
 
 PIPELINE = List[Analyser]
-PIPELINE_FACTORY = Callable[[], PIPELINE]
+PIPE_FACTORY = Callable[[], PIPELINE]
 
 
 def create_pipeline() -> PIPELINE:
@@ -46,7 +46,7 @@ def insert_in_pipeline(pipeline: PIPELINE, to_be_inserted: Analyser,
 
 
 def run_pipeline(ctx: AnalysisContext,
-                 factory: PIPELINE_FACTORY) -> AnalysisContext:
+                 factory: PIPE_FACTORY) -> AnalysisContext:
 
     for analyser in factory():
         analyser.analyse(ctx)
