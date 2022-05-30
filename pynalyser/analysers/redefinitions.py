@@ -14,7 +14,7 @@ class RedefinitionAnalyser(SymTabAnalyser):
 
     def visit(self, node: acr.NODE) -> Any:
         names: List[str] = []
-        if isinstance(node, acr.Scope):
+        if isinstance(node, acr.Scope) and not isinstance(node, acr.Module):
             names.append(node.name)
         elif isinstance(node, (acr.For, ast.AugAssign, ast.NamedExpr)):
             names.extend(self._name_collector.collect_names(node.target))
