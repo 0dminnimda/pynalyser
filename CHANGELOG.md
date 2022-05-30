@@ -4,6 +4,8 @@
 
 ### Added
 - `analysers.pipeline.py`
+- `symbol.MultiDefSymbol` and relevant analyser - `RedefinitionAnalyser`
+- `AnalysisContext.unpack()`
 
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
