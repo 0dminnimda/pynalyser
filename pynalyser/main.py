@@ -1,5 +1,5 @@
-import io
 import os
+from typing import Iterable, List
 
 from . import portable_ast as ast
 from .acr import Module, translate_ast_to_acr
@@ -8,30 +8,30 @@ from .analysers.tools import AnalysisContext
 from .normalize_ast import normalize_ast_module
 
 
-def parse(path: str) -> Module:
-    return parse_open(path, "r", encoding="utf-8")
+def parse_file(path: str) -> Module:
+    with open(path, mode="r", encoding='utf-8') as file:
+        return parse_string(
+            os.path.splitext(os.path.basename(file.name))[0],
+            file.read())
 
 
-def parse_open(*args, **kwargs) -> Module:
-    with open(*args, **kwargs) as stream:
-        assert isinstance(stream, io.TextIOBase)
-        return parse_stream(stream)  # type: ignore
+def parse_string(filename: str, string: str) -> Module:
+    return parse_ast(filename, ast.parse(string))
 
 
-def parse_stream(stream: io.TextIOWrapper) -> Module:
-    with stream:
-        return parse_ast(
-            os.path.splitext(os.path.basename(stream.name))[0],
-            ast.parse(stream.read()))
+def parse_ast(filename: str, module: ast.Module) -> Module:
+    return translate_ast_to_acr(normalize_ast_module(module), filename)
 
 
-def parse_ast(name: str, module: ast.Module) -> Module:
-    return translate_ast_to_acr(normalize_ast_module(module), name)
-
-
-def analyse_file(
-    source: str, factory: PIPELINE_FACTORY = create_pipeline
+def analyse_files(
+    paths: Iterable[str], factory: PIPELINE_FACTORY = create_pipeline
 ) -> AnalysisContext:
 
-    ctx = AnalysisContext([parse(source)])
-    return run_pipeline(ctx, factory)
+    return analyse_modules([parse_file(p) for p in paths], factory)
+
+
+def analyse_modules(
+    modules: List[Module], factory: PIPELINE_FACTORY = create_pipeline
+) -> AnalysisContext:
+
+    return run_pipeline(AnalysisContext(modules), factory)
