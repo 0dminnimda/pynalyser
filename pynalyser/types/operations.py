@@ -44,8 +44,8 @@ BOOLOP_STR = {
 
 # not need for BOOLOP_FUNC
 
-# nothing is included
-DUNDER_BOOLOP = {}
+# nothing is included, temporarily, thus typechecker is freaking out
+DUNDER_BOOLOP = {}  # type: ignore
 
 
 ### Unary operation
