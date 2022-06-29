@@ -106,4 +106,3 @@ class TypeInference(RedefinitionAnalyser):
         # if bool(test) is always True / False,
         # then we have infinite loop or
         # we can skip loop
-
