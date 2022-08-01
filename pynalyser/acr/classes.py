@@ -10,7 +10,7 @@ ACR_T = TypeVar("ACR_T")
 @attr.s
 class ACR:
     """The base class for each class of abstract representation of the code.
-    Inherited classes could be dumpable by `acr.dump`,
+    Inherited classes can be dumped by :func:`acr.dump <pynalyser.acr.utils.dump>`,
     but for that to work properly inherited class should use `attr.s`.
     """
 
