@@ -12,6 +12,9 @@
     <a href="https://pypi.org/project/pynalyser/">
         <img alt="PyPI" src="https://img.shields.io/pypi/v/pynalyser">
     </a>
+    <a href="https://pynalyser.readthedocs.io/">
+        <img alt="Link to the documentation" src="https://readthedocs.org/projects/pynalyser/badge/?version=latest">
+    </a>
     <a href="https://github.com/0dminnimda/pynalyser">
         <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/0dminnimda/pynalyser?style=social">
     </a>
