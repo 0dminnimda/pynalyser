@@ -1,4 +1,4 @@
-![Pynalyser Logo](https://raw.githubusercontent.com/0dminnimda/pynalyser/main/docs/logo.svg)
+![Pynalyser Logo](https://raw.githubusercontent.com/0dminnimda/pynalyser/main/docs/_static/logo.svg)
 
 <h1 align="center">Static Python Code Analyzer</h1>
 
