@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  run_tests:
+  run-tests:
     timeout-minutes: 5
     runs-on: ${{ matrix.os }}
     strategy:
@@ -35,7 +35,7 @@ jobs:
       - name: Running tests with pytest
         run: pytest -v
 
-  additional_metrics:
+  code-quality:
     timeout-minutes: 5
     runs-on: windows-latest
     steps:
