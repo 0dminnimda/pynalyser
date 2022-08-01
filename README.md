@@ -52,6 +52,13 @@ pip install pynalyser
 
 The documentation is available [here](https://pynalyser.readthedocs.io/).
 
+## Repository structure
+
+- The `docs` directory contains the documentation for the package.
+- The `pynalyser` directory contains the pynalyser source (the package itself).
+- The `requirements` directory contains the PyPi requirements files for the pynalyser package.
+- The `tests` directory contains the test suite for the pynalyser package.
+
 ---
 
 ## 💗 Thanks to everyone who starred the repository on GitHub
