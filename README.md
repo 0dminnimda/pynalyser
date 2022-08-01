@@ -48,6 +48,10 @@ Pynalyser is available on [PyPI](https://pypi.org/project/pynalyser/)
 pip install pynalyser
 ```
 
+## Documentation
+
+The documentation is available [here](https://pynalyser.readthedocs.io/).
+
 ---
 
 ## 💗 Thanks to everyone who starred the repository on GitHub
