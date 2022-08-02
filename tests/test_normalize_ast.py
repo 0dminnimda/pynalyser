@@ -203,7 +203,6 @@ nodes = dict(
                             end_lineno=1,
                             end_col_offset=11,
                         ),
-                        step=None,
                         lineno=1,
                         col_offset=5,
                         end_lineno=1,
