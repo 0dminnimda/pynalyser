@@ -28,6 +28,9 @@ jobs:
           pip install --upgrade pip setuptools wheel --user
           pip install .[test]
 
+      # - name: Check the code formatting with black
+      #   run: black --check pynalyser tests docs
+
       - name: Check the code with pycodestyle
         run: pycodestyle pynalyser tests docs
 
