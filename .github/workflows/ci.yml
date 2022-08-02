@@ -29,11 +29,11 @@ jobs:
           pip install .[test]
 
       - name: Check the code with pycodestyle
-        run: python -m pycodestyle -v .
+        run: pycodestyle -v .
 
       - name: Type check the code with mypy
         if: ${{ always() }}
-        run: python -m mypy . --config-file mypy.ini --exclude build
+        run: mypy . --config-file mypy.ini --exclude build
 
   run-tests:
     timeout-minutes: 5
@@ -81,4 +81,4 @@ jobs:
           pip install .[test]
 
       - name: Running tests with pytest
-        run: python -m pytest -v
+        run: pytest -v
