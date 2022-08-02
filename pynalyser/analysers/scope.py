@@ -1,8 +1,7 @@
 import sys
 from typing import Any, List, Union
 
-from .. import acr
-from .. import portable_ast as ast
+from .. import acr, ast
 from ..symbol import ScopeType
 from ..types import Arg, Arguments, FunctionType, SymbolTableType
 from .tools import Analyser, AnalysisContext, NameCollector

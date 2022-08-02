@@ -1,11 +1,10 @@
 import os
 from typing import Iterable, List
 
-from . import portable_ast as ast
+from . import ast
 from .acr import Module, translate_ast_to_acr
 from .analysers.pipeline import PIPE_FACTORY, default_pipe, run_pipeline
 from .analysers.tools import AnalysisContext
-from .normalize_ast import normalize_ast_module
 
 
 def parse_file(path: str) -> Module:
@@ -20,7 +19,7 @@ def parse_string(filename: str, string: str) -> Module:
 
 
 def parse_ast(filename: str, module: ast.Module) -> Module:
-    return translate_ast_to_acr(normalize_ast_module(module), filename)
+    return translate_ast_to_acr(ast.normalize_ast_module(module), filename)
 
 
 def analyse_files(paths: Iterable[str],

@@ -1,7 +1,6 @@
 from typing import Any, List
 
-from .. import acr
-from .. import portable_ast as ast
+from .. import acr, ast
 from ..types import SymbolTableType
 from .scope import SymTabAnalyser
 from .tools import Analyser, NameCollector

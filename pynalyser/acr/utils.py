@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import (Any, Collection, List, NamedTuple, Optional, Tuple,
                     TypeVar, Union)
 
-from .. import portable_ast as ast
+from .. import ast
 from .classes import ACR, Block, CodeBlock, FlowContainer, Module, Scope
 
 # Dumping

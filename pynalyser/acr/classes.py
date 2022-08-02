@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple, TypeVar, Union
 
 import attr
 
-from .. import portable_ast as ast
+from .. import ast
 
 ACR_T = TypeVar("ACR_T")
 

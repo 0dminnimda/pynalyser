@@ -1,6 +1,6 @@
 import ast
 
-from pynalyser.normalize_ast import AstNormalizer, normalize_ast
+from pynalyser.ast.normalize_ast import AstNormalizer, normalize_ast
 
 
 def assert_node_equality(node1: ast.AST, node2: ast.AST,

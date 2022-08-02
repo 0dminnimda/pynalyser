@@ -2,8 +2,7 @@ from typing import Any, Dict, List, Tuple
 
 import attr
 
-from .. import acr
-from .. import portable_ast as ast
+from .. import acr, ast
 
 
 @attr.s(auto_attribs=True)

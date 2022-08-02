@@ -1,5 +1,12 @@
-from typing import Any, Dict, Optional, cast
+from typing import Dict, Optional, cast
 from . import portable_ast as ast
+
+__all__ = [
+    "AstNormalizer",
+    "normalize_ast",
+    "normalize_ast_module",
+]
+
 
 ATTRIBUTES = ("lineno", "col_offset")
 OPTIONAL_ATTRIBUTES = ("end_lineno", "end_col_offset")
