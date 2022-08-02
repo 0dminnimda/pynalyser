@@ -3,6 +3,38 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  code-quality:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.path }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/basic.txt', '**/requirements/test.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install package and dependencies
+        run: |
+          pip install --upgrade pip setuptools wheel --user
+          pip install .[test]
+
+      - name: Check the code with pycodestyle
+        run: python -m pycodestyle -v .
+
+      - name: Type check the code with mypy
+        if: ${{ always() }}
+        run: python -m mypy . --config-file mypy.ini --exclude build
+
   run-tests:
     timeout-minutes: 5
     runs-on: ${{ matrix.os }}
@@ -50,35 +82,3 @@ jobs:
 
       - name: Running tests with pytest
         run: python -m pytest -v
-
-  code-quality:
-    timeout-minutes: 5
-    runs-on: windows-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.10
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v3
-        with:
-          path: ${{ matrix.path }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/basic.txt', '**/requirements/test.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install package and dependencies
-        run: |
-          pip install --upgrade pip setuptools wheel --user
-          pip install .[test]
-
-      - name: Check the code with pycodestyle
-        run: python -m pycodestyle -v .
-
-      - name: Type check the code with mypy
-        if: ${{ always() }}
-        run: python -m mypy . --config-file mypy.ini --exclude build
