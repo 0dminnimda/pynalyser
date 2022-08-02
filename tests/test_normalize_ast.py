@@ -1,15 +1,17 @@
 import ast
+import sys
 
 from pynalyser.ast import AstNormalizer, normalize_ast
 
 
-def assert_node_equality(node1: ast.AST, node2: ast.AST,
-                         include_attributes: bool = False):
-    assert (ast.dump(node1, include_attributes=include_attributes)
-            == ast.dump(node2, include_attributes=include_attributes))
+def assert_node_equality(node1: ast.AST, node2: ast.AST, attributes: bool = False):
+    assert ast.dump(node1, include_attributes=attributes) == ast.dump(
+        node2, include_attributes=attributes
+    )
 
 
 ############ AstNormalizer #############
+
 
 def normalized_node(node: ast.AST):
     return AstNormalizer().visit(node)
@@ -25,38 +27,88 @@ USE_BYTES = b"use '<>' instead of '!='"
 nodes = dict(
     Num=(
         ast.Num(42, lineno=1, col_offset=0),
-        ast.Constant(value=42, lineno=1, col_offset=0)),
+        ast.Constant(value=42, lineno=1, col_offset=0),
+    ),
     Str1=(
         ast.Str("", lineno=1, col_offset=0),
-        ast.Constant(value="", lineno=1, col_offset=0)),
+        ast.Constant(value="", lineno=1, col_offset=0),
+    ),
     Str2=(
         ast.Str(USE_STR, lineno=1, col_offset=0),
-        ast.Constant(value=USE_STR, lineno=1, col_offset=0)),
+        ast.Constant(value=USE_STR, lineno=1, col_offset=0),
+    ),
     Bytes1=(
         ast.Bytes(b"", lineno=1, col_offset=0),
-        ast.Constant(value=b"", lineno=1, col_offset=0)),
+        ast.Constant(value=b"", lineno=1, col_offset=0),
+    ),
     Bytes2=(
         ast.Bytes(USE_BYTES, lineno=1, col_offset=0),
-        ast.Constant(value=USE_BYTES, lineno=1, col_offset=0)),
+        ast.Constant(value=USE_BYTES, lineno=1, col_offset=0),
+    ),
     NameConstant1=(
         ast.NameConstant(True, lineno=1, col_offset=0),
-        ast.Constant(value=True, lineno=1, col_offset=0)),
+        ast.Constant(value=True, lineno=1, col_offset=0),
+    ),
     NameConstant2=(
         ast.NameConstant(False, lineno=1, col_offset=0),
-        ast.Constant(value=False, lineno=1, col_offset=0)),
+        ast.Constant(value=False, lineno=1, col_offset=0),
+    ),
     NameConstant3=(
         ast.NameConstant(None, lineno=1, col_offset=0),
-        ast.Constant(value=None, lineno=1, col_offset=0)),
+        ast.Constant(value=None, lineno=1, col_offset=0),
+    ),
     Ellipsis1=(
         ast.Ellipsis(lineno=1, col_offset=0),
-        ast.Constant(value=Ellipsis, lineno=1, col_offset=0)),
+        ast.Constant(value=Ellipsis, lineno=1, col_offset=0),
+    ),
     Ellipsis2=(
         ast.Ellipsis(lineno=1, col_offset=0),
-        ast.Constant(value=..., lineno=1, col_offset=0)),
+        ast.Constant(value=..., lineno=1, col_offset=0),
+    ),
+    Index1=(
+        ast.Index(value=ast.Num(n=3, lineno=1, col_offset=0)),
+        ast.Constant(value=3, lineno=1, col_offset=0),
+    ),
+    Index2=(
+        ast.Index(
+            value=ast.Name(id="UnladenSwallow", ctx=ast.Load(), lineno=1, col_offset=0)
+        ),
+        ast.Name(id="UnladenSwallow", ctx=ast.Load(), lineno=1, col_offset=0),
+    ),
+    ExtSlice=(
+        ast.ExtSlice(
+            dims=[
+                ast.Slice(
+                    lower=ast.Num(n=3, lineno=1, col_offset=2),
+                    upper=ast.Num(n=14, lineno=1, col_offset=4),
+                    step=None,
+                    lineno=1,
+                    col_offset=2,
+                ),
+                ast.Index(value=ast.Num(n=15, lineno=1, col_offset=8)),
+            ]
+        ),
+        ast.Tuple(
+            elts=[
+                ast.Slice(
+                    lower=ast.Constant(value=3, lineno=1, col_offset=2),
+                    upper=ast.Constant(value=14, lineno=1, col_offset=4),
+                    step=None,
+                    lineno=1,
+                    col_offset=2,
+                ),
+                ast.Constant(value=15, lineno=1, col_offset=8),
+            ],
+            ctx=ast.Load(),
+            lineno=1,
+            col_offset=0,
+        ),
+    ),
 )
 
 
 if sys.version < "3.8":
+
     def test_visit_Num():
         check_node(*nodes.pop("Num"))
 
@@ -78,40 +130,24 @@ def test_visit_NameConstant():
 
 
 def test_visit_Ellipsis():
-def test_visit_Index():
-    assert_node_equality(
-        normalized_node(ast.Index(value=ast.Num(n=3))),
-        ast.Constant(value=3))
-    assert_node_equality(
-        normalized_node(ast.Index(value=ast.Name(id='UnladenSwallow',
-                                                 ctx=ast.Load()))),
-        ast.Name(id='UnladenSwallow', ctx=ast.Load()))
     check_node(*nodes.pop("Ellipsis1"))
     check_node(*nodes.pop("Ellipsis2"))
 
 
+if sys.version < "3.9":
+
+    def test_visit_Index():
+        check_node(*nodes.pop("Index1"))
+        check_node(*nodes.pop("Index2"))
+
+    def test_visit_ExtSlice():
+        check_node(*nodes.pop("ExtSlice"))
 
 
-def test_visit_ExtSlice():
-    ext_slice = ast.ExtSlice(dims=[
-        ast.Slice(lower=ast.Num(n=3), upper=ast.Num(n=14)),
-        ast.Index(value=ast.Num(n=15))
-    ])
+if sys.version.startswith("3.10"):
 
-    assert_node_equality(
-        normalized_node(ext_slice),
-        ast.Tuple(
-            elts=[
-                ast.Slice(
-                    lower=ast.Constant(value=3),
-                    upper=ast.Constant(value=14)),
-                ast.Constant(value=15),
-            ],
-            ctx=ast.Load()
-        )
-    )
-def test_that_we_used_every_node():
-    assert len(nodes) == 0
+    def test_that_we_used_every_node():
+        assert len(nodes) == 0
 
 
 ############ normalize_ast #############
