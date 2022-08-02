@@ -1,3 +1,4 @@
+from typing import cast
 from . import portable_ast as ast
 
 
@@ -18,16 +19,18 @@ class AstNormalizer(ast.NodeTransformer):
         return ast.Constant(...)
 
     def visit_Index(self, node: ast.Index) -> ast.AST:
-        return self.visit(node.value)
+        value = node.value  # type: ignore [name-defined]
+        return self.visit(value)
 
     def visit_ExtSlice(self, node: ast.ExtSlice) -> ast.Tuple:
-        return self.visit(ast.Tuple(node.dims, ast.Load()))
+        dims = node.dims  # type: ignore [name-defined]
+        return self.visit(ast.Tuple(dims, ast.Load()))
 
     # We are just getting rid of deprecated nodes,
     # so we don't need a warning (see: NodeTransformer.visit_Constant)
     # Same as NodeTransformer.visit(node) with visit_Constant removed
     def visit_Constant(self, node: ast.Constant) -> ast.Constant:
-        return self.generic_visit(node)  # type: ignore
+        return cast(ast.Constant, self.generic_visit(node))
 
 
 def normalize_ast(tree: ast.AST) -> ast.AST:
