@@ -344,83 +344,39 @@ def check_source(source: str, deprecated_node: ast.AST, node: ast.AST) -> None:
 
 def test_normalize_ast_Num():
     check_source(*nodes["Num"])
-    # check_source("42", ast.Constant(value=42, kind=None))
 
 
 def test_normalize_ast_Str():
     check_source(*nodes["Str1"])
     check_source(*nodes["Str2"])
-    # value = "The quick brown fox jumps over the lazy dog"
-    # check_source("''", ast.Constant(value="", kind=None))
-    # check_source(repr(value), ast.Constant(value=value, kind=None))
 
 
 def test_normalize_ast_Bytes():
     check_source(*nodes["Bytes1"])
     check_source(*nodes["Bytes2"])
-    # value = b"The quick brown fox jumps over the lazy dog"
-    # check_source("b''", ast.Constant(value=b"", kind=None))
-    # check_source(repr(value), ast.Constant(value=value, kind=None))
 
 
 def test_normalize_ast_NameConstant():
     check_source(*nodes["NameConstant1"])
     check_source(*nodes["NameConstant2"])
     check_source(*nodes["NameConstant3"])
-    # check_source("True", ast.Constant(value=True, kind=None))
-    # check_source("False", ast.Constant(value=False, kind=None))
-    # check_source("None", ast.Constant(value=None, kind=None))
 
 
 def test_normalize_ast_Ellipsis():
     check_source(*nodes["Ellipsis1"])
     check_source(*nodes["Ellipsis2"])
-    # check_source("...", ast.Constant(value=Ellipsis, kind=None))
-    # check_source("...", ast.Constant(value=..., kind=None))
 
 
 def test_normalize_ast_Index():
     check_source(*nodes["Index1"])
     check_source(*nodes["Index2"])
-    # check_source(
-    #     "the_numbers_thou_shalt_count[3]",
-    #     ast.Subscript(
-    #         value=ast.Name(id="the_numbers_thou_shalt_count", ctx=ast.Load()),
-    #         slice=ast.Constant(value=3),
-    #         ctx=ast.Load(),
-    #     ),
-    # )
-    # check_source(
-    #     "airspeed_velocities[UnladenSwallow]",
-    #     ast.Subscript(
-    #         value=ast.Name(id="airspeed_velocities", ctx=ast.Load()),
-    #         slice=ast.Name(id="UnladenSwallow", ctx=ast.Load()),
-    #         ctx=ast.Load(),
-    #     ),
-    # )
 
 
 def test_normalize_ast_ExtSlice():
     check_source(*nodes["ExtSlice"])
-    # check_source(
-    #     "pi[3:14, 15]",
-    #     ast.Subscript(
-    #         value=ast.Name(id="pi", ctx=ast.Load()),
-    #         slice=ast.Tuple(
-    #             elts=[
-    #                 ast.Slice(
-    #                     lower=ast.Constant(value=3), upper=ast.Constant(value=14)
-    #                 ),
-    #                 ast.Constant(value=15),
-    #             ],
-    #             ctx=ast.Load(),
-    #         ),
-    #         ctx=ast.Load(),
-    #     ),
-    # )
 
 
 if __name__ == "__main__":
     import pytest
 
-    pytest.main()
+    pytest.main([__file__])
