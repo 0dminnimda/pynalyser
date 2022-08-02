@@ -18,30 +18,46 @@ nodes = dict(
     Num=(
         "42",
         ast.Num(n=42, lineno=1, col_offset=0, end_lineno=1, end_col_offset=2),
-        ast.Constant(value=42, lineno=1, col_offset=0, end_lineno=1, end_col_offset=2),
+        ast.Constant(
+            value=42, kind=None, lineno=1, col_offset=0, end_lineno=1, end_col_offset=2
+        ),
     ),
     Str1=(
         "''",
         ast.Str(s="", lineno=1, col_offset=0, end_lineno=1, end_col_offset=2),
-        ast.Constant(value="", lineno=1, col_offset=0, end_lineno=1, end_col_offset=2),
+        ast.Constant(
+            value="", kind=None, lineno=1, col_offset=0, end_lineno=1, end_col_offset=2
+        ),
     ),
     Str2=(
         repr(USE_STR),
         ast.Str(s=USE_STR, lineno=1, col_offset=0, end_lineno=1, end_col_offset=26),
         ast.Constant(
-            value=USE_STR, lineno=1, col_offset=0, end_lineno=1, end_col_offset=26
+            value=USE_STR,
+            kind=None,
+            lineno=1,
+            col_offset=0,
+            end_lineno=1,
+            end_col_offset=26,
         ),
     ),
     Bytes1=(
         "b''",
         ast.Bytes(s=b"", lineno=1, col_offset=0, end_lineno=1, end_col_offset=3),
-        ast.Constant(value=b"", lineno=1, col_offset=0, end_lineno=1, end_col_offset=3),
+        ast.Constant(
+            value=b"", kind=None, lineno=1, col_offset=0, end_lineno=1, end_col_offset=3
+        ),
     ),
     Bytes2=(
         repr(USE_BYTES),
         ast.Bytes(s=USE_BYTES, lineno=1, col_offset=0, end_lineno=1, end_col_offset=27),
         ast.Constant(
-            value=USE_BYTES, lineno=1, col_offset=0, end_lineno=1, end_col_offset=27
+            value=USE_BYTES,
+            kind=None,
+            lineno=1,
+            col_offset=0,
+            end_lineno=1,
+            end_col_offset=27,
         ),
     ),
     NameConstant1=(
@@ -50,7 +66,12 @@ nodes = dict(
             value=True, lineno=1, col_offset=0, end_lineno=1, end_col_offset=4
         ),
         ast.Constant(
-            value=True, lineno=1, col_offset=0, end_lineno=1, end_col_offset=4
+            value=True,
+            kind=None,
+            lineno=1,
+            col_offset=0,
+            end_lineno=1,
+            end_col_offset=4,
         ),
     ),
     NameConstant2=(
@@ -59,7 +80,12 @@ nodes = dict(
             value=False, lineno=1, col_offset=0, end_lineno=1, end_col_offset=5
         ),
         ast.Constant(
-            value=False, lineno=1, col_offset=0, end_lineno=1, end_col_offset=5
+            value=False,
+            kind=None,
+            lineno=1,
+            col_offset=0,
+            end_lineno=1,
+            end_col_offset=5,
         ),
     ),
     NameConstant3=(
@@ -68,20 +94,32 @@ nodes = dict(
             value=None, lineno=1, col_offset=0, end_lineno=1, end_col_offset=4
         ),
         ast.Constant(
-            value=None, lineno=1, col_offset=0, end_lineno=1, end_col_offset=4
+            value=None,
+            kind=None,
+            lineno=1,
+            col_offset=0,
+            end_lineno=1,
+            end_col_offset=4,
         ),
     ),
     Ellipsis1=(
         "...",
         ast.Ellipsis(lineno=1, col_offset=0, end_lineno=1, end_col_offset=3),
         ast.Constant(
-            value=Ellipsis, lineno=1, col_offset=0, end_lineno=1, end_col_offset=3
+            value=Ellipsis,
+            kind=None,
+            lineno=1,
+            col_offset=0,
+            end_lineno=1,
+            end_col_offset=3,
         ),
     ),
     Ellipsis2=(
         "...",
         ast.Ellipsis(lineno=1, col_offset=0, end_lineno=1, end_col_offset=3),
-        ast.Constant(value=..., lineno=1, col_offset=0, end_lineno=1, end_col_offset=3),
+        ast.Constant(
+            value=..., kind=None, lineno=1, col_offset=0, end_lineno=1, end_col_offset=3
+        ),
     ),
     Index1=(
         "the_numbers_thou_shalt_count [ 3 ]",
@@ -115,7 +153,12 @@ nodes = dict(
                 end_col_offset=28,
             ),
             slice=ast.Constant(
-                value=3, lineno=1, col_offset=31, end_lineno=1, end_col_offset=32
+                value=3,
+                kind=None,
+                lineno=1,
+                col_offset=31,
+                end_lineno=1,
+                end_col_offset=32,
             ),
             ctx=ast.Load(),
             lineno=1,
