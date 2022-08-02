@@ -1,4 +1,4 @@
-from typing import Any, Dict, Set, Tuple
+from typing import Any, Dict, Mapping, Set, Tuple
 
 
 DICTS = "_dicts_to_inherit"
@@ -16,7 +16,7 @@ class DictNotFoundError(AttributeError):
 
 class MetaInheritDicts(type):
     def __new__(cls, name: str, bases: Tuple[type, ...], body: Dict[str, Any]):
-        base = bases[0].__dict__ if bases else {}
+        base: Mapping[str, Any] = bases[0].__dict__ if bases else {}
         attributes = body[DICTS] = body.get(DICTS, base.get(DICTS, set()))
 
         for attribute in attributes:
