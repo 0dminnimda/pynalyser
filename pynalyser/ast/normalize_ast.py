@@ -31,19 +31,20 @@ class AstNormalizer(ast.NodeTransformer):
         return result
 
     def visit_Num(self, node: ast.Num) -> ast.Constant:
-        return ast.Constant(node.n, **self.get_locations(node))
+        return ast.Constant(node.n, kind=None, **self.get_locations(node))
 
     def visit_Str(self, node: ast.Str) -> ast.Constant:
-        return ast.Constant(node.s, **self.get_locations(node))
+        # kind=None since this information is not present in the ast.Str
+        return ast.Constant(node.s, kind=None, **self.get_locations(node))
 
     def visit_Bytes(self, node: ast.Bytes) -> ast.Constant:
-        return ast.Constant(node.s, **self.get_locations(node))
+        return ast.Constant(node.s, kind=None, **self.get_locations(node))
 
     def visit_NameConstant(self, node: ast.NameConstant) -> ast.Constant:
-        return ast.Constant(node.value, **self.get_locations(node))
+        return ast.Constant(node.value, kind=None, **self.get_locations(node))
 
     def visit_Ellipsis(self, node: ast.Ellipsis) -> ast.Constant:
-        return ast.Constant(..., **self.get_locations(node))
+        return ast.Constant(..., kind=None, **self.get_locations(node))
 
     def visit_Index(self, node: ast.Index) -> ast.AST:
         value = node.value  # type: ignore [name-defined]
