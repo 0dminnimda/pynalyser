@@ -4,6 +4,8 @@ from typing import cast
 
 from pynalyser.ast import AstNormalizer, normalize_ast
 
+from utils import do_test
+
 
 def assert_node_equality(node1: ast.AST, node2: ast.AST, attributes: bool = False):
     assert ast.dump(node1, include_attributes=attributes) == ast.dump(
@@ -422,6 +424,4 @@ def test_normalize_ast_ExtSlice():
 
 
 if __name__ == "__main__":
-    import pytest
-
-    pytest.main([__file__])
+    do_test(__file__)
