@@ -29,7 +29,7 @@ jobs:
           pip install .[test]
 
       - name: Check the code with pycodestyle
-        run: pycodestyle -v .
+        run: pycodestyle pynalyser tests docs
 
       - name: Type check the code with mypy
         if: ${{ always() }}
