@@ -31,22 +31,20 @@ class AstNormalizer(ast.NodeTransformer):
         return result
 
     def visit_Num(self, node: ast.Num) -> ast.Constant:
-        return self.visit(ast.Constant(node.n, kind=None, **self.get_locations(node)))
+        return ast.Constant(node.n, kind=None, **self.get_locations(node))
 
     def visit_Str(self, node: ast.Str) -> ast.Constant:
         # kind=None since this information is not present in the ast.Str
-        return self.visit(ast.Constant(node.s, kind=None, **self.get_locations(node)))
+        return ast.Constant(node.s, kind=None, **self.get_locations(node))
 
     def visit_Bytes(self, node: ast.Bytes) -> ast.Constant:
-        return self.visit(ast.Constant(node.s, kind=None, **self.get_locations(node)))
+        return ast.Constant(node.s, kind=None, **self.get_locations(node))
 
     def visit_NameConstant(self, node: ast.NameConstant) -> ast.Constant:
-        return self.visit(
-            ast.Constant(node.value, kind=None, **self.get_locations(node))
-        )
+        return ast.Constant(node.value, kind=None, **self.get_locations(node))
 
     def visit_Ellipsis(self, node: ast.Ellipsis) -> ast.Constant:
-        return self.visit(ast.Constant(..., kind=None, **self.get_locations(node)))
+        return ast.Constant(..., kind=None, **self.get_locations(node))
 
     def visit_Index(self, node: ast.Index) -> ast.AST:
         value = node.value  # type: ignore [name-defined]
@@ -61,7 +59,6 @@ class AstNormalizer(ast.NodeTransformer):
     # so we don't need a warning (see: NodeTransformer.visit_Constant)
     # Same as NodeTransformer.visit(node) with visit_Constant removed
     def visit_Constant(self, node: ast.Constant) -> ast.Constant:
-        node.kind = getattr(node, "kind", None)
         return cast(ast.Constant, self.generic_visit(node))
 
 
