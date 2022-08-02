@@ -6,6 +6,9 @@
 - `analysers.pipeline.py`
 - `symbol.MultiDefSymbol` and relevant analyser - `RedefinitionAnalyser`
 - `AnalysisContext.unpack()`
+- `inherit_dicts.py` with `InheritDicts`
+- Support of python 3.10 (at least partially)
+- The first version of the documentation!
 
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
@@ -15,12 +18,14 @@
 - Moved `analysis.symbols.py` to `symbol.py`
 - Renamed `SymbolData` to `Symbol` and `SymTabType` to `SymbolTableType`
 - `analysis.X_types.py` are all moved in `types\`
+- `normalize_ast.py` and `portable_ast.py` are moved into `ast` submodule
 
 ### Removed
 - "Graph Visit Casher"
 - `ScopeReference` `ScopeDefs` from `acr.classes`
 - `symbols.SymbolTable`
 - `main.analyse_context` and `main.analyse`
+- Support of python 3.6
 
 ### Fixed
 - `ACRCodeTransformer` now works properly
