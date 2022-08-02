@@ -18,7 +18,7 @@ jobs:
       - name: Cache pip dependencies
         uses: actions/cache@v3
         with:
-          path: ${{ matrix.path }}
+          path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/basic.txt', '**/requirements/test.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
