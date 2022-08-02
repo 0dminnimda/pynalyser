@@ -17,6 +17,14 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
+        include:
+        - os: ubuntu-latest
+          path: ~/.cache/pip
+        - os: macos-latest
+          path: ~/Library/Caches/pip
+        - os: windows-latest
+          path: ~\AppData\Local\pip\Cache
+
 
     steps:
       - name: Check out repository
@@ -26,6 +34,14 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.path }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/basic.txt', '**/requirements/test.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install package and dependencies
         run: |
