@@ -1,6 +1,6 @@
 import ast
 
-from pynalyser.ast.normalize_ast import AstNormalizer, normalize_ast
+from pynalyser.ast import AstNormalizer, normalize_ast
 
 
 def assert_node_equality(node1: ast.AST, node2: ast.AST,
@@ -15,43 +15,69 @@ def normalized_node(node: ast.AST):
     return AstNormalizer().visit(node)
 
 
-def test_visit_Num():
-    assert_node_equality(normalized_node(ast.Num(69)),
-                         ast.Constant(value=69))
+def check_node(node1: ast.AST, node2: ast.AST):
+    assert_node_equality(normalized_node(node1), node2)
+
+
+USE_STR = "use '<>' instead of '!='"
+USE_BYTES = b"use '<>' instead of '!='"
+
+nodes = dict(
+    Num=(
+        ast.Num(42, lineno=1, col_offset=0),
+        ast.Constant(value=42, lineno=1, col_offset=0)),
+    Str1=(
+        ast.Str("", lineno=1, col_offset=0),
+        ast.Constant(value="", lineno=1, col_offset=0)),
+    Str2=(
+        ast.Str(USE_STR, lineno=1, col_offset=0),
+        ast.Constant(value=USE_STR, lineno=1, col_offset=0)),
+    Bytes1=(
+        ast.Bytes(b"", lineno=1, col_offset=0),
+        ast.Constant(value=b"", lineno=1, col_offset=0)),
+    Bytes2=(
+        ast.Bytes(USE_BYTES, lineno=1, col_offset=0),
+        ast.Constant(value=USE_BYTES, lineno=1, col_offset=0)),
+    NameConstant1=(
+        ast.NameConstant(True, lineno=1, col_offset=0),
+        ast.Constant(value=True, lineno=1, col_offset=0)),
+    NameConstant2=(
+        ast.NameConstant(False, lineno=1, col_offset=0),
+        ast.Constant(value=False, lineno=1, col_offset=0)),
+    NameConstant3=(
+        ast.NameConstant(None, lineno=1, col_offset=0),
+        ast.Constant(value=None, lineno=1, col_offset=0)),
+    Ellipsis1=(
+        ast.Ellipsis(lineno=1, col_offset=0),
+        ast.Constant(value=Ellipsis, lineno=1, col_offset=0)),
+    Ellipsis2=(
+        ast.Ellipsis(lineno=1, col_offset=0),
+        ast.Constant(value=..., lineno=1, col_offset=0)),
+)
+
+
+if sys.version < "3.8":
+    def test_visit_Num():
+        check_node(*nodes.pop("Num"))
 
 
 def test_visit_Str():
-    value = "use '<>' instead of '!=' (Barry)"
-    assert_node_equality(normalized_node(ast.Str("")),
-                         ast.Constant(value=""))
-    assert_node_equality(normalized_node(ast.Str(value)),
-                         ast.Constant(value=value))
+    check_node(*nodes.pop("Str1"))
+    check_node(*nodes.pop("Str2"))
 
 
 def test_visit_Bytes():
-    value = b"use '<>' instead of '!=' (Barry)"
-    assert_node_equality(normalized_node(ast.Bytes(b"")),
-                         ast.Constant(value=b""))
-    assert_node_equality(normalized_node(ast.Bytes(value)),
-                         ast.Constant(value=value))
+    check_node(*nodes.pop("Bytes1"))
+    check_node(*nodes.pop("Bytes2"))
 
 
 def test_visit_NameConstant():
-    assert_node_equality(normalized_node(ast.NameConstant(True)),
-                         ast.Constant(value=True))
-    assert_node_equality(normalized_node(ast.NameConstant(False)),
-                         ast.Constant(value=False))
-    assert_node_equality(normalized_node(ast.NameConstant(None)),
-                         ast.Constant(value=None))
+    check_node(*nodes.pop("NameConstant1"))
+    check_node(*nodes.pop("NameConstant2"))
+    check_node(*nodes.pop("NameConstant3"))
 
 
 def test_visit_Ellipsis():
-    assert_node_equality(normalized_node(ast.Ellipsis()),
-                         ast.Constant(value=Ellipsis))
-    assert_node_equality(normalized_node(ast.Ellipsis()),
-                         ast.Constant(value=...))
-
-
 def test_visit_Index():
     assert_node_equality(
         normalized_node(ast.Index(value=ast.Num(n=3))),
@@ -60,6 +86,10 @@ def test_visit_Index():
         normalized_node(ast.Index(value=ast.Name(id='UnladenSwallow',
                                                  ctx=ast.Load()))),
         ast.Name(id='UnladenSwallow', ctx=ast.Load()))
+    check_node(*nodes.pop("Ellipsis1"))
+    check_node(*nodes.pop("Ellipsis2"))
+
+
 
 
 def test_visit_ExtSlice():
@@ -80,6 +110,8 @@ def test_visit_ExtSlice():
             ctx=ast.Load()
         )
     )
+def test_that_we_used_every_node():
+    assert len(nodes) == 0
 
 
 ############ normalize_ast #############
