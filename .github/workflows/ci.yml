@@ -49,7 +49,7 @@ jobs:
           pip install .[test]
 
       - name: Running tests with pytest
-        run: pytest -v
+        run: python -m pytest -v
 
   code-quality:
     timeout-minutes: 5
@@ -77,8 +77,8 @@ jobs:
           pip install .[test]
 
       - name: Check the code with pycodestyle
-        run: pycodestyle -v .
+        run: python -m pycodestyle -v .
 
       - name: Type check the code with mypy
         if: ${{ always() }}
-        run: mypy . --config-file mypy.ini --exclude build
+        run: python -m mypy . --config-file mypy.ini --exclude build
