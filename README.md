@@ -1,4 +1,7 @@
 ![Pynalyser Logo](https://raw.githubusercontent.com/0dminnimda/pynalyser/main/docs/_static/logo.svg)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <h1 align="center">Static Python Code Analyzer</h1>
 
@@ -69,8 +72,32 @@ Look into the [CHANGELOG.md](https://github.com/0dminnimda/pynalyser/blob/main/C
 ## 💗 Thanks for your contributions
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/wert-rar"><img src="https://avatars.githubusercontent.com/u/72702040?v=4?s=100" width="100px;" alt=""/><br /><sub><b>wert-rar</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=wert-rar" title="Tests">⚠️</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## 🌟 Thanks to everyone who starred the repository on GitHub
 
 [![Stargazers repo roster for @0dminnimda/pynalyser](https://reporoster.com/stars/dark/0dminnimda/pynalyser)](https://github.com/0dminnimda/pynalyser/stargazers)
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
