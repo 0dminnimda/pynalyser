@@ -41,6 +41,19 @@ def test_float_binop():
     assert isinstance(FloatType() // IntType(), FloatType)
     # FloatType() ** X() can be different, depending on the sign
 
+    assert isinstance(IntType() + FloatType(), FloatType)
+    assert isinstance(IntType() - FloatType(), FloatType)
+    assert isinstance(IntType() * FloatType(), FloatType)
+    assert isinstance(IntType() / FloatType(), FloatType)
+    assert isinstance(IntType() % FloatType(), FloatType)
+    assert isinstance(IntType() << FloatType(), FloatType)
+    assert isinstance(IntType() >> FloatType(), FloatType)
+    assert isinstance(IntType() | FloatType(), FloatType)
+    assert isinstance(IntType() ^ FloatType(), FloatType)
+    assert isinstance(IntType() & FloatType(), FloatType)
+    assert isinstance(IntType() // FloatType(), FloatType)
+    # FloatType() ** X() can be different, depending on the sign
+
     assert isinstance(FloatType() + FloatType(), FloatType)
     assert isinstance(FloatType() - FloatType(), FloatType)
     assert isinstance(FloatType() * FloatType(), FloatType)
@@ -62,7 +75,9 @@ def test_sequence():
 
 
 def test_list():
-    lst = ListType(item_type=PynalyserType(), is_builtin=False)
+    lst = ListType(
+        item_type=SingleType(name="test", is_builtin=False), is_builtin=False
+    )
     assert isinstance(lst * IntType(), SequenceType)
     assert lst[IntType()] is lst.item_type
     assert isinstance(lst[SliceType()], ListType)
