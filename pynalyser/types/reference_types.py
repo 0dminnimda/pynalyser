@@ -2,10 +2,11 @@ from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import attr
 
-from .base_types import (SIGNATURE, AnyType, PynalyserType, SingleType,
+from .base_types import (AnyType, PynalyserType, SingleType,
                          UnionType, UnknownType)
 from .operations import (BINOP_FUNC, BINOP_STR, CMP_FUNC, CMP_STR,
                          DUNDER_BINOP, DUNDER_CMP)
+from .op import Signature
 from .structure_types import BoolType, IntType, IterableType
 
 if TYPE_CHECKING:
@@ -37,17 +38,17 @@ def narrow_type(tp: SingleType, both: Tuple[str, str],
         # other_method = method
         both = both[::-1]
 
-    signature_name = f"_sig_{this_method}"
+    signature_name = f"__{this_method}__"
     try:
-        signature: SIGNATURE = getattr(tp, signature_name)
-    except AttributeError:
+        signature = tp.ops[signature_name].signature
+    except KeyError:
         print(type(tp), method, signature_name)
         raise TypeError(
             f"unsupported operand type(s) for {op_str}:"
             f" '{both[0]}' and '{both[1]}'")
 
     # TODO: also add type that have __{other_method}__ op
-    other = UnionType.make(*signature())
+    other = UnionType.make(*signature)
     assert isinstance(other, SingleType)
 
     return other
