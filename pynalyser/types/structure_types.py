@@ -14,6 +14,9 @@ ReturnT = Union[PynalyserType, NotImplementedType]  # type: ignore
 # INFO: docs.python.org/3/reference/datamodel.html#object.__lt__
 # INFO: docs.python.org/3/reference/datamodel.html#emulating-numeric-types
 
+NotImplementedType = SingleType(name="NotImplementedType", is_builtin=True)
+
+
 @attr.s(auto_attribs=True, hash=True, cmp=False)
 class IntType(SingleType):
     name: str = "int"
