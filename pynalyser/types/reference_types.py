@@ -18,8 +18,8 @@ class SymbolType(PynalyserType):
     name: str
     symbol: "Symbol"
 
-    def deref(self) -> PynalyserType:
-        return self.symbol.type.deref()
+    def deref(self, report: bool) -> PynalyserType:
+        return self.symbol.type.deref(report)
 
     def __hash__(self) -> int:
         return hash((type(self), self.name))
@@ -61,9 +61,9 @@ class BinOpType(PynalyserType):
     right: PynalyserType
 
     def __attrs_post_init__(self) -> None:
-        left = self.left.deref()
+        left = self.left.deref(report=False)
         assert isinstance(left, SingleType)
-        right = self.right.deref()
+        right = self.right.deref(report=False)
         assert isinstance(right, SingleType)
 
         if not left.is_completed and not right.is_completed:
@@ -99,8 +99,8 @@ class BinOpType(PynalyserType):
         if isinstance(self.right, SymbolType):
             self.right.symbol.type = right
 
-    def deref(self) -> PynalyserType:
-        return BINOP_FUNC[self.op](self.left.deref(), self.right.deref())
+    def deref(self, report: bool) -> PynalyserType:
+        return BINOP_FUNC[self.op](self.left.deref(report), self.right.deref(report))
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -110,9 +110,9 @@ class CompareType(PynalyserType):
     comparators: List[PynalyserType]
 
     def __attrs_post_init__(self) -> None:
-        left = self.left.deref()
+        left = self.left.deref(report=False)
         assert isinstance(left, SingleType)
-        right = self.comparators[0].deref()
+        right = self.comparators[0].deref(report=False)
         assert isinstance(right, SingleType)
 
         if not left.is_completed and not right.is_completed:
@@ -134,7 +134,7 @@ class CompareType(PynalyserType):
         if isinstance(self.comparators[0], SymbolType):
             self.comparators[0].symbol.type = right
 
-    def deref(self) -> PynalyserType:
+    def deref(self, report: bool) -> PynalyserType:
         return BoolType()  # or exception raised
 
 
@@ -143,8 +143,8 @@ class SubscriptType(PynalyserType):
     value: PynalyserType
     slice: PynalyserType
 
-    def deref(self) -> PynalyserType:
-        return self.value.deref()[self.slice.deref()]  # type: ignore
+    def deref(self, report: bool) -> PynalyserType:
+        return self.value.deref(report)[self.slice.deref(report)]  # type: ignore
 
     # def visit_Subscript(self, node: ast.Subscript) -> PynalyserType:
     #     value_type = self.visit(node.value)
@@ -160,7 +160,7 @@ class ItemType(PynalyserType):
     iterable: PynalyserType
 
     def __attrs_post_init__(self) -> None:
-        tp = self.iterable.deref()
+        tp = self.iterable.deref(report=False)
         if tp is UnknownType:
             if isinstance(self.iterable, SymbolType):
                 self.iterable.symbol.type = IterableType(
@@ -170,8 +170,8 @@ class ItemType(PynalyserType):
             #     self.iterable = IterableType(
             #         item_type=UnknownType, is_builtin=False)
 
-    def deref(self) -> PynalyserType:
-        return self.iterable.deref().item_type.deref()  # type: ignore
+    def deref(self, report: bool) -> PynalyserType:
+        return self.iterable.deref(report).item_type.deref(report)  # type: ignore
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -180,7 +180,7 @@ class CallType(PynalyserType):
     args: Tuple[PynalyserType, ...]
     keywords: Tuple[Tuple[Optional[str], PynalyserType], ...]
 
-    def deref(self) -> PynalyserType:
+    def deref(self, report: bool) -> PynalyserType:
         if isinstance(self.func, SymbolType) and self.func.name == "range":
             return IterableType(item_type=IntType(),
                                 is_builtin=False)  # XXX: is_builtin??

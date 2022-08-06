@@ -12,7 +12,7 @@ class PynalyserType:
     def as_str(self) -> str:
         raise NotImplementedError
 
-    def deref(self) -> "PynalyserType":
+    def deref(self, report: bool) -> "PynalyserType":
         return self
 
 
