@@ -66,6 +66,11 @@ Look into the [CHANGELOG.md](https://github.com/0dminnimda/pynalyser/blob/main/C
 
 ---
 
-## 💗 Thanks to everyone who starred the repository on GitHub
+## 💗 Thanks for your contributions
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## 🌟 Thanks to everyone who starred the repository on GitHub
 
 [![Stargazers repo roster for @0dminnimda/pynalyser](https://reporoster.com/stars/dark/0dminnimda/pynalyser)](https://github.com/0dminnimda/pynalyser/stargazers)
