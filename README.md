@@ -21,6 +21,7 @@
 </p>
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+<!-- I don't want it -->
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <!-- not yet, but in the future! -->
@@ -72,12 +73,11 @@ Look into the [`CHANGELOG.md`](https://github.com/0dminnimda/pynalyser/blob/main
 ## 💗 Thanks for your contributions
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
-
 <table>
   <tr>
+    <td align="center"><a href="https://github.com/0dminnimda"><img src="https://avatars.githubusercontent.com/u/52697657?v=4?s=100" width="100px;" alt=""/><br /><sub><b>0dminnimda</b></sub></a><br /><a href="#projectManagement-0dminnimda" title="Project Management">📆</a> <a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Code">💻</a> <a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Documentation">📖</a> <a href="#design-0dminnimda" title="Design">🎨</a> <a href="#infra-0dminnimda" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-0dminnimda" title="Maintenance">🚧</a> <a href="https://github.com/0dminnimda/pynalyser/pulls?q=is%3Apr+reviewed-by%3A0dminnimda" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Tests">⚠️</a></td>
     <td align="center"><a href="https://github.com/wert-rar"><img src="https://avatars.githubusercontent.com/u/72702040?v=4?s=100" width="100px;" alt=""/><br /><sub><b>wert-rar</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=wert-rar" title="Tests">⚠️</a></td>
   </tr>
 </table>

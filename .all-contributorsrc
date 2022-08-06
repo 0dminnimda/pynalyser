@@ -3,9 +3,25 @@
     "README.md"
   ],
   "imageSize": 100,
-  "badgeTemplate": "",
+  "badgeTemplate": "<!-- I don't want it -->",
   "commit": false,
   "contributors": [
+    {
+      "login": "0dminnimda",
+      "name": "0dminnimda",
+      "avatar_url": "https://avatars.githubusercontent.com/u/52697657?v=4",
+      "profile": "https://github.com/0dminnimda",
+      "contributions": [
+        "projectManagement",
+        "maintenance",
+        "code",
+        "doc",
+        "test",
+        "design",
+        "infra",
+        "review"
+      ]
+    },
     {
       "login": "wert-rar",
       "name": "wert-rar",
