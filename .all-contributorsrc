@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "badgeTemplate": "",
+  "commit": false,
+  "contributors": [
+    {
+      "login": "wert-rar",
+      "name": "wert-rar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/72702040?v=4",
+      "profile": "https://github.com/wert-rar",
+      "contributions": [
+        "test"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "pynalyser",
+  "projectOwner": "0dminnimda",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}

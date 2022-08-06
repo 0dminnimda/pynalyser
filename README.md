@@ -20,6 +20,9 @@
     </a>
 </p>
 
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 <!-- not yet, but in the future! -->
 <!-- <p align="center">Powerful static analysis open to the public to explore and create amazing tools for the Python environment</p> -->
 
@@ -69,6 +72,19 @@ Look into the [`CHANGELOG.md`](https://github.com/0dminnimda/pynalyser/blob/main
 ## 💗 Thanks for your contributions
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/wert-rar"><img src="https://avatars.githubusercontent.com/u/72702040?v=4?s=100" width="100px;" alt=""/><br /><sub><b>wert-rar</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=wert-rar" title="Tests">⚠️</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## 🌟 Thanks to everyone who starred the repository on GitHub
