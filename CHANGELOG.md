@@ -40,3 +40,6 @@
 - Analysis of the scopes
 - Partial type inference (and type system for it to work on)
 - "Graph Visit Casher"
+
+### Fixed
+- `test_normalize_ast.py` 🔼 Patched by `@wert-rar` in [#3](https://github.com/0dminnimda/pynalyser/pull/3)
