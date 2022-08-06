@@ -59,6 +59,11 @@ The documentation is available [here](https://pynalyser.readthedocs.io/).
 - The `requirements` directory contains the PyPi requirements files for the pynalyser package.
 - The `tests` directory contains the test suite for the pynalyser package.
 
+## Changelog
+
+Want to see what is happening in here?  
+Look into the [CHANGELOG.md](https://github.com/0dminnimda/pynalyser/blob/main/CHANGELOG.md)!
+
 ---
 
 ## 💗 Thanks to everyone who starred the repository on GitHub
