@@ -76,7 +76,7 @@ class SingleType(PynalyserType, OpCarrier):
     def _run_op(self, op: str, *args, **kwargs) -> Return:
         from .structure_types import NotImplementedType
 
-        value = self._get_op_func(op)(*args, **kwargs)
+        value = self._get_op_func(op)(self, *args, **kwargs)
 
         if value is NotImplementedType:
             return NotImplemented
@@ -85,122 +85,122 @@ class SingleType(PynalyserType, OpCarrier):
 
     # Comparisons
     def __lt__(self, value: PynalyserType) -> Return:
-        return self._run_op("__lt__", self, value)
+        return self._run_op("__lt__", value)
 
     def __le__(self, value: PynalyserType) -> Return:
-        return self._run_op("__le__", self, value)
+        return self._run_op("__le__", value)
 
     def __eq__(self, value: PynalyserType) -> Return:  # type: ignore[override]
-        return self._run_op("__eq__", self, value)
+        return self._run_op("__eq__", value)
 
     def __ne__(self, value: PynalyserType) -> Return:  # type: ignore[override]
-        return self._run_op("__ne__", self, value)
+        return self._run_op("__ne__", value)
 
     def __gt__(self, value: PynalyserType) -> Return:
-        return self._run_op("__gt__", self, value)
+        return self._run_op("__gt__", value)
 
     def __ge__(self, value: PynalyserType) -> Return:
-        return self._run_op("__ge__", self, value)
+        return self._run_op("__ge__", value)
 
     # Binary operation
     def __add__(self, value: PynalyserType) -> Return:
-        return self._run_op("__add__", self, value)
+        return self._run_op("__add__", value)
 
     def __sub__(self, value: PynalyserType) -> Return:
-        return self._run_op("__sub__", self, value)
+        return self._run_op("__sub__", value)
 
     def __mul__(self, value: PynalyserType) -> Return:
-        return self._run_op("__mul__", self, value)
+        return self._run_op("__mul__", value)
 
     def __matmul__(self, value: PynalyserType) -> Return:
-        return self._run_op("__matmul__", self, value)
+        return self._run_op("__matmul__", value)
 
     def __truediv__(self, value: PynalyserType) -> Return:
-        return self._run_op("__truediv__", self, value)
+        return self._run_op("__truediv__", value)
 
     def __floordiv__(self, value: PynalyserType) -> Return:
-        return self._run_op("__floordiv__", self, value)
+        return self._run_op("__floordiv__", value)
 
     def __mod__(self, value: PynalyserType) -> Return:
-        return self._run_op("__mod__", self, value)
+        return self._run_op("__mod__", value)
 
     def __divmod__(self, value: PynalyserType) -> Return:
-        return self._run_op("__divmod__", self, value)
+        return self._run_op("__divmod__", value)
 
     # XXX: 'Optional' is a hack, it probably should be handled differently
     def __pow__(
         self, value: PynalyserType, mod: Optional[PynalyserType] = None
     ) -> Return:
         if mod is None:
-            return self._run_op("__pow__", self, value)
+            return self._run_op("__pow__", value)
         return self._run_op("__pow__", self, value, mod)
 
     def __lshift__(self, value: PynalyserType) -> Return:
-        return self._run_op("__lshift__", self, value)
+        return self._run_op("__lshift__", value)
 
     def __rshift__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rshift__", self, value)
+        return self._run_op("__rshift__", value)
 
     def __and__(self, value: PynalyserType) -> Return:
-        return self._run_op("__and__", self, value)
+        return self._run_op("__and__", value)
 
     def __xor__(self, value: PynalyserType) -> Return:
-        return self._run_op("__xor__", self, value)
+        return self._run_op("__xor__", value)
 
     def __or__(self, value: PynalyserType) -> Return:
-        return self._run_op("__or__", self, value)
+        return self._run_op("__or__", value)
 
     # Reversed binary operation
     def __radd__(self, value: PynalyserType) -> Return:
-        return self._run_op("__radd__", self, value)
+        return self._run_op("__radd__", value)
 
     def __rsub__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rsub__", self, value)
+        return self._run_op("__rsub__", value)
 
     def __rmul__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rmul__", self, value)
+        return self._run_op("__rmul__", value)
 
     def __rmatmul__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rmatmul__", self, value)
+        return self._run_op("__rmatmul__", value)
 
     def __rtruediv__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rtruediv__", self, value)
+        return self._run_op("__rtruediv__", value)
 
     def __rfloordiv__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rfloordiv__", self, value)
+        return self._run_op("__rfloordiv__", value)
 
     def __rmod__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rmod__", self, value)
+        return self._run_op("__rmod__", value)
 
     def __rdivmod__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rdivmod__", self, value)
+        return self._run_op("__rdivmod__", value)
 
     # XXX: 'Optional' is a hack, it probably should be handled differently
     def __rpow__(
         self, value: PynalyserType, mod: Optional[PynalyserType] = None
     ) -> Return:
         if mod is None:
-            return self._run_op("__rpow__", self, value)
+            return self._run_op("__rpow__", value)
         return self._run_op("__rpow__", self, value, mod)
 
     def __rlshift__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rlshift__", self, value)
+        return self._run_op("__rlshift__", value)
 
     def __rrshift__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rrshift__", self, value)
+        return self._run_op("__rrshift__", value)
 
     def __rand__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rand__", self, value)
+        return self._run_op("__rand__", value)
 
     def __rxor__(self, value: PynalyserType) -> Return:
-        return self._run_op("__rxor__", self, value)
+        return self._run_op("__rxor__", value)
 
     def __ror__(self, value: PynalyserType) -> Return:
-        return self._run_op("__ror__", self, value)
+        return self._run_op("__ror__", value)
 
     # Other magic
     def __getitem__(self, value: PynalyserType) -> Return:
-        return self._run_op("__getitem__", self, value)
+        return self._run_op("__getitem__", value)
 
 
 AnyType = SingleType(name="object", is_builtin=False)
