@@ -3,7 +3,7 @@
     "README.md"
   ],
   "imageSize": 100,
-  "badgeTemplate": "",
+  "badgeTemplate": "<!-- I don't want it -->",
   "commit": false,
   "contributors": [
     {
