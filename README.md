@@ -62,7 +62,7 @@ The documentation is available [here](https://pynalyser.readthedocs.io/).
 ## 👀 Changelog
 
 Want to see what is happening in here?  
-Look into the [CHANGELOG.md](https://github.com/0dminnimda/pynalyser/blob/main/CHANGELOG.md)!
+Look into the [`CHANGELOG.md`](https://github.com/0dminnimda/pynalyser/blob/main/CHANGELOG.md)!
 
 ---
 
