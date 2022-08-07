@@ -19,7 +19,8 @@
         "test",
         "design",
         "infra",
-        "review"
+        "review",
+        "tool"
       ]
     },
     {
