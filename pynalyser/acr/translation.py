@@ -39,6 +39,7 @@ class Translator(ast.NodeTransformer):
             if isinstance(some_container, FlowContainer):
                 self.container = some_container
                 self.generic_visit(ForBlocks(value[:]))
+                # self.generic_visit(value) would be cleaner if it worked
                 setattr(block, name, self.container)
             elif isinstance(some_container, list):
                 # container should never be needed here
