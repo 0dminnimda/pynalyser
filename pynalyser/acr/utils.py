@@ -120,6 +120,8 @@ def _format_ast_or_acr(obj: Union[ast.AST, ACR], ctx: Context,
 
 # Tree traversing
 
+# Module, Class, Function, Lambda, ListComp, SetComp, GeneratorExp, DictComp
+# MatchCase, Match, With, If, ExceptHandler, Try, For, While
 
 NODE = Union[ACR, ast.AST]
 
@@ -165,6 +167,35 @@ class NodeVisitor:
                 self.block = previous_block
 
         return self.generic_visit(node)
+
+    # XXX: this maybe will make things better, idk
+    # def acr_generic_visit(self, node: NODE) -> Any:
+    #     # handle acr
+    #     if isinstance(node, Scope):
+    #         return self.visit_scope(node)
+
+    #     if isinstance(node, Block):
+    #         return self.visit_block(node)
+
+    #     return self.generic_visit(node)
+
+    # def visit_scope(self, node: Scope) -> Any:
+    #     previous_scope = self.scope
+    #     self.scope = node
+
+    #     try:
+    #         return self.visit_block(node)
+    #     finally:
+    #         self.scope = previous_scope
+
+    # def visit_block(self, node: Block) -> Any:
+    #     previous_block = self.block
+    #     self.block = node
+
+    #     try:
+    #         return self.generic_visit(node)
+    #     finally:
+    #         self.block = previous_block
 
     def visit(self, node: NODE) -> Any:
         method = 'visit_' + type(node).__name__
