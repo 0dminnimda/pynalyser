@@ -127,6 +127,13 @@ class Block(ACR):
         _fields.remove("_block_fields")
         self._fields = tuple(_fields)
 
+    # def __getattr__(self, name: str) -> FlowContainer:
+    #     try:
+    #         return self.containers[name]
+    #     except KeyError:
+    #         raise AttributeError(
+    #             f"'{type(self).__name__}' object has no attribute '{name}'")
+
 
 @attr.s(auto_attribs=True)
 class BodyBlock(Block):
