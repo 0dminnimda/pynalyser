@@ -16,7 +16,8 @@
         "doc",
         "test",
         "design",
-        "infra"
+        "infra",
+        "review"
       ]
     },
     {
