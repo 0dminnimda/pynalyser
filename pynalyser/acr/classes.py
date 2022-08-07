@@ -96,7 +96,7 @@ class FlowContainer(ACR, List[CONTROL_FLOW]):
     def get_code_block(self) -> "CodeBlock":
         if len(self):
             block = self[-1]
-            if type(block) is not CodeBlock:
+            if not isinstance(block, CodeBlock):
                 block = CodeBlock()
                 self.append(block)
         else:
