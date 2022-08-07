@@ -12,15 +12,12 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/52697657?v=4",
       "profile": "https://github.com/0dminnimda",
       "contributions": [
-        "projectManagement",
-        "maintenance",
         "code",
         "doc",
         "test",
         "design",
         "infra",
-        "review",
-        "tool"
+        "review"
       ]
     },
     {
