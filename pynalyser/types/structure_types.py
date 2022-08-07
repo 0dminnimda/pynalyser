@@ -46,6 +46,7 @@ def _int__truediv__(this: SingleType, value: PynalyserType) -> SingleType:
         return FloatType()
     return NotImplementedType
 
+
 # def __pow__(
 #     self, value: PynalyserType, mod: Optional[PynalyserType] = None
 # ) -> SingleType:
@@ -112,6 +113,7 @@ class IterableType(SingleType):
 @attr.s(auto_attribs=True, hash=True, cmp=False)  # auto_detect=True)
 class SequenceType(IterableType):
     pass
+
 
 # TODO: not finished, see docs.python.org/3/library/collections.abc.html
 # see docs.python.org/3/c-api/typeobj.html
