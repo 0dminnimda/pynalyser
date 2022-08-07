@@ -39,4 +39,3 @@ if sys.version_info < (3, 8):
 # clean up the namespace
 # this module is supposed to be imported via the star
 del sys, typing
-
