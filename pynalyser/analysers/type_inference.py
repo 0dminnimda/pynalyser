@@ -105,3 +105,6 @@ class TypeInference(RedefinitionAnalyser):
         # if bool(test) is always True / False,
         # then we have infinite loop or
         # we can skip loop
+
+    # def visit_Function(self, node: acr.Function) -> None:
+    #     self.scope.symbol_table[node.name]
