@@ -97,14 +97,3 @@ class MultiDefSymbol:
         if name in self._names:
             return setattr(self.current_symbol, name, value)
         super().__setattr__(name, value)
-
-    # def get_scope(self) -> ScopeType:
-    #     return self.current_symbol.scope
-
-    # def set_scope(self, value: ScopeType) -> None:
-    #     self.current_symbol.scope = value
-
-    # def del_scope(self) -> None:
-    #     del self.current_symbol.scope
-
-    # scope = property(get_scope, set_scope, del_scope)
