@@ -2,6 +2,7 @@ import sys
 import typing
 from ast import *
 
+# backports
 if sys.version_info < (3, 10):
     class pattern(AST):
         ...
@@ -38,3 +39,4 @@ if sys.version_info < (3, 8):
 # clean up the namespace
 # this module is supposed to be imported via the star
 del sys, typing
+
