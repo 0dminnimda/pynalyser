@@ -68,8 +68,6 @@ The documentation is available [here](https://pynalyser.readthedocs.io/).
 Want to see what is happening in here?  
 Look into the [`CHANGELOG.md`](https://github.com/0dminnimda/pynalyser/blob/main/CHANGELOG.md)!
 
----
-
 ## 💗 Thanks for your contributions
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
