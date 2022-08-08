@@ -1,5 +1,4 @@
-
-from typing import Union
+from typing import Dict, Union
 
 from .. import acr, ast
 from ..types import (AnyType, BinOpType, CallType, CompareType, IntType,
@@ -7,6 +6,36 @@ from ..types import (AnyType, BinOpType, CallType, CompareType, IntType,
                      SubscriptType, SymbolType, TupleType, UnionType,
                      UnknownType)
 from .redefinitions import RedefinitionAnalyser
+
+BINOP: Dict[type, str] = {
+    ast.Add: "add",
+    ast.Sub: "sub",
+    ast.MatMult: "matmul",
+    ast.Mult: "mul",
+    ast.Div: "truediv",
+    ast.Mod: "mod",
+    ast.LShift: "lshift",
+    ast.RShift: "rshift",
+    ast.BitOr: "or",
+    ast.BitXor: "xor",
+    ast.BitAnd: "and",
+    ast.FloorDiv: "floordiv",
+    ast.Pow: "pow",
+}
+
+
+CMPOP: Dict[type, str] = {
+    ast.Eq: "eq",
+    ast.NotEq: "ne",
+    ast.Lt: "lt",
+    ast.LtE: "le",
+    ast.Gt: "gt",
+    ast.GtE: "ge",
+    ast.Is: "is",
+    ast.IsNot: "is_not",
+    ast.In: "in",  # contains
+    ast.NotIn: "not_in",
+}
 
 
 class TypeInference(RedefinitionAnalyser):
@@ -26,13 +55,16 @@ class TypeInference(RedefinitionAnalyser):
         return SubscriptType(self.visit(node.value), self.visit(node.slice))
 
     def visit_BinOp(self, node: ast.BinOp) -> PynalyserType:
-        return BinOpType(type(node.op).__name__,
-                         self.visit(node.left), self.visit(node.right))
+        return BinOpType(
+            BINOP[type(node.op)], self.visit(node.left), self.visit(node.right)
+        )
 
     def visit_Compare(self, node: ast.Compare) -> PynalyserType:
-        return CompareType(self.visit(node.left),
-                           [type(op).__name__ for op in node.ops],
-                           [self.visit(item) for item in node.comparators])
+        return CompareType(
+            self.visit(node.left),
+            [CMPOP[type(op)] for op in node.ops],
+            [self.visit(item) for item in node.comparators],
+        )
 
     ### Comprehentions ###
 

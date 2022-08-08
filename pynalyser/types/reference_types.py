@@ -71,14 +71,14 @@ class BinOpType(PynalyserType):
             left = narrow_type(
                 right,
                 (left.name, right.name),
-                DUNDER_BINOP[self.op],
+                self.op,
                 use_left=False,
             )
         elif not right.is_completed:
             right = narrow_type(
                 left,
                 (left.name, right.name),
-                DUNDER_BINOP[self.op],
+                self.op,
                 use_left=True,
             )
         # else:
@@ -125,14 +125,14 @@ class CompareType(PynalyserType):
             left = narrow_type(
                 right,
                 (left.name, right.name),
-                DUNDER_CMP[self.ops[0]],
+                self.ops[0],
                 use_left=False,
             )
         elif not right.is_completed:
             right = narrow_type(
                 left,
                 (left.name, right.name),
-                DUNDER_CMP[self.ops[0]],
+                self.ops[0],
                 use_left=True,
             )
 
