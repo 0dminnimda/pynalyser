@@ -21,7 +21,6 @@ OP_TO_STR = {
     "le": "<=",
     "gt": ">",
     "ge": ">=",
-    "contains": "in",
 }
 
 
