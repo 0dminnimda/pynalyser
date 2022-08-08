@@ -13,7 +13,6 @@ OP_TO_STR = {
     "and": "&",
     "floordiv": "//",
     "pow": "**",
-
     # cmpop
     "eq": "==",
     "ne": "!=",
@@ -21,11 +20,10 @@ OP_TO_STR = {
     "le": "<=",
     "gt": ">",
     "ge": ">=",
-
     # unop
     "invert": "~",
     "pos": "+",
-    "neg": "-"
+    "neg": "-",
 }
 
 
@@ -35,9 +33,15 @@ def unsupported_op(op: str, lhs: str, rhs: str) -> TypeError:
     )
 
 
-def not_subscriptable(type: str) -> TypeError:
-    return TypeError(f"'{type}' object is not subscriptable")
+def cmp_not_supported(op: str, lhs: str, rhs: str) -> TypeError:
+    return TypeError(
+        f"'{OP_TO_STR[op]}' not supported between instances of '{lhs}' and '{rhs}'"
+    )
 
 
 def bad_unary(op: str, type: str) -> TypeError:
     return TypeError(f"bad operand type for unary {OP_TO_STR[op]}: '{type}'")
+
+
+def not_subscriptable(type: str) -> TypeError:
+    return TypeError(f"'{type}' object is not subscriptable")
