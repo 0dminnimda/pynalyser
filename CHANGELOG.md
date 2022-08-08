@@ -10,6 +10,7 @@
 - Support of python 3.10 (at least partially)
 - The first version of the documentation!
 - `report` parameter to the deref()
+- Basic reporting system
 
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
