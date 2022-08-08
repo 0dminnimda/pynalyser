@@ -70,7 +70,11 @@ class SingleType(PynalyserType, OpCarrier):
     def as_str(self) -> str:
         return self.name
 
-    # Those methods are not participating in the actual analysis (OpCarrier.ops does)
+    @classmethod
+    def issubclass(cls, other: "SingleType") -> bool:
+        return issubclass(cls, type(other))
+
+    # Methods below are not participating in the actual analysis (OpCarrier.ops does)
     # Those are just for fancy user interface
 
     def _run_op(self, op: str, *args, **kwargs) -> Return:
