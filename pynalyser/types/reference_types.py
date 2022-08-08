@@ -4,6 +4,7 @@ import attr
 
 from .base_types import (AnyType, PynalyserType, SingleType,
                          UnionType, UnknownType)
+from .exceptions import not_subscriptable, unsupported_op
 from .operations import (BINOP_FUNC, BINOP_STR, CMP_FUNC, CMP_STR,
                          DUNDER_BINOP, DUNDER_CMP)
 from .op import Signature
@@ -25,9 +26,9 @@ class SymbolType(PynalyserType):
         return hash((type(self), self.name))
 
 
-def narrow_type(tp: SingleType, both: Tuple[str, str],
-                method: str, op_str: str,
-                use_left: bool) -> SingleType:
+def narrow_type(
+    tp: SingleType, both: Tuple[str, str], method: str, use_left: bool
+) -> SingleType:
 
     if use_left:
         this_method = method
@@ -43,9 +44,7 @@ def narrow_type(tp: SingleType, both: Tuple[str, str],
         signature = tp.ops[signature_name].signature
     except KeyError:
         print(type(tp), method, signature_name)
-        raise TypeError(
-            f"unsupported operand type(s) for {op_str}:"
-            f" '{both[0]}' and '{both[1]}'")
+        raise unsupported_op(method, *both)
 
     # TODO: also add type that have __{other_method}__ op
     other = UnionType.make(*signature)
@@ -70,14 +69,18 @@ class BinOpType(PynalyserType):
             raise NotImplementedError
         elif not left.is_completed:
             left = narrow_type(
-                right, (left.name, right.name),
-                DUNDER_BINOP[self.op], BINOP_STR[self.op],
-                use_left=False)
+                right,
+                (left.name, right.name),
+                DUNDER_BINOP[self.op],
+                use_left=False,
+            )
         elif not right.is_completed:
             right = narrow_type(
-                left, (left.name, right.name),
-                DUNDER_BINOP[self.op], BINOP_STR[self.op],
-                use_left=True)
+                left,
+                (left.name, right.name),
+                DUNDER_BINOP[self.op],
+                use_left=True,
+            )
         # else:
         #     raise NotImplementedError
         #     name = op_to_dunder[op]
@@ -120,14 +123,18 @@ class CompareType(PynalyserType):
             # raise NotImplementedError
         elif not left.is_completed:
             left = narrow_type(
-                right, (left.name, right.name),
-                DUNDER_CMP[self.ops[0]], CMP_STR[self.ops[0]],
-                use_left=False)
+                right,
+                (left.name, right.name),
+                DUNDER_CMP[self.ops[0]],
+                use_left=False,
+            )
         elif not right.is_completed:
             right = narrow_type(
-                left, (left.name, right.name),
-                DUNDER_CMP[self.ops[0]], CMP_STR[self.ops[0]],
-                use_left=True)
+                left,
+                (left.name, right.name),
+                DUNDER_CMP[self.ops[0]],
+                use_left=True,
+            )
 
         if isinstance(self.left, SymbolType):
             self.left.symbol.type = left
