@@ -53,6 +53,8 @@ def run_pipeline(ctx: AnalysisContext,
                  factory: PIPE_FACTORY) -> AnalysisContext:
     """
     Run each factory analyser on modules in the given context.
+    The first module is the one with what analysis starts.
+    (TODO: check that it's still true) It is an entrypoint.
     """
 
     for analyser in factory():
