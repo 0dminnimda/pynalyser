@@ -71,8 +71,14 @@ class SingleType(PynalyserType, OpCarrier):
         return self.name
 
     @classmethod
-    def issubclass(cls, other: "SingleType") -> bool:
-        return issubclass(cls, type(other))
+    def issubclass(cls, other: Union["SingleType", Tuple["SingleType", ...]]) -> bool:
+        if not isinstance(other, tuple):
+            return issubclass(cls, type(other))
+        return any(issubclass(cls, type(tp)) for tp in other)
+
+    @classmethod
+    def is_type(cls, other: "SingleType") -> bool:
+        return cls == type(other)
 
     # Methods below are not participating in the actual analysis (OpCarrier.ops does)
     # Those are just for fancy user interface
