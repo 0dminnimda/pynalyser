@@ -27,9 +27,9 @@ OP_TO_STR = {
 
 def unsupported_op(op: str, lhs: str, rhs: str) -> TypeError:
     return TypeError(
-        f"unsupported operand type(s) for {OP_TO_STR[op]!r}: {lhs!r} and {rhs!r}"
+        f"unsupported operand type(s) for '{OP_TO_STR[op]}': '{lhs}' and '{rhs}'"
     )
 
 
 def not_subscriptable(type: str) -> TypeError:
-    return TypeError(f"{type!r} object is not subscriptable")
+    return TypeError(f"'{type}' object is not subscriptable")
