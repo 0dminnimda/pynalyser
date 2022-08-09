@@ -10,7 +10,9 @@ from .op import OpCarrier
 class PynalyserType:
     @property
     def as_str(self) -> str:
-        raise NotImplementedError
+        raise NotImplementedError(
+            f"'as_str' is not implemented in {type(self).__name__}"
+        )
 
     def deref(self, report: bool) -> "SingleType":
         raise NotImplementedError(
