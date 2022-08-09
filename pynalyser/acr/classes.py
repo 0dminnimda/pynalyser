@@ -66,6 +66,7 @@ CODE = Union[
     ast.Pass,  # so blocks only with pass will be fine
     ast.Break,
     ast.Continue,
+
     # expr - from breakdown of complex expressions
     ast.BoolOp,
     ast.NamedExpr,
@@ -76,7 +77,7 @@ CODE = Union[
     ast.Set,
     ast.Await,
     ast.Yield,
-    ast.YieldFrom,  # special ones, can be removed later
+    ast.YieldFrom,  # Yield(From) can be removed later
     ast.Compare,
     ast.Call,
     ast.JoinedStr,
@@ -90,6 +91,7 @@ CODE = Union[
     ast.List,
     ast.Tuple,
     # Slice can appear only in Subscript
+
     # not ast
     "Scope",
 ]
@@ -98,12 +100,14 @@ CODE = Union[
 CONTROL_FLOW = Union[  # TODO: not finished?
     "CodeBlock",
     "Block",
+
     # stmt - from scope body
     ast.Return,
     ast.Raise,
     ast.Assert,
     ast.Break,
     ast.Continue,
+
     # expr - from breakdown of complex expressions
     # ast.Yield, ast.YieldFrom for now it's in the CODE
 ]
