@@ -107,7 +107,7 @@ class BinOpType(PynalyserType):
 
 
 @attr.s(auto_attribs=True, hash=True)
-class CompareType(PynalyserType):
+class CompareOpType(PynalyserType):
     left: PynalyserType
     ops: List[str]
     comparators: List[PynalyserType]

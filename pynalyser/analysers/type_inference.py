@@ -1,7 +1,7 @@
 from typing import Dict, Union
 
 from .. import acr, ast
-from ..types import (AnyType, BinOpType, CallType, CompareType, IntType,
+from ..types import (AnyType, BinOpType, CallType, CompareOpType, IntType,
                      ItemType, ListType, PynalyserType, SingleType, SliceType,
                      SubscriptType, SymbolType, TupleType, UnionType,
                      UnknownType)
@@ -60,7 +60,7 @@ class TypeInference(RedefinitionAnalyser):
         )
 
     def visit_Compare(self, node: ast.Compare) -> PynalyserType:
-        return CompareType(
+        return CompareOpType(
             self.visit(node.left),
             [CMPOP[type(op)] for op in node.ops],
             [self.visit(item) for item in node.comparators],
