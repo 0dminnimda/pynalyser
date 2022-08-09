@@ -55,8 +55,8 @@ def narrow_type(
 
 @attr.s(auto_attribs=True, hash=True)
 class BinOpType(PynalyserType):
-    op: str
     left: PynalyserType
+    op: str
     right: PynalyserType
 
     def __attrs_post_init__(self) -> None:
