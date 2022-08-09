@@ -210,7 +210,7 @@ class SingleType(PynalyserType, OpCarrier):
 
     # Other magic
     def __getitem__(self, value: PynalyserType) -> Return:
-        return self._run_op("__getitem__", value)
+        return self._get_op_func("__getitem__")(self, value)
 
 
 AnyType = SingleType(name="object", is_builtin=False)
