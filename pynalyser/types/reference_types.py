@@ -2,16 +2,22 @@ from typing import TYPE_CHECKING, List, Optional, Tuple
 
 import attr
 
-from .base_types import (AnyType, PynalyserType, SingleType,
-                         UnionType, UnknownType)
-from .exceptions import not_subscriptable, unsupported_op
-from .operations import (BINOP_FUNC, BINOP_STR, CMP_FUNC, CMP_STR,
-                         DUNDER_BINOP, DUNDER_CMP)
-from .op import Signature
-from .structure_types import BoolType, IntType, IterableType
+from .. import reports
+from .base_types import AnyType, PynalyserType, SingleType, UnionType, UnknownType
+from .exceptions import (
+    cmp_not_supported,
+    not_iterable,
+    not_subscriptable,
+    unsupported_op,
+)
+from .op import Op, Signature
+from .structure_types import BoolType, IntType, IterableType, NotImplementedType
 
 if TYPE_CHECKING:
     from ..symbol import Symbol
+
+
+Calls = List[Tuple[Optional[Op], bool]]
 
 
 @attr.s(auto_attribs=True, auto_detect=True)
@@ -26,31 +32,33 @@ class SymbolType(PynalyserType):
         return hash((type(self), self.name))
 
 
+def infer_signature_type(type: SingleType, signature: Signature) -> SingleType:
+    if type.issubclass(signature):
+        return type
+    if not type.is_completed:
+        result = UnionType.make(*signature)
+        assert isinstance(result, SingleType)
+        return result
+    return type
+
+
 def narrow_type(
-    tp: SingleType, both: Tuple[str, str], method: str, use_left: bool
-) -> SingleType:
+    calls: Calls, lhs: SingleType, rhs: SingleType
+) -> Tuple[SingleType, SingleType]:
 
-    if use_left:
-        this_method = method
-        # other_method = "r" + method
-        # swapped_cmp_op - lt <=> gt ..
-    else:
-        this_method = "r" + method
-        # other_method = method
-        both = both[::-1]
+    for method, reflected in calls:
+        if method is None:
+            # TODO: we should add the respective dunder method to the type
+            # method = Op.sign((lhs if reflected else rhs,))(lambda)
+            continue
+        else:
+            signature = method.signature
+            if reflected:
+                lhs = infer_signature_type(lhs, signature)
+            else:
+                rhs = infer_signature_type(rhs, signature)
 
-    signature_name = f"__{this_method}__"
-    try:
-        signature = tp.ops[signature_name].signature
-    except KeyError:
-        print(type(tp), method, signature_name)
-        raise unsupported_op(method, *both)
-
-    # TODO: also add type that have __{other_method}__ op
-    other = UnionType.make(*signature)
-    assert isinstance(other, SingleType)
-
-    return other
+    return lhs, rhs
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -59,51 +67,73 @@ class BinOpType(PynalyserType):
     op: str
     right: PynalyserType
 
+    @staticmethod
+    def prepare_calls(lhs: SingleType, op: str, rhs: SingleType) -> Calls:
+        forward = f"__{op}__"
+        reflected = f"__r{op}__"
+
+        lhs_op = lhs.ops.get(forward)
+        rhs_op = rhs.ops.get(reflected)
+
+        call_lhs = lhs_op, False
+        call_rhs = rhs_op, True
+
+        if lhs.is_type(rhs):
+            return [call_lhs]
+        # will "lhs.ops.get(reflected) is not rhs_op" be not triggered when needed?
+        elif rhs.issubclass(lhs) and lhs.ops.get(reflected) is not rhs_op:
+            return [call_rhs, call_lhs]
+        else:
+            return [call_lhs, call_rhs]
+
+    @classmethod
+    def do_binary_op(
+        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
+    ) -> SingleType:
+        for method, reflected in cls.prepare_calls(lhs, op, rhs):
+            if method is None:
+                continue
+
+            if reflected:
+                value = method(rhs, lhs)
+            else:
+                value = method(lhs, rhs)
+
+            if value is not NotImplementedType:
+                return value
+
+        if report:
+            reports.report(unsupported_op(op, lhs.name, rhs.name))
+
+        return AnyType
+
     def __attrs_post_init__(self) -> None:
-        left = self.left.deref(report=False)
-        assert isinstance(left, SingleType)
-        right = self.right.deref(report=False)
-        assert isinstance(right, SingleType)
+        lhs = self.left.deref(report=False)
+        assert isinstance(lhs, SingleType)
 
-        if not left.is_completed and not right.is_completed:
-            raise NotImplementedError
-        elif not left.is_completed:
-            left = narrow_type(
-                right,
-                (left.name, right.name),
-                self.op,
-                use_left=False,
-            )
-        elif not right.is_completed:
-            right = narrow_type(
-                left,
-                (left.name, right.name),
-                self.op,
-                use_left=True,
-            )
-        # else:
-        #     raise NotImplementedError
-        #     name = op_to_dunder[op]
-        #     lsig = left.dunder_signatures.get(name, None)
-        #     if lsig is not None:
-        #         if type(right) in lsig:
-        #             return getattr(right, name)(left)
+        rhs = self.right.deref(report=False)
+        assert isinstance(rhs, SingleType)
 
-        #     name = "r" + name
-        #     rsig = right.dunder_signatures.get(name, None)
-        #     if rsig is not None:
-        #         if type(left) in rsig:
-        #             return getattr(left, name)(right)
-        #     elif lsig is None:
-        #         raise TypeError("")
+        lhs, rhs = narrow_type(self.prepare_calls(lhs, self.op, rhs), lhs, rhs)
 
         if isinstance(self.left, SymbolType):
-            self.left.symbol.type = left
+            self.left.symbol.type = lhs
+
         if isinstance(self.right, SymbolType):
-            self.right.symbol.type = right
+            self.right.symbol.type = rhs
 
     def deref(self, report: bool) -> PynalyserType:
-        return BINOP_FUNC[self.op](self.left.deref(report), self.right.deref(report))
+        lhs = self.left.deref(report)
+        assert isinstance(lhs, SingleType)
+
+        rhs = self.right.deref(report)
+        assert isinstance(rhs, SingleType)
+
+        return self.do_binary_op(lhs, self.op, rhs, report)
+
+
+_CMP = ["gt", "ge", "eq", "ne", "lt", "le"]
+SWAPPED_CMP = {v1: v2 for v1, v2 in zip(_CMP, _CMP[::-1])}
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -112,37 +142,146 @@ class CompareOpType(PynalyserType):
     ops: List[str]
     comparators: List[PynalyserType]
 
-    def __attrs_post_init__(self) -> None:
-        left = self.left.deref(report=False)
-        assert isinstance(left, SingleType)
-        right = self.comparators[0].deref(report=False)
-        assert isinstance(right, SingleType)
+    @staticmethod
+    def prepare_calls(lhs: SingleType, op: str, rhs: SingleType) -> Calls:
+        if op == "is":
+            return []
 
-        if not left.is_completed and not right.is_completed:
-            pass
-            # raise NotImplementedError
-        elif not left.is_completed:
-            left = narrow_type(
-                right,
-                (left.name, right.name),
-                self.ops[0],
-                use_left=False,
-            )
-        elif not right.is_completed:
-            right = narrow_type(
-                left,
-                (left.name, right.name),
-                self.ops[0],
-                use_left=True,
-            )
+        if op == "contains":
+            return [(rhs.ops.get(op), True)]
+
+        # richcompare
+        f_lhs = lhs.ops.get(f"__{op}__")
+        f_rhs = rhs.ops.get(f"__{SWAPPED_CMP[op]}__")
+
+        call_lhs = f_lhs, False
+        call_rhs = f_rhs, True
+
+        if not lhs.is_type(rhs) and rhs.issubclass(lhs):
+            return [call_rhs, call_lhs]
+        else:
+            return [call_lhs, call_rhs]
+
+    @classmethod
+    def do_is(
+        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
+    ) -> SingleType:
+
+        calls = cls.prepare_calls(lhs, op, rhs)
+        assert len(calls) == 0, f"calls were prepared for '{op}' operation"
+
+        # lhs.id == rhs.id or something, idk
+        return BoolType()
+
+    @classmethod
+    def do_contains(
+        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
+    ) -> SingleType:
+
+        for method, reflected in cls.prepare_calls(lhs, op, rhs):
+            assert reflected, f"'{op}' operation is not reflected"
+
+            if method is None:
+                continue
+
+            return method(rhs, lhs)
+
+        # TODO: _PySequence_IterSearch(rhs, lhs, PY_ITERSEARCH_CONTAINS)
+
+        if report:
+            reports.report(not_iterable(rhs.name))
+
+        return AnyType
+
+    @classmethod
+    def do_richcompare(
+        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
+    ) -> SingleType:
+
+        for method, reflected in cls.prepare_calls(lhs, op, rhs):
+            if method is None:
+                continue
+
+            if reflected:
+                value = method(rhs, lhs)
+            else:
+                value = method(lhs, rhs)
+
+            if value is not NotImplementedType:
+                return value
+
+        # if neither object implements it,
+        # provide a sensible default for == and !=
+        if op == "eq":
+            return cls.do_is(lhs, op, rhs)
+        if op == "ne":
+            # TODO: use UnaryOpType.do_not (it's special,
+            # so no problems with excessive calls to dunder/other methods)
+            return cls.do_is(lhs, op, rhs)
+
+        if report:
+            reports.report(cmp_not_supported(op, lhs.name, rhs.name))
+
+        return AnyType
+
+    @staticmethod
+    def process_op(op: str) -> Tuple[str, bool]:
+        op, _, neg = op.partition("_")
+        return op, neg == "not"
+
+    @classmethod
+    def do_compare_op(
+        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
+    ) -> SingleType:
+
+        # TODO: the same deal - use UnaryOpType.do_not for negate
+        op, negate = cls.process_op(op)
+
+        if op == "is":
+            return cls.do_is(lhs, op, rhs, report)
+
+        if op == "contains":
+            return cls.do_contains(lhs, op, rhs, report)
+
+        return cls.do_richcompare(lhs, op, rhs, report)
+
+    def deref_comparators(self, report: bool) -> List[SingleType]:
+        result = []
+        for comparator in [self.left] + self.comparators:
+            type = comparator.deref(report)
+            assert isinstance(type, SingleType)
+            result.append(type)
+        return result
+
+    def __attrs_post_init__(self) -> None:
+        # comparators = self.deref_comparators(report=False)
+        # for lhs, op, rhs in zip(comparators, self.ops, comparators[1:]):
+        #     op = self.process_op(op)[0]
+        #     lhs, rhs = narrow_type(self.prepare_calls(lhs, op, rhs), lhs, rhs)
+
+        lhs = self.left.deref(report=False)
+        assert isinstance(lhs, SingleType)
+
+        rhs = self.comparators[0].deref(report=False)
+        assert isinstance(rhs, SingleType)
+
+        op = self.process_op(self.ops[0])[0]
+        lhs, rhs = narrow_type(self.prepare_calls(lhs, op, rhs), lhs, rhs)
 
         if isinstance(self.left, SymbolType):
-            self.left.symbol.type = left
+            self.left.symbol.type = lhs
+
         if isinstance(self.comparators[0], SymbolType):
-            self.comparators[0].symbol.type = right
+            self.comparators[0].symbol.type = rhs
 
     def deref(self, report: bool) -> PynalyserType:
-        return BoolType()  # or exception raised
+        comparators = self.deref_comparators(report)
+
+        # TODO: implement and use all()
+        for lhs, op, rhs in zip(comparators, self.ops, comparators[1:]):
+            self.do_compare_op(lhs, op, rhs, report)
+
+        return BoolType()
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -151,15 +290,17 @@ class SubscriptType(PynalyserType):
     slice: PynalyserType
 
     def deref(self, report: bool) -> PynalyserType:
-        return self.value.deref(report)[self.slice.deref(report)]  # type: ignore
+        value = self.value.deref(report)
+        assert isinstance(value, SingleType)
 
-    # def visit_Subscript(self, node: ast.Subscript) -> PynalyserType:
-    #     value_type = self.visit(node.value)
-    #     slice_type = self.visit(node.slice)
-    #     if isinstance(value_type, SequenceType):
-    #         return value_type[slice_type]
+        method = value.ops.get("__getitem__")
+        if method is not None:
+            return method(value, self.slice.deref(report))
 
-    #     raise NotImplementedError
+        if report:
+            reports.report(not_subscriptable(value.name))
+
+        return AnyType
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -171,7 +312,8 @@ class ItemType(PynalyserType):
         if tp is UnknownType:
             if isinstance(self.iterable, SymbolType):
                 self.iterable.symbol.type = IterableType(
-                    item_type=UnknownType, is_builtin=False)
+                    item_type=UnknownType, is_builtin=False
+                )
             # XXX: should we let it be and cause an error?
             # else:
             #     self.iterable = IterableType(
@@ -189,7 +331,8 @@ class CallType(PynalyserType):
 
     def deref(self, report: bool) -> PynalyserType:
         if isinstance(self.func, SymbolType) and self.func.name == "range":
-            return IterableType(item_type=IntType(),
-                                is_builtin=False)  # XXX: is_builtin??
+            return IterableType(
+                item_type=IntType(), is_builtin=False
+            )  # XXX: is_builtin??
 
         return AnyType
