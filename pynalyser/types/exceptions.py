@@ -43,5 +43,9 @@ def bad_unary(op: str, type: str) -> TypeError:
     return TypeError(f"bad operand type for unary {OP_TO_STR[op]}: '{type}'")
 
 
+def not_iterable(type: str) -> TypeError:
+    return TypeError(f"argument of type '{type}' is not iterable")
+
+
 def not_subscriptable(type: str) -> TypeError:
     return TypeError(f"'{type}' object is not subscriptable")
