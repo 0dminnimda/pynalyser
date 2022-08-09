@@ -147,9 +147,7 @@ class ListType(SequenceType):
 @Op.sign((IntType(), SliceType()))
 def _list__getitem__(this: ListType, item: PynalyserType) -> SingleType:
     if isinstance(item, IntType):
-        res = this.item_type.deref(report=False)
-        assert isinstance(res, SingleType)
-        return res
+        return this.item_type.deref(report=False)
     if isinstance(item, SliceType):
         return this
     return NotImplementedType

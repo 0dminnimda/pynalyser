@@ -12,8 +12,10 @@ class PynalyserType:
     def as_str(self) -> str:
         raise NotImplementedError
 
-    def deref(self, report: bool) -> "PynalyserType":
-        return self
+    def deref(self, report: bool) -> "SingleType":
+        raise NotImplementedError(
+            f"'deref' is not implemented in {type(self).__name__}"
+        )
 
 
 @attr.s(auto_attribs=True, hash=True)
@@ -65,6 +67,9 @@ class SingleType(PynalyserType, OpCarrier):
     is_builtin: bool = attr.ib(kw_only=True)
     # XXX: why do we need is_completed?
     is_completed: bool = attr.ib(default=False, kw_only=True)
+
+    def deref(self, report: bool) -> "SingleType":
+        return self
 
     @property
     def as_str(self) -> str:

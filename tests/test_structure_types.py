@@ -51,8 +51,8 @@ def test_sequence():
     seq = SequenceType(item_type=PynalyserType(), is_builtin=False)
     check_binop("mul", seq, IntType(), SequenceType)
     check_binop("mul", IntType(), seq, SequenceType)
-    assert seq[PynalyserType()] is AnyType
-    assert SubscriptType(seq, PynalyserType()).deref(True) is AnyType
+    assert seq[SliceType()] is AnyType
+    assert SubscriptType(seq, SliceType()).deref(True) is AnyType
 
 
 def test_list():
@@ -69,8 +69,8 @@ def test_list():
 def test_tuple():
     tpl = TupleType(item_type=PynalyserType(), is_builtin=False)
     assert isinstance(tpl * IntType(), SequenceType)
-    assert tpl[PynalyserType()] is AnyType
-    assert SubscriptType(tpl, PynalyserType()).deref(True) is AnyType
+    assert tpl[SliceType()] is AnyType
+    assert SubscriptType(tpl, SliceType()).deref(True) is AnyType
 
 
 if __name__ == "__main__":

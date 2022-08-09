@@ -25,7 +25,7 @@ class SymbolType(PynalyserType):
     name: str
     symbol: "Symbol"
 
-    def deref(self, report: bool) -> PynalyserType:
+    def deref(self, report: bool) -> SingleType:
         return self.symbol.type.deref(report)
 
     def __hash__(self) -> int:
@@ -109,10 +109,7 @@ class BinOpType(PynalyserType):
 
     def __attrs_post_init__(self) -> None:
         lhs = self.left.deref(report=False)
-        assert isinstance(lhs, SingleType)
-
         rhs = self.right.deref(report=False)
-        assert isinstance(rhs, SingleType)
 
         lhs, rhs = narrow_type(self.prepare_calls(lhs, self.op, rhs), lhs, rhs)
 
@@ -122,14 +119,10 @@ class BinOpType(PynalyserType):
         if isinstance(self.right, SymbolType):
             self.right.symbol.type = rhs
 
-    def deref(self, report: bool) -> PynalyserType:
-        lhs = self.left.deref(report)
-        assert isinstance(lhs, SingleType)
-
-        rhs = self.right.deref(report)
-        assert isinstance(rhs, SingleType)
-
-        return self.do_binary_op(lhs, self.op, rhs, report)
+    def deref(self, report: bool) -> SingleType:
+        return self.do_binary_op(
+            self.left.deref(report), self.op, self.right.deref(report), report
+        )
 
 
 _CMP = ["gt", "ge", "eq", "ne", "lt", "le"]
@@ -246,12 +239,9 @@ class CompareOpType(PynalyserType):
         return cls.do_richcompare(lhs, op, rhs, report)
 
     def deref_comparators(self, report: bool) -> List[SingleType]:
-        result = []
-        for comparator in [self.left] + self.comparators:
-            type = comparator.deref(report)
-            assert isinstance(type, SingleType)
-            result.append(type)
-        return result
+        return [
+            comparator.deref(report) for comparator in [self.left] + self.comparators
+        ]
 
     def __attrs_post_init__(self) -> None:
         # comparators = self.deref_comparators(report=False)
@@ -260,10 +250,7 @@ class CompareOpType(PynalyserType):
         #     lhs, rhs = narrow_type(self.prepare_calls(lhs, op, rhs), lhs, rhs)
 
         lhs = self.left.deref(report=False)
-        assert isinstance(lhs, SingleType)
-
         rhs = self.comparators[0].deref(report=False)
-        assert isinstance(rhs, SingleType)
 
         op = self.process_op(self.ops[0])[0]
         lhs, rhs = narrow_type(self.prepare_calls(lhs, op, rhs), lhs, rhs)
@@ -274,7 +261,7 @@ class CompareOpType(PynalyserType):
         if isinstance(self.comparators[0], SymbolType):
             self.comparators[0].symbol.type = rhs
 
-    def deref(self, report: bool) -> PynalyserType:
+    def deref(self, report: bool) -> SingleType:
         comparators = self.deref_comparators(report)
 
         # TODO: implement and use all()
@@ -289,11 +276,10 @@ class SubscriptType(PynalyserType):
     value: PynalyserType
     slice: PynalyserType
 
-    def deref(self, report: bool) -> PynalyserType:
+    def deref(self, report: bool) -> SingleType:
         value = self.value.deref(report)
-        assert isinstance(value, SingleType)
-
         method = value.ops.get("__getitem__")
+
         if method is not None:
             return method(value, self.slice.deref(report))
 
@@ -319,7 +305,7 @@ class ItemType(PynalyserType):
             #     self.iterable = IterableType(
             #         item_type=UnknownType, is_builtin=False)
 
-    def deref(self, report: bool) -> PynalyserType:
+    def deref(self, report: bool) -> SingleType:
         return self.iterable.deref(report).item_type.deref(report)  # type: ignore
 
 
@@ -329,7 +315,7 @@ class CallType(PynalyserType):
     args: Tuple[PynalyserType, ...]
     keywords: Tuple[Tuple[Optional[str], PynalyserType], ...]
 
-    def deref(self, report: bool) -> PynalyserType:
+    def deref(self, report: bool) -> SingleType:
         if isinstance(self.func, SymbolType) and self.func.name == "range":
             return IterableType(
                 item_type=IntType(), is_builtin=False
