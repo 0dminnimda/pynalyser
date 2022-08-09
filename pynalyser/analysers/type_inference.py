@@ -38,6 +38,14 @@ CMPOP: Dict[type, str] = {
 }
 
 
+UNOP: Dict[type, str] = {
+    ast.Invert: "invert",
+    ast.Not: "not",
+    ast.UAdd: "pos",
+    ast.USub: "neg",
+}
+
+
 class TypeInference(RedefinitionAnalyser):
     # Inferable expressions
 
