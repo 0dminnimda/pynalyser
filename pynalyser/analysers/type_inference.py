@@ -1,10 +1,23 @@
 from typing import Dict, Union
 
 from .. import acr, ast
-from ..types import (AnyType, BinOpType, CallType, CompareOpType, IntType,
-                     ItemType, ListType, PynalyserType, SingleType, SliceType,
-                     SubscriptType, SymbolType, TupleType, UnionType,
-                     UnknownType)
+from ..types import (
+    AnyType,
+    BinOpType,
+    CallType,
+    CompareOpType,
+    IntType,
+    ItemType,
+    ListType,
+    PynalyserType,
+    SingleType,
+    SliceType,
+    SubscriptType,
+    SymbolType,
+    TupleType,
+    UnionType,
+    UnknownType,
+)
 from .redefinitions import RedefinitionAnalyser
 
 BINOP: Dict[type, str] = {
@@ -53,7 +66,7 @@ class TypeInference(RedefinitionAnalyser):
         return CallType(
             self.visit(node.func),
             tuple(self.visit(item) for item in node.args),
-            tuple((item.arg, self.visit(item.value)) for item in node.keywords)
+            tuple((item.arg, self.visit(item.value)) for item in node.keywords),
         )
 
     # def visit_Attribute(self, node: ast.Attribute) -> PynalyserType:
@@ -82,12 +95,14 @@ class TypeInference(RedefinitionAnalyser):
     ### Builtin sequences ###
 
     def visit_List(self, node: ast.List) -> PynalyserType:
-        return ListType(item_type=UnionType.make(
-            *map(self.visit, node.elts), fallback=UnknownType))
+        return ListType(
+            item_type=UnionType.make(*map(self.visit, node.elts), fallback=UnknownType)
+        )
 
     def visit_Tuple(self, node: ast.Tuple) -> PynalyserType:
-        return TupleType(item_type=UnionType.make(
-            *map(self.visit, node.elts), fallback=UnknownType))
+        return TupleType(
+            item_type=UnionType.make(*map(self.visit, node.elts), fallback=UnknownType)
+        )
 
     ### Basic "building blocks"  ###
 

@@ -7,11 +7,11 @@ DICTS = "_dicts_to_inherit"
 class DictNotFoundError(AttributeError):
     message_template = (
         "attribute '{attribute}' was not found in the '{name}' or it's parent,"
-        f" but is included in the '{DICTS}'")
+        f" but is included in the '{DICTS}'"
+    )
 
     def __init__(self, attribute: str, name: str) -> None:
-        super().__init__(self.message_template.format(
-            attribute=attribute, name=name))
+        super().__init__(self.message_template.format(attribute=attribute, name=name))
 
 
 class MetaInheritDicts(type):

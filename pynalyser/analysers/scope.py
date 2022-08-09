@@ -14,8 +14,10 @@ class ScopeAnalyser(Analyser, NameCollector):
     def analyse(self, ctx: AnalysisContext) -> None:
         if type(self).__name__ in ctx.results:
             # TODO: use custom exception
-            raise Exception(f"Key '{type(self).__name__}' is already in use"
-                            " for other AnalysisContext.results")
+            raise Exception(
+                f"Key '{type(self).__name__}' is already in use"
+                " for other AnalysisContext.results"
+            )
 
         self.symtab = ctx.results[type(self).__name__] = SymbolTableType()
         super().analyse(ctx)
@@ -37,14 +39,11 @@ class ScopeAnalyser(Analyser, NameCollector):
         symbol.is_arg = True
 
         if not symbol.change_scope(ScopeType.LOCAL, fail=False):
-            raise SyntaxError(
-                f"duplicate argument '{name}' in function definition")
+            raise SyntaxError(f"duplicate argument '{name}' in function definition")
 
         return Arg(name, symbol.current_symbol)
 
-    def handle_function(
-        self, scope: Union[acr.Lambda, acr.Function]
-    ) -> None:
+    def handle_function(self, scope: Union[acr.Lambda, acr.Function]) -> None:
 
         args = Arguments()
         symbol = self.symtab[scope.name]
@@ -153,7 +152,8 @@ class ScopeAnalyser(Analyser, NameCollector):
             # in the other case it's already defined
             if not symbol.change_scope(ScopeType.NONLOCAL, fail=False):
                 raise NotImplementedError(
-                    "NamedExpr should make symbol local for enclosing scope")
+                    "NamedExpr should make symbol local for enclosing scope"
+                )
         else:
             # in the other case it's already defined
             symbol.change_scope(ScopeType.LOCAL)
@@ -171,8 +171,10 @@ class SymTabAnalyser(Analyser):
     def analyse(self, ctx: AnalysisContext) -> None:
         if ScopeAnalyser.__name__ not in ctx.results:
             # XXX: use custom exception?
-            raise KeyError(f"Key '{ScopeAnalyser.__name__}' is"
-                           f" requeued by {type(self).__name__}")
+            raise KeyError(
+                f"Key '{ScopeAnalyser.__name__}' is"
+                f" requeued by {type(self).__name__}"
+            )
 
         self.symtab = ctx.results[ScopeAnalyser.__name__]
         super().analyse(ctx)

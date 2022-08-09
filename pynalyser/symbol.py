@@ -50,8 +50,7 @@ class Symbol:
                 return False
 
             # TODO: change to custom class
-            raise ValueError(
-                f"changing the `scope` from {self.scope} to {new_scope}")
+            raise ValueError(f"changing the `scope` from {self.scope} to {new_scope}")
 
 
 class MultiDefSymbol:

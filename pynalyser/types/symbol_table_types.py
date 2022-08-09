@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 class SymbolTableType(DefaultDict[str, "MultiDefSymbol"], PynalyserType):
     def __attrs_pre_init__(self):
         from ..symbol import MultiDefSymbol
+
         super().__init__(MultiDefSymbol)  # for defaultdict
 
 

@@ -54,38 +54,56 @@ class Asyncable(ACR):
 
 CODE = Union[
     # stmt - from scope body
-    ast.Delete, ast.Assign, ast.AugAssign, ast.AnnAssign,
-    ast.Import, ast.ImportFrom,
-    ast.Nonlocal, ast.Global,
+    ast.Delete,
+    ast.Assign,
+    ast.AugAssign,
+    ast.AnnAssign,
+    ast.Import,
+    ast.ImportFrom,
+    ast.Nonlocal,
+    ast.Global,
     # Expr - no need for it
     ast.Pass,  # so blocks only with pass will be fine
-    ast.Break, ast.Continue,
-
+    ast.Break,
+    ast.Continue,
     # expr - from breakdown of complex expressions
-    ast.BoolOp, ast.NamedExpr, ast.BinOp, ast.UnaryOp,
-    ast.IfExp, ast.Dict, ast.Set, ast.Await,
-    ast.Yield, ast.YieldFrom,  # special ones, can be removed later
-    ast.Compare, ast.Call, ast.JoinedStr,
+    ast.BoolOp,
+    ast.NamedExpr,
+    ast.BinOp,
+    ast.UnaryOp,
+    ast.IfExp,
+    ast.Dict,
+    ast.Set,
+    ast.Await,
+    ast.Yield,
+    ast.YieldFrom,  # special ones, can be removed later
+    ast.Compare,
+    ast.Call,
+    ast.JoinedStr,
     # FormattedValue should not exist by itself (without JoinedStr)
-    ast.Constant, ast.Attribute, ast.Subscript,
+    ast.Constant,
+    ast.Attribute,
+    ast.Subscript,
     # Starred should not exist by itself (without Call or Assign)
     ast.Name,  # the only use for that to exit by itself
     # is reporting a NameError: name 'xxx' is not defined
-    ast.List, ast.Tuple,
+    ast.List,
+    ast.Tuple,
     # Slice can appear only in Subscript
-
     # not ast
-    "Scope"
+    "Scope",
 ]
 
 
 CONTROL_FLOW = Union[  # TODO: not finished?
-    "CodeBlock", "Block",
-
+    "CodeBlock",
+    "Block",
     # stmt - from scope body
-    ast.Return, ast.Raise, ast.Assert,
-    ast.Break, ast.Continue,
-
+    ast.Return,
+    ast.Raise,
+    ast.Assert,
+    ast.Break,
+    ast.Continue,
     # expr - from breakdown of complex expressions
     # ast.Yield, ast.YieldFrom for now it's in the CODE
 ]
@@ -114,6 +132,7 @@ class FlowContainer(ACR, List[CONTROL_FLOW]):
 
 class CodeBlock(ACR, List[CODE]):
     """a.k.a. Basic block"""
+
     pass
 
 
@@ -140,8 +159,8 @@ class Scope(Name, BodyBlock):
 
 
 class Module(Scope):
-    """`name` is the name of the file that this module belongs to
-    """
+    """`name` is the name of the file that this module belongs to"""
+
     # path?
     # XXX: is_symbol = True?
     pass
@@ -157,17 +176,21 @@ class ACRWithAttributes(ACR):
     end_lineno: Optional[int] = attr.ib(default=None, kw_only=True)
     end_col_offset: Optional[int] = attr.ib(default=None, kw_only=True)
 
-    _attributes: Tuple[str, ...] = attr.ib(init=False, default=(
-        "lineno", "col_offset", "end_lineno", "end_col_offset"))
+    _attributes: Tuple[str, ...] = attr.ib(
+        init=False, default=("lineno", "col_offset", "end_lineno", "end_col_offset")
+    )
 
 
 @attr.s(auto_attribs=True)
 class ScopeWithAttributes(ACRWithAttributes, Scope):
-    _attributes: Tuple[str, ...] = attr.ib(init=False, default=(
-        "lineno", "col_offset", "end_lineno", "end_col_offset", "is_symbol"))
+    _attributes: Tuple[str, ...] = attr.ib(
+        init=False,
+        default=("lineno", "col_offset", "end_lineno", "end_col_offset", "is_symbol"),
+    )
 
 
 # we don't care about 'type_ignores'
+
 
 @attr.s(auto_attribs=True)
 class Class(ScopeWithAttributes):
@@ -249,8 +272,7 @@ class With(ACRWithAttributes, BodyBlock, Asyncable):
 @attr.s(auto_attribs=True)
 class BodyElseBlock(BodyBlock):
     orelse: FlowContainer = attr.ib(factory=FlowContainer, init=False)
-    _block_fields: Tuple[str, ...] = attr.ib(
-        init=False, default=("body", "orelse"))
+    _block_fields: Tuple[str, ...] = attr.ib(init=False, default=("body", "orelse"))
 
 
 @attr.s(auto_attribs=True)
@@ -269,7 +291,8 @@ class Try(ACRWithAttributes, BodyElseBlock):
     handlers: List[ExceptHandler] = attr.ib(factory=list, init=False)
     finalbody: FlowContainer = attr.ib(factory=FlowContainer, init=False)
     _block_fields: Tuple[str, ...] = attr.ib(
-        init=False, default=("body", "handlers", "orelse", "finalbody"))
+        init=False, default=("body", "handlers", "orelse", "finalbody")
+    )
 
 
 @attr.s(auto_attribs=True)

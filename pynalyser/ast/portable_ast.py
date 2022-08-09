@@ -4,6 +4,7 @@ from ast import *
 
 # backports
 if sys.version_info < (3, 10):
+
     class pattern(AST):
         ...
 
@@ -18,7 +19,9 @@ if sys.version_info < (3, 10):
         cases: typing.List[match_case]
         _fields = ("subject", "cases")
 
+
 if sys.version_info < (3, 8):
+
     class NamedExpr(expr):
         target: expr
         value: Expr

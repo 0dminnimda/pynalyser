@@ -3,6 +3,7 @@ import sys
 from collections import defaultdict
 
 from pynalyser.acr import classes as acr
+
 # from pynalyser.acr import classes as acr
 from pynalyser.acr.translation import Translator, translate_ast_to_acr
 from pynalyser.acr.utils import dump
@@ -12,10 +13,8 @@ tree = ast.parse(
     # if x:
     #     a = 69 + 42
     # """)
-
     # (
     # """
-
     # # if a:
     # #     if b:
     # #         c
@@ -26,31 +25,23 @@ tree = ast.parse(
     # #         f
     # #     else:
     # #         g
-
     # # try:
     # #     8
     # # except x:
     # #     6
-
     # # chain
     # # from itertools import chain as c
-
     # if x:
     #     a, b[0] = 5, 8
     # else:
     #     7
-
-
-
     # # @lambda x: x
     # # def t():
     # #     pass
-
     # # try:
     # #     9
     # # except y:
     # #     8
-
     # # if a:
     # #     def tt():
     # #         if h:
@@ -59,7 +50,6 @@ tree = ast.parse(
     # # else:
     # #     7
     # # 9
-
     # """)
     """
 class T:
@@ -81,7 +71,8 @@ def b():
         2
 
 69
-""")
+"""
+)
 
 if sys.version_info >= (3, 9):
     print(ast.dump(tree, indent=4, include_attributes=True))
@@ -123,19 +114,22 @@ quit()
 #     i: int
 
 # t = T(5)
-# print(attr.asdict(t),
-#       attr.fields_dict(T),
-#       attr.fields(T))
+# print(attrs.asdict(t),
+#       attrs.fields_dict(T),
+#       attrs.fields(T))
 # del t.i
-# print(attr.asdict(t))
+# print(attrs.asdict(t))
 
 
 [
     ast.Expr(
         value=ast.BinOp(
-            left=ast.Name(id='a', ctx=ast.Load()),
+            left=ast.Name(id="a", ctx=ast.Load()),
             op=ast.Add(),
-            right=ast.Name(id='b', ctx=ast.Load())))]
+            right=ast.Name(id="b", ctx=ast.Load()),
+        )
+    )
+]
 
 
 def test_Module():
@@ -149,8 +143,8 @@ def test_Module():
 
 def test_Expr():
     tree = ast.Module(
-        body=[ast.Expr(value=ast.Name(id='a', ctx=ast.Load()))],
-        type_ignores=[])
+        body=[ast.Expr(value=ast.Name(id="a", ctx=ast.Load()))], type_ignores=[]
+    )
     acr_module = translate_ast_to_acr(tree, "test")
     # TODO
     breakpoint
