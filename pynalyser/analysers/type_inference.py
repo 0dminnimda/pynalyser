@@ -33,8 +33,8 @@ CMPOP: Dict[type, str] = {
     ast.GtE: "ge",
     ast.Is: "is",
     ast.IsNot: "is_not",
-    ast.In: "in",  # contains
-    ast.NotIn: "not_in",
+    ast.In: "contains",
+    ast.NotIn: "contains_not",
 }
 
 
