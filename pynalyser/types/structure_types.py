@@ -60,7 +60,7 @@ def _int__truediv__(this: SingleType, value: PynalyserType) -> SingleType:
 
 IntType.ops = IntType.ops.copy()
 set_default_ops(IntType, _int_cmp)
-set_default_ops(IntType, _int_binop)
+set_default_ops(IntType, _int_binop, exclude={"__matmul__"})
 set_op(IntType, _int__truediv__, "__truediv__")
 
 
@@ -89,8 +89,8 @@ def _float_binop(this: SingleType, value: PynalyserType) -> SingleType:
 
 
 FloatType.ops = FloatType.ops.copy()
-set_default_ops(FloatType, _float_binop, exclude={"__pow__"})
-set_default_ops(FloatType, _float_binop, REVERSED, exclude={"__rpow__"})
+set_default_ops(FloatType, _float_binop, exclude={"__pow__", "__matmul__"})
+set_default_ops(FloatType, _float_binop, REVERSED, exclude={"__rpow__", "__rmatmul__"})
 
 
 @attr.s(auto_attribs=True, hash=True, cmp=False)
