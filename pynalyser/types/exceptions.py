@@ -27,19 +27,19 @@ OP_TO_STR = {
 }
 
 
-def unsupported_op(op: str, lhs: str, rhs: str) -> TypeError:
+def binary_not_supported(op: str, lhs: str, rhs: str) -> TypeError:
     return TypeError(
         f"unsupported operand type(s) for {OP_TO_STR[op]}: '{lhs}' and '{rhs}'"
     )
 
 
-def cmp_not_supported(op: str, lhs: str, rhs: str) -> TypeError:
+def compare_not_supported(op: str, lhs: str, rhs: str) -> TypeError:
     return TypeError(
         f"'{OP_TO_STR[op]}' not supported between instances of '{lhs}' and '{rhs}'"
     )
 
 
-def bad_unary(op: str, type: str) -> TypeError:
+def unary_not_supported(op: str, type: str) -> TypeError:
     return TypeError(f"bad operand type for unary {OP_TO_STR[op]}: '{type}'")
 
 

@@ -5,10 +5,10 @@ import attr
 from .. import reports
 from .base_types import AnyType, PynalyserType, SingleType, UnionType, UnknownType
 from .exceptions import (
-    cmp_not_supported,
+    binary_not_supported,
+    compare_not_supported,
     not_iterable,
     not_subscriptable,
-    unsupported_op,
 )
 from .op import Op, Signature
 from .structure_types import BoolType, IntType, IterableType, NotImplementedType
@@ -103,7 +103,7 @@ class BinOpType(PynalyserType):
                 return value
 
         if report:
-            reports.report(unsupported_op(op, lhs.name, rhs.name))
+            reports.report(binary_not_supported(op, lhs.name, rhs.name))
 
         return AnyType
 
@@ -220,7 +220,7 @@ class CompareOpType(PynalyserType):
             return cls.do_is(lhs, op, rhs)
 
         if report:
-            reports.report(cmp_not_supported(op, lhs.name, rhs.name))
+            reports.report(compare_not_supported(op, lhs.name, rhs.name))
 
         return AnyType
 
