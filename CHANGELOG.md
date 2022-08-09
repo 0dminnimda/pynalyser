@@ -11,6 +11,7 @@
 - The first version of the documentation!
 - `report` parameter to the deref()
 - Basic reporting system
+- `SingleType`: `is_type()` and `issubclass()`
 
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
@@ -21,7 +22,9 @@
 - Renamed `SymbolData` to `Symbol` and `SymTabType` to `SymbolTableType`
 - `analysis.X_types.py` are all moved in `types\`
 - `normalize_ast.py` and `portable_ast.py` are moved into `ast` submodule
-- filename is now optional for `parse_string` and `parse_ast`
+- Filename is now optional for `parse_string` and `parse_ast`
+- `CompareType` -> `CompareOpType`
+- Implement accurate `BinOpType`, `CompareOpType` and `SubscriptType` `deref()`
 
 ### Removed
 - "Graph Visit Casher"
