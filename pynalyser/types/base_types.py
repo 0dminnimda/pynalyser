@@ -212,6 +212,8 @@ class SingleType(PynalyserType, OpCarrier):
     def __getitem__(self, value: PynalyserType) -> Return:
         return self._get_op_func("__getitem__")(self, value)
 
+    def __contains__(self, value: PynalyserType) -> Return:
+        return self._get_op_func("__contains__")(self, value)
 
 AnyType = SingleType(name="object", is_builtin=False)
 UnknownType = SingleType(name="object", is_builtin=False)
