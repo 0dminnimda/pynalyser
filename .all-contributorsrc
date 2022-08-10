@@ -28,6 +28,15 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "groesie",
+      "name": "globe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/56902389?v=4",
+      "profile": "https://github.com/groesie",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
