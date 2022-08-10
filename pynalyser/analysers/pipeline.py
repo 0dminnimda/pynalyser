@@ -1,6 +1,6 @@
 from typing import Callable, List, Type
 
-from .redefinitions import RedefinitionAnalyser
+# from .redefinitions import RedefinitionAnalyser
 from .scope import ScopeAnalyser
 from .tools import Analyser, AnalysisContext
 from .type_inference import TypeInference
@@ -17,7 +17,7 @@ def default_pipe() -> PIPELINE:
 
     return [
         ScopeAnalyser(),
-        RedefinitionAnalyser(),
+        # RedefinitionAnalyser(),
         TypeInference(),
     ]
 

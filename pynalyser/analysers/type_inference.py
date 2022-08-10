@@ -18,7 +18,7 @@ from ..types import (
     UnionType,
     UnknownType,
 )
-from .redefinitions import RedefinitionAnalyser
+from .scope import SymTabAnalyser
 
 BINOP: Dict[type, str] = {
     ast.Add: "add",
@@ -59,7 +59,7 @@ UNOP: Dict[type, str] = {
 }
 
 
-class TypeInference(RedefinitionAnalyser):
+class TypeInference(SymTabAnalyser):
     # Inferable expressions
 
     def visit_Call(self, node: ast.Call) -> PynalyserType:
