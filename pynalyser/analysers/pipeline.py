@@ -1,7 +1,7 @@
 from typing import Callable, List, Type
 
-# from .redefinitions import RedefinitionAnalyser
-from .definitions import SymTabAnalyser
+from .definitions import DefinitionAnalyser, SymTabAnalyser
+from .scope import ScopeAnalyser
 from .tools import Analyser, AnalysisContext
 from .type_inference import TypeInference
 
@@ -15,9 +15,14 @@ def default_pipe() -> PIPELINE:
     The default pipeline factory. Creates the default pipeline.
     """
 
+    assert issubclass(ScopeAnalyser, DefinitionAnalyser), (
+        "add DefinitionAnalyser before ScopeAnalyser,"
+        " otherwise it will not work by it's own"
+    )
+
     return [
         SymTabAnalyser(),
-        # RedefinitionAnalyser(),
+        ScopeAnalyser(record_defs=True),
         TypeInference(),
     ]
 
