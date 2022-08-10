@@ -159,7 +159,7 @@ class BodyBlock(Block):
 
 @attr.s(auto_attribs=True)
 class Scope(Name, BodyBlock):
-    pass
+    enclosing: bool = attr.ib(init=False, default=False)
 
 
 class Module(Scope):
@@ -212,6 +212,7 @@ class Function(ScopeWithAttributes, Asyncable):
     decorator_list: List[ast.expr] = attr.ib(factory=list)
 
     is_symbol: bool = attr.ib(init=False, default=True)
+    enclosing: bool = attr.ib(init=False, default=True)
 
 
 @attr.s(auto_attribs=True)
