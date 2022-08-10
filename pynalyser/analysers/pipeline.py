@@ -1,7 +1,7 @@
 from typing import Callable, List, Type
 
 # from .redefinitions import RedefinitionAnalyser
-from .scope import ScopeAnalyser
+from .definitions import ScopeAnalyser
 from .tools import Analyser, AnalysisContext
 from .type_inference import TypeInference
 

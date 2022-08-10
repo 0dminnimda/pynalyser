@@ -18,7 +18,7 @@ from ..types import (
     UnionType,
     UnknownType,
 )
-from .scope import SymTabAnalyser
+from .definitions import SymTabAnalyser
 
 BINOP: Dict[type, str] = {
     ast.Add: "add",
