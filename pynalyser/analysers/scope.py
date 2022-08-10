@@ -25,9 +25,8 @@ class ScopeAnalyser(Analyser, NameCollector):
     def visit(self, node: acr.NODE) -> Any:
         if isinstance(node, acr.Scope):
             prev = self.symtab
-            if node.is_symbol:
-                # this symbol is used in self.scope
-                self.symtab[node.name]
+            # this symbol is used in self.scope + progress the definition
+            self.symtab[node.name].next_def()
             try:
                 return super().visit(node)
             finally:
@@ -44,7 +43,6 @@ class ScopeAnalyser(Analyser, NameCollector):
         return Arg(name, symbol.current_symbol)
 
     def handle_function(self, scope: Union[acr.Lambda, acr.Function]) -> None:
-
         args = Arguments()
         symbol = self.symtab[scope.name]
         symbol.type = self.symtab = FunctionType(args)
@@ -165,6 +163,27 @@ class ScopeAnalyser(Analyser, NameCollector):
         self.symtab[node.id]
 
 
+_name_collector: NameCollector = NameCollector()
+
+
+def progress_symbol_defs(symtab: SymbolTableType, node: acr.NODE) -> None:
+    names: List[str] = []
+    # if isinstance(node, acr.Scope) and not isinstance(node, acr.Module):
+    #     names.append(node.name)
+    if isinstance(node, (acr.For, ast.AugAssign, ast.NamedExpr)):
+        names.extend(_name_collector.collect_names(node.target))
+    elif isinstance(node, ast.Assign):
+        for sub_node in node.targets:
+            names.extend(_name_collector.collect_names(sub_node))
+    elif isinstance(node, (ast.Import, ast.ImportFrom)):
+        names.extend(alias.asname or alias.name for alias in node.names)
+    # Delete, With, Match
+    # Try cleans up after "except e as x"
+
+    for name in names:
+        symtab[name].next_def()
+
+
 class SymTabAnalyser(Analyser):
     symtab: SymbolTableType
 
@@ -181,17 +200,23 @@ class SymTabAnalyser(Analyser):
 
     def visit(self, node: acr.NODE) -> Any:
         if isinstance(node, acr.Scope):
-            prev = self.symtab
-            symtab = self.symtab[node.name].type
+            symbol = self.symtab[node.name]
+            symbol.next_def()
+
+            symtab = symbol.type
             assert isinstance(symtab, SymbolTableType)
-            self.symtab = symtab
 
             for symbol in symtab.values():
                 symbol.reset()
+
+            prev = self.symtab
+            self.symtab = symtab
 
             try:
                 return super().visit(node)
             finally:
                 self.symtab = prev
+        else:
+            progress_symbol_defs(self.symtab, node)
 
         return super().visit(node)
