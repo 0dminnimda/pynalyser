@@ -1,7 +1,7 @@
 from typing import Callable, List, Type
 
 # from .redefinitions import RedefinitionAnalyser
-from .definitions import ScopeAnalyser
+from .definitions import SymTabAnalyser
 from .tools import Analyser, AnalysisContext
 from .type_inference import TypeInference
 
@@ -16,7 +16,7 @@ def default_pipe() -> PIPELINE:
     """
 
     return [
-        ScopeAnalyser(),
+        SymTabAnalyser(),
         # RedefinitionAnalyser(),
         TypeInference(),
     ]

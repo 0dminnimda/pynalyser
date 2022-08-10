@@ -8,7 +8,7 @@ from .tools import Analyser, AnalysisContext, NameCollector
 
 
 # XXX: split into creation of symtab and symbols
-class ScopeAnalyser(Analyser, NameCollector):
+class SymTabAnalyser(Analyser, NameCollector):
     symtab: SymbolTableType
 
     def analyse(self, ctx: AnalysisContext) -> None:
@@ -184,18 +184,18 @@ def progress_symbol_defs(symtab: SymbolTableType, node: acr.NODE) -> None:
         symtab[name].next_def()
 
 
-class SymTabAnalyser(Analyser):
+class DefinitionAnalyser(Analyser):
     symtab: SymbolTableType
 
     def analyse(self, ctx: AnalysisContext) -> None:
-        if ScopeAnalyser.__name__ not in ctx.results:
+        if SymTabAnalyser.__name__ not in ctx.results:
             # XXX: use custom exception?
             raise KeyError(
-                f"Key '{ScopeAnalyser.__name__}' is"
+                f"Key '{SymTabAnalyser.__name__}' is"
                 f" requeued by {type(self).__name__}"
             )
 
-        self.symtab = ctx.results[ScopeAnalyser.__name__]
+        self.symtab = ctx.results[SymTabAnalyser.__name__]
         super().analyse(ctx)
 
     def visit(self, node: acr.NODE) -> Any:
