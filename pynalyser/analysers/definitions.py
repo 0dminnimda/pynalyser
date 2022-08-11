@@ -11,14 +11,15 @@ class SymTabAnalyser(Analyser, NameCollector):
     symtab: SymbolTableType
 
     def analyse(self, ctx: AnalysisContext) -> None:
-        if type(self).__name__ in ctx.results:
+        type_name = SymTabAnalyser.__name__
+        if type_name in ctx.results:
             # TODO: use custom exception
             raise Exception(
-                f"Key '{type(self).__name__}' is already in use"
+                f"Key '{type_name}' is already in use"
                 " for other AnalysisContext.results"
             )
 
-        self.symtab = ctx.results[type(self).__name__] = SymbolTableType()
+        self.symtab = ctx.results[type_name] = SymbolTableType()
         super().analyse(ctx)
 
     def visit(self, node: acr.NODE) -> Any:
@@ -119,14 +120,15 @@ class DefinitionAnalyser(Analyser):
             self.record_defs = record_defs
 
     def analyse(self, ctx: AnalysisContext) -> None:
-        if SymTabAnalyser.__name__ not in ctx.results:
+        type_name = SymTabAnalyser.__name__
+        if type_name not in ctx.results:
             # XXX: use custom exception?
             raise KeyError(
-                f"Key '{SymTabAnalyser.__name__}' is"
-                f" requeued by {type(self).__name__}"
+                f"Key '{type_name}' is"
+                f" required by {type(self).__name__}"
             )
 
-        self.symtab = ctx.results[SymTabAnalyser.__name__]
+        self.symtab = ctx.results[type_name]
         super().analyse(ctx)
 
     def visit(self, node: acr.NODE) -> Any:
