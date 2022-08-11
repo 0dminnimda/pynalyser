@@ -19,7 +19,7 @@ class SymTabAnalyser(Analyser, NameCollector):
                 " for other AnalysisContext.results"
             )
 
-        self.symtab = ctx.results[type_name] = SymbolTableType()
+        self.symtab = ctx.results[type_name] = SymbolTableType(name="WholeAnalysis")
         super().analyse(ctx)
 
     def visit(self, node: acr.NODE) -> Any:
@@ -67,6 +67,7 @@ class SymTabAnalyser(Analyser, NameCollector):
 
     def handle_scope(self, node: acr.Scope) -> None:
         self.symtab[node.name].type = self.symtab = SymbolTableType(
+            name=type(node).__name__
         )
 
     def visit_ListComp(self, node: acr.ListComp) -> None:
