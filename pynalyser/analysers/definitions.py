@@ -137,10 +137,7 @@ class DefinitionAnalyser(Analyser):
         type_name = SymTabAnalyser.__name__
         if type_name not in ctx.results:
             # XXX: use custom exception?
-            raise KeyError(
-                f"Key '{type_name}' is"
-                f" required by {type(self).__name__}"
-            )
+            raise KeyError(f"Key '{type_name}' is required by {type(self).__name__}")
 
         self.symtab = ctx.results[type_name]
         super().analyse(ctx)
