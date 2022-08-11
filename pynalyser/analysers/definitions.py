@@ -35,6 +35,7 @@ class SymTabAnalyser(Analyser, NameCollector):
 
     def handle_arg(self, name: str) -> Arg:
         symbol = self.symtab[name]
+        symbol.next_def()
         symbol.is_arg = True
 
         if not symbol.change_scope(ScopeType.LOCAL, fail=False):
@@ -140,6 +141,7 @@ class DefinitionAnalyser(Analyser):
             raise KeyError(f"Key '{type_name}' is required by {type(self).__name__}")
 
         self.symtab = ctx.results[type_name]
+        self.symtab.reset()
         super().analyse(ctx)
 
     def visit(self, node: acr.NODE) -> Any:
@@ -150,8 +152,7 @@ class DefinitionAnalyser(Analyser):
             symtab = symbol.type
             assert isinstance(symtab, SymbolTableType)
 
-            for symbol in symtab.values():
-                symbol.reset()
+            symtab.reset()
 
             prev = self.symtab
             self.symtab = symtab
