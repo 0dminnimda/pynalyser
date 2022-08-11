@@ -53,16 +53,21 @@ class Symbol:
             raise ValueError(f"changing the `scope` from {self.scope} to {new_scope}")
 
 
+UNDEF = -1
+
+
 class MultiDefSymbol:
     _symbols: List[Symbol]
     _i: int
 
     def __init__(self) -> None:
-        self._symbols = [Symbol()]
+        self._symbols = []
         self.reset()
 
     @property
     def current_symbol(self) -> Symbol:
+        if not self.is_currently_defined:
+            raise Exception("You need to first do next_def on MultiDefSymbol")
         return self._symbols[self._i]
 
     def next_def(self) -> None:
@@ -71,7 +76,11 @@ class MultiDefSymbol:
             self._symbols.append(Symbol())
 
     def reset(self):
-        self._i = 0
+        self._i = UNDEF
+
+    @property
+    def is_currently_defined(self) -> bool:
+        return self._i != UNDEF
 
     scope: ScopeType
 
