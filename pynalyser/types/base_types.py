@@ -216,11 +216,11 @@ class SingleType(PynalyserType, OpCarrier):
         return self._run_op("__ror__", value)
 
     # Other magic
-    def __getitem__(self, value: PynalyserType) -> Return:
-        return self._get_op_func("__getitem__")(self, value)
+    # def __getitem__(self, value: PynalyserType) -> Return:
+    #     return self._get_op_func("__getitem__")(self, value)
 
-    def __contains__(self, value: PynalyserType) -> Return:
-        return self._get_op_func("__contains__")(self, value)
+    # def __contains__(self, value: PynalyserType) -> Return:
+    #     return self._get_op_func("__contains__")(self, value)
 
 
 AnyType = SingleType(name="object", is_builtin=False)
