@@ -65,17 +65,21 @@ class SymTabAnalyser(Analyser, NameCollector):
         if scope.args.kwarg is not None:
             args.twostararg = self.handle_arg(scope.args.kwarg.arg)
 
+    def handle_scope(self, node: acr.Scope) -> None:
+        self.symtab[node.name].type = self.symtab = SymbolTableType(
+        )
+
     def visit_ListComp(self, node: acr.ListComp) -> None:
-        self.symtab[node.name].type = self.symtab = SymbolTableType()
+        self.handle_scope(node)
 
     def visit_SetComp(self, node: acr.SetComp) -> None:
-        self.symtab[node.name].type = self.symtab = SymbolTableType()
+        self.handle_scope(node)
 
     def visit_GeneratorExp(self, node: acr.GeneratorExp) -> None:
-        self.symtab[node.name].type = self.symtab = SymbolTableType()
+        self.handle_scope(node)
 
     def visit_DictComp(self, node: acr.DictComp) -> None:
-        self.symtab[node.name].type = self.symtab = SymbolTableType()
+        self.handle_scope(node)
 
     def visit_Lambda(self, node: acr.Lambda) -> None:
         self.handle_function(node)
@@ -84,10 +88,10 @@ class SymTabAnalyser(Analyser, NameCollector):
         self.handle_function(node)
 
     def visit_Class(self, node: acr.Class) -> None:
-        self.symtab[node.name].type = self.symtab = SymbolTableType()
+        self.handle_scope(node)
 
     def visit_Module(self, node: acr.Module) -> None:
-        self.symtab[node.name].type = self.symtab = SymbolTableType()
+        self.handle_scope(node)
 
 
 _name_collector: NameCollector = NameCollector()
