@@ -60,6 +60,8 @@ UNOP: Dict[type, str] = {
 
 
 class TypeInference(DefinitionAnalyser):
+    auto_generic_visit: bool = False
+
     # Inferable expressions
 
     def visit_Call(self, node: ast.Call) -> PynalyserType:
@@ -153,9 +155,11 @@ class TypeInference(DefinitionAnalyser):
     def visit_For(self, node: acr.For) -> None:
         tp = self.infer_acr_expr(node.iter)
         self.infer_assignment(node.target, ItemType(tp))
+        self.acr_generic_visit(node)
 
     def visit_While(self, node: acr.While) -> None:
         tp = self.infer_acr_expr(node.test)
+        self.acr_generic_visit(node)
         # can be boolable
         # if bool(test) is always True / False,
         # then we have infinite loop or
