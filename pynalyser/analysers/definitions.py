@@ -95,20 +95,29 @@ _name_collector: NameCollector = NameCollector()
 
 def progress_symbol_defs(symtab: SymbolTableType, node: acr.NODE) -> None:
     names: List[str] = []
-    # if isinstance(node, acr.Scope) and not isinstance(node, acr.Module):
-    #     names.append(node.name)
-    if isinstance(node, (acr.For, ast.AugAssign, ast.NamedExpr)):
+    only_on_undef = False
+
+    if isinstance(node, (acr.For, ast.AugAssign, ast.AnnAssign, ast.NamedExpr)):
         names.extend(_name_collector.collect_names(node.target))
     elif isinstance(node, ast.Assign):
         for sub_node in node.targets:
             names.extend(_name_collector.collect_names(sub_node))
     elif isinstance(node, (ast.Import, ast.ImportFrom)):
         names.extend(alias.asname or alias.name for alias in node.names)
+    elif isinstance(node, (ast.Global, ast.Nonlocal)):
+        names.extend(node.names)
+        only_on_undef = True
+    elif isinstance(node, ast.Name):
+        names.append(node.id)
+        only_on_undef = True
     # Delete, With, Match
     # Try cleans up after "except e as x"
 
     for name in names:
-        symtab[name].next_def()
+        symbol = symtab[name]
+        if only_on_undef and symbol.is_currently_defined:
+            continue
+        symbol.next_def()
 
 
 class DefinitionAnalyser(Analyser):
@@ -149,7 +158,6 @@ class DefinitionAnalyser(Analyser):
                 return super().visit(node)
             finally:
                 self.symtab = prev
-        else:
-            progress_symbol_defs(self.symtab, node)
 
+        progress_symbol_defs(self.symtab, node)
         return super().visit(node)
