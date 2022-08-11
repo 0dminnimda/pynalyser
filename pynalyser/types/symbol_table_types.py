@@ -19,6 +19,10 @@ class SymbolTableType(DefaultDict[str, "MultiDefSymbol"], SingleType):
 
         super().__init__(MultiDefSymbol)  # for defaultdict
 
+    def reset(self) -> None:
+        for symbol in self.values():
+            symbol.reset()
+
 
 @attr.s(auto_attribs=True, hash=True, auto_detect=True)
 class Arg:
@@ -55,3 +59,9 @@ class FunctionType(SymbolTableType):
     return_type: PynalyserType = UnknownType
 
     name: str = attr.ib(default="function", init=False)
+
+    def reset(self) -> None:
+        super().reset()
+
+        for arg in self.args.iter():
+            self[arg.name].next_def()
