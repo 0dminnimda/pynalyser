@@ -139,6 +139,7 @@ class TypeInference(DefinitionAnalyser):
     ### Statements ###
 
     def visit_Assign(self, node: ast.Assign) -> None:
+        # XXX: can double storing be abused? 'a = a = []'
         tp = self.infer_acr_expr(node.value)
         for target in node.targets:
             self.infer_assignment(target, tp)
