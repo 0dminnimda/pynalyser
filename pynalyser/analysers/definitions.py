@@ -4,10 +4,10 @@ from typing import Any, List, Optional, Union
 from .. import acr, ast
 from ..symbol import ScopeType
 from ..types import Arg, Arguments, FunctionType, SymbolTableType
-from .tools import Analyser, AnalysisContext, NameCollector
+from .tools import Analyser, AnalysisContext, collect_names
 
 
-class SymTabAnalyser(Analyser, NameCollector):
+class SymTabAnalyser(Analyser):
     symtab: SymbolTableType
 
     def analyse(self, ctx: AnalysisContext) -> None:
@@ -96,18 +96,15 @@ class SymTabAnalyser(Analyser, NameCollector):
         self.handle_scope(node)
 
 
-_name_collector: NameCollector = NameCollector()
-
-
 def progress_symbol_defs(symtab: SymbolTableType, node: acr.NODE) -> None:
     names: List[str] = []
     only_on_undef = False
 
     if isinstance(node, (acr.For, ast.AugAssign, ast.AnnAssign, ast.NamedExpr)):
-        names.extend(_name_collector.collect_names(node.target))
+        names.extend(collect_names(node.target))
     elif isinstance(node, ast.Assign):
         for sub_node in node.targets:
-            names.extend(_name_collector.collect_names(sub_node))
+            names.extend(collect_names(sub_node))
     elif isinstance(node, (ast.Import, ast.ImportFrom)):
         names.extend(alias.asname or alias.name for alias in node.names)
     elif isinstance(node, (ast.Global, ast.Nonlocal)):

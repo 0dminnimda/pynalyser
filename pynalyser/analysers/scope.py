@@ -2,17 +2,14 @@ from typing import List
 from .. import acr, ast
 from ..symbol import ScopeType
 from .definitions import DefinitionAnalyser
-from .tools import NameCollector
-
-
-_name_collector: NameCollector = NameCollector()
+from .tools import collect_names
 
 
 class ScopeAnalyser(DefinitionAnalyser):
     def setup_symbols_by_assign(self, *targets: ast.AST) -> None:
         names = []
         for sub_node in targets:
-            names.extend(_name_collector.collect_names(sub_node))
+            names.extend(collect_names(sub_node))
 
         for name in names:
             symbol_data = self.symtab[name]
@@ -61,7 +58,7 @@ class ScopeAnalyser(DefinitionAnalyser):
             symbol_data.change_scope(ScopeType.NONLOCAL)
 
     def visit_NamedExpr(self, node: ast.NamedExpr) -> None:
-        names = _name_collector.collect_names(node.target)
+        names = collect_names(node.target)
         assert len(names) == 1
         name, = names
 
