@@ -7,7 +7,7 @@ authors=[
     email="0dminnimda.contact@gmail.com",
     url="https://github.com/0dminnimda/pynalyser"},
 ]
-license = {file = "LICENSE "}
+license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers=[
