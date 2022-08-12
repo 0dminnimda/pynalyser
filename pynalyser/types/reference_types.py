@@ -36,9 +36,7 @@ def infer_signature_type(type: SingleType, signature: Signature) -> SingleType:
     if type.issubclass(signature):
         return type
     if not type.is_completed:
-        result = UnionType.make(*signature)
-        assert isinstance(result, SingleType)
-        return result
+        return UnionType(*signature).deref(report=False)
     return type
 
 

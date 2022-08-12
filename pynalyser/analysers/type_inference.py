@@ -97,14 +97,10 @@ class TypeInference(DefinitionAnalyser):
     ### Builtin sequences ###
 
     def visit_List(self, node: ast.List) -> PynalyserType:
-        return ListType(
-            item_type=UnionType.make(*map(self.visit, node.elts), fallback=UnknownType)
-        )
+        return ListType(item_type=UnionType(*map(self.visit, node.elts)))
 
     def visit_Tuple(self, node: ast.Tuple) -> PynalyserType:
-        return TupleType(
-            item_type=UnionType.make(*map(self.visit, node.elts), fallback=UnknownType)
-        )
+        return TupleType(item_type=UnionType(*map(self.visit, node.elts)))
 
     ### Basic "building blocks"  ###
 
@@ -131,7 +127,7 @@ class TypeInference(DefinitionAnalyser):
             if symbol_data.type is UnknownType:
                 symbol_data.type = tp
             else:
-                symbol_data.type = UnionType.make(symbol_data.type, tp)
+                symbol_data.type = UnionType(symbol_data.type, tp)
                 # XXX: ideally we have to create
                 # new variables-clones for type changes
                 # anyways it's not handled here

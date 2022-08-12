@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Set, Tuple, Union
 from typing_extensions import Literal
 
 import attr
@@ -20,43 +20,29 @@ class PynalyserType:
         )
 
 
-@attr.s(auto_attribs=True, hash=True)
+@attr.s(auto_attribs=True, hash=True, init=False)
 class UnionType(PynalyserType):
-    types: Tuple[PynalyserType, ...] = attr.ib()
+    types: Tuple[PynalyserType, ...]
 
-    @types.validator  # type: ignore
-    def check(self, attribute: Any, value: Tuple[PynalyserType, ...]):
-        if len(value) <= 1:
-            raise ValueError("there should be more than 2 different types")
+    def __init__(self, *types: PynalyserType):
+        # for fancy formatting
+        # types = tuple(sorted(types, key=lambda x: str(x)))
+        self.__attrs_init__(types)  # type: ignore[attr-defined]
 
     @property
     def as_str(self) -> str:
         return f"Union[{', '.join(tp.as_str for tp in self.types)}]"
 
-    # def __str__(self) -> str:
-    #     return f"Union[{', '.join(str(tp) for tp in self.types)}]"
+    def deref(self, report: bool) -> "SingleType":
+        types: Set[SingleType] = {type.deref(report) for type in self.types}
 
-    @classmethod
-    def make(
-        cls, *types: PynalyserType, fallback: Optional[PynalyserType] = None
-    ) -> PynalyserType:
-        new_types: List[PynalyserType] = []
+        if len(types) == 0:
+            return UnknownType
+        if len(types) == 1:
+            return types.pop()
 
-        for tp in types:
-            if isinstance(tp, cls):
-                new_types.extend(tp.types)
-            else:
-                new_types.append(tp)
-
-        unique_types = tuple(set(new_types))
-        if len(unique_types) == 0:
-            if fallback is not None:
-                return fallback
-            raise ValueError("length of types should not be 0")
-        elif len(unique_types) == 1:
-            return types[0]
-        else:
-            return cls(tuple(sorted(unique_types, key=lambda x: str(x))))
+        # TODO: use mro to calculate common ancestor
+        return UnknownType
 
 
 NotImplementedLiteral = Literal[NotImplemented]  # type: ignore
