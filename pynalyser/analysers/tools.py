@@ -2,8 +2,7 @@ from typing import Any, Dict, List, Tuple
 
 import attr
 
-from .. import acr
-from .. import portable_ast as ast
+from .. import acr, ast
 
 
 @attr.s(auto_attribs=True)
@@ -48,3 +47,10 @@ class NameCollector(acr.NodeVisitor):
 
     def visit_Name(self, node: ast.Name) -> None:
         self._collected_names.append(node.id)
+
+
+__name_collector = NameCollector()
+
+
+def collect_names(node: ast.AST) -> List[str]:
+    return __name_collector.collect_names(node)

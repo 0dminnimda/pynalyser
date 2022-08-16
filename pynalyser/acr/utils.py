@@ -1,8 +1,7 @@
 from collections import defaultdict
-from typing import (Any, Collection, List, NamedTuple, Optional, Tuple,
-                    TypeVar, Union)
+from typing import Any, Collection, List, NamedTuple, Optional, Tuple, TypeVar, Union
 
-from .. import portable_ast as ast
+from .. import ast
 from .classes import ACR, Block, CodeBlock, FlowContainer, Module, Scope
 
 # Dumping
@@ -15,17 +14,19 @@ class Context(NamedTuple):
 
 
 def dump(
-        obj: Union[ACR, ast.AST], annotate_fields: bool = True,
-        include_attributes: bool = False, *,
-        indent: Optional[Union[str, int]] = None) -> str:
+    obj: Union[ACR, ast.AST],
+    annotate_fields: bool = True,
+    include_attributes: bool = False,
+    *,
+    indent: Optional[Union[str, int]] = None,
+) -> str:
     if not isinstance(obj, (ACR, ast.AST, list, dict)):
         raise TypeError(  # XXX: should we force it?
-            f"expected one of the AST / ACR / list / dict, "
-            "got {type(obj).__name__}")
+            f"expected one of the AST / ACR / list / dict, " "got {type(obj).__name__}"
+        )
     if indent is not None and not isinstance(indent, str):
         indent = " " * indent
-    return _format(
-        obj, Context(annotate_fields, include_attributes, indent), lvl=0)[0]
+    return _format(obj, Context(annotate_fields, include_attributes, indent), lvl=0)[0]
 
 
 def _format(obj: Any, ctx: Context, lvl: int) -> Tuple[str, bool]:
@@ -46,8 +47,7 @@ def _format(obj: Any, ctx: Context, lvl: int) -> Tuple[str, bool]:
             allsimple = allsimple and simple
             args.append(value)
 
-        value, allsimple = _format_args_with_allsimple(
-            prefix, sep, args, allsimple)
+        value, allsimple = _format_args_with_allsimple(prefix, sep, args, allsimple)
 
         value = f"[{value}]"
         if type(obj) is not list:
@@ -64,8 +64,7 @@ def _format(obj: Any, ctx: Context, lvl: int) -> Tuple[str, bool]:
             allsimple = allsimple and simple
             args.append(f"{key!r}: {value}")
 
-        value, allsimple = _format_args_with_allsimple(
-            prefix, sep, args, allsimple)
+        value, allsimple = _format_args_with_allsimple(prefix, sep, args, allsimple)
 
         value = f"{{{value}}}"
         if isinstance(obj, defaultdict):
@@ -77,27 +76,28 @@ def _format(obj: Any, ctx: Context, lvl: int) -> Tuple[str, bool]:
 
     if isinstance(obj, (ACR, ast.AST)):
         value, allsimple = _format_args_with_allsimple(
-            prefix, sep, *_format_ast_or_acr(obj, ctx, lvl))
+            prefix, sep, *_format_ast_or_acr(obj, ctx, lvl)
+        )
         return f"{type(obj).__name__}({value})", allsimple
 
     return repr(obj), True
 
 
-def _format_args_with_allsimple(prefix: str, sep: str, args: Collection[str],
-                                allsimple: bool) -> Tuple[str, bool]:
+def _format_args_with_allsimple(
+    prefix: str, sep: str, args: Collection[str], allsimple: bool
+) -> Tuple[str, bool]:
     if allsimple and len(args) <= 3:
         return ", ".join(args), not args
     return prefix + sep.join(args), False
 
 
-def _format_attr(inst: Any, name: str, ctx: Context,
-                 lvl: int) -> Tuple[str, bool]:
-    return _format(
-        getattr(inst, name, "<Is not an attribute of the object>"), ctx, lvl)
+def _format_attr(inst: Any, name: str, ctx: Context, lvl: int) -> Tuple[str, bool]:
+    return _format(getattr(inst, name, "<Is not an attribute of the object>"), ctx, lvl)
 
 
-def _format_ast_or_acr(obj: Union[ast.AST, ACR], ctx: Context,
-                       lvl: int) -> Tuple[List[str], bool]:
+def _format_ast_or_acr(
+    obj: Union[ast.AST, ACR], ctx: Context, lvl: int
+) -> Tuple[List[str], bool]:
     args = []
     allsimple = True
 
@@ -120,6 +120,8 @@ def _format_ast_or_acr(obj: Union[ast.AST, ACR], ctx: Context,
 
 # Tree traversing
 
+# Module, Class, Function, Lambda, ListComp, SetComp, GeneratorExp, DictComp
+# MatchCase, Match, With, If, ExceptHandler, Try, For, While
 
 NODE = Union[ACR, ast.AST]
 
@@ -166,8 +168,37 @@ class NodeVisitor:
 
         return self.generic_visit(node)
 
+    # XXX: this maybe will make things better, idk
+    # def acr_generic_visit(self, node: NODE) -> Any:
+    #     # handle acr
+    #     if isinstance(node, Scope):
+    #         return self.visit_scope(node)
+
+    #     if isinstance(node, Block):
+    #         return self.visit_block(node)
+
+    #     return self.generic_visit(node)
+
+    # def visit_scope(self, node: Scope) -> Any:
+    #     previous_scope = self.scope
+    #     self.scope = node
+
+    #     try:
+    #         return self.visit_block(node)
+    #     finally:
+    #         self.scope = previous_scope
+
+    # def visit_block(self, node: Block) -> Any:
+    #     previous_block = self.block
+    #     self.block = node
+
+    #     try:
+    #         return self.generic_visit(node)
+    #     finally:
+    #         self.block = previous_block
+
     def visit(self, node: NODE) -> Any:
-        method = 'visit_' + type(node).__name__
+        method = "visit_" + type(node).__name__
         visitor = getattr(self, method, None)
 
         if visitor is None:
@@ -175,7 +206,8 @@ class NodeVisitor:
                 raise ValueError(
                     f"There are no '{method}' method. "
                     "You see this message because you're in strict mode. "
-                    f"See {type(self).__name__}.strict")
+                    f"See {type(self).__name__}.strict"
+                )
 
             result = self.acr_generic_visit(node)
         else:
@@ -204,8 +236,7 @@ class NodeVisitor:
                 self.visit(code)
             return node
 
-        raise RuntimeError(
-            f"Expected ACR or AST, but got {type(node).__name__}")
+        raise RuntimeError(f"Expected ACR or AST, but got {type(node).__name__}")
 
 
 class ACRCodeTransformer(NodeVisitor):
@@ -239,5 +270,4 @@ class ACRCodeTransformer(NodeVisitor):
                     new_code_block.extend(value)
             return new_code_block
 
-        raise RuntimeError(
-            f"Expected ACR or AST, but got {type(node).__name__}")
+        raise RuntimeError(f"Expected ACR or AST, but got {type(node).__name__}")

@@ -1,6 +1,6 @@
 from typing import Callable, List, Type
 
-from .redefinitions import RedefinitionAnalyser
+from .definitions import DefinitionAnalyser, SymTabAnalyser
 from .scope import ScopeAnalyser
 from .tools import Analyser, AnalysisContext
 from .type_inference import TypeInference
@@ -15,15 +15,21 @@ def default_pipe() -> PIPELINE:
     The default pipeline factory. Creates the default pipeline.
     """
 
+    assert issubclass(ScopeAnalyser, DefinitionAnalyser), (
+        "add DefinitionAnalyser before ScopeAnalyser,"
+        " otherwise it will not work by it's own"
+    )
+
     return [
-        ScopeAnalyser(),
-        RedefinitionAnalyser(),
+        SymTabAnalyser(),
+        ScopeAnalyser(record_defs=True),
         TypeInference(),
     ]
 
 
-def insert_in_pipeline(pipeline: PIPELINE, to_be_inserted: Analyser,
-                       mode: str, relative_to: Type[Analyser]):
+def insert_in_pipeline(
+    pipeline: PIPELINE, to_be_inserted: Analyser, mode: str, relative_to: Type[Analyser]
+):
     """
     Create a copy of the pipeline with a new analyzer inserted into
     the pipeline after or before an instance of the given class.
@@ -35,8 +41,7 @@ def insert_in_pipeline(pipeline: PIPELINE, to_be_inserted: Analyser,
     """
 
     if mode not in ("before", "after"):
-        raise ValueError(
-            "insert_in_pipeline() mode must be 'before' or 'after'")
+        raise ValueError("insert_in_pipeline() mode must be 'before' or 'after'")
 
     i = 0
     for i, analyser in enumerate(pipeline):
@@ -49,10 +54,11 @@ def insert_in_pipeline(pipeline: PIPELINE, to_be_inserted: Analyser,
     return pipeline[:i] + [to_be_inserted] + pipeline[i:]
 
 
-def run_pipeline(ctx: AnalysisContext,
-                 factory: PIPE_FACTORY) -> AnalysisContext:
+def run_pipeline(ctx: AnalysisContext, factory: PIPE_FACTORY) -> AnalysisContext:
     """
     Run each factory analyser on modules in the given context.
+    The first module is the one with what analysis starts.
+    (TODO: check that it's still true) It is an entrypoint.
     """
 
     for analyser in factory():

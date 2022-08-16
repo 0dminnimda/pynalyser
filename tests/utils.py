@@ -6,5 +6,4 @@ import pytest
 
 
 def do_test(file: str) -> None:
-    pytest.main([
-        file, "-vv", "-W", "ignore::pytest.PytestAssertRewriteWarning"])
+    pytest.main([file, "-vv", "-W", "ignore::pytest.PytestAssertRewriteWarning"])

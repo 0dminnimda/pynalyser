@@ -3,7 +3,42 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  run_tests:
+  code-quality:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/basic.txt', '**/requirements/test.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install package and dependencies
+        run: |
+          pip install --upgrade pip setuptools wheel --user
+          pip install .[test]
+
+      # - name: Check the code formatting with black
+      #   run: black --check pynalyser tests docs
+
+      - name: Check the code with pycodestyle
+        run: pycodestyle pynalyser tests docs
+
+      - name: Type check the code with mypy
+        if: ${{ always() }}
+        run: mypy . --config-file mypy.ini --exclude build
+
+  run-tests:
     timeout-minutes: 5
     runs-on: ${{ matrix.os }}
     strategy:
@@ -12,16 +47,36 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.7, 3.8, 3.9, 3.10]
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+        include:
+        - os: ubuntu-latest
+          path: ~/.cache/pip
+        - os: macos-latest
+          path: ~/Library/Caches/pip
+        - os: windows-latest
+          path: ~\AppData\Local\pip\Cache
+
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.path }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/basic.txt', '**/requirements/test.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install package and dependencies
         run: |
@@ -30,27 +85,3 @@ jobs:
 
       - name: Running tests with pytest
         run: pytest -v
-
-  additional_metrics:
-    timeout-minutes: 5
-    runs-on: windows-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.10
-
-      - name: Install package and dependencies
-        run: |
-          pip install --upgrade pip setuptools wheel --user
-          pip install .[test]
-
-      - name: Check the code with pycodestyle
-        run: pycodestyle -v .
-
-      - name: Type check the code with mypy
-        if: ${{ always() }}
-        run: mypy . --config-file mypy.ini --exclude build

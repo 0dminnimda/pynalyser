@@ -1,16 +1,34 @@
 from typing import NoReturn, Union
 
-from .. import portable_ast as ast
-from .classes import (Block, Class, DictComp, ExceptHandler, FlowContainer,
-                      For, Function, GeneratorExp, If, Lambda, ListComp, Match,
-                      MatchCase, Module, Scope, SetComp, Try, While, With)
+from .. import ast
+from .classes import (
+    Block,
+    Class,
+    DictComp,
+    ExceptHandler,
+    FlowContainer,
+    For,
+    Function,
+    GeneratorExp,
+    If,
+    Lambda,
+    ListComp,
+    Match,
+    MatchCase,
+    Module,
+    Scope,
+    SetComp,
+    Try,
+    While,
+    With,
+)
 
 STMT_SCOPE = Union[ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef]
 
 
 # TODO: eliminate this class, it's still a kludge
 class ForBlocks(ast.AST):
-    _fields = "blocks",
+    _fields = ("blocks",)
     blocks: FlowContainer
 
 
@@ -23,8 +41,7 @@ class Translator(ast.NodeTransformer):
     #### Blocks (all stmt) ####
 
     # XXX: we can shrink down ast.AST to smaller subset
-    def handle_block_without_appending(
-            self, block: Block, node: ast.AST) -> None:
+    def handle_block_without_appending(self, block: Block, node: ast.AST) -> None:
 
         self.generic_visit(block)  # type: ignore
 
@@ -39,16 +56,18 @@ class Translator(ast.NodeTransformer):
             if isinstance(some_container, FlowContainer):
                 self.container = some_container
                 self.generic_visit(ForBlocks(value[:]))
+                # self.generic_visit(value) would be cleaner if it worked
                 setattr(block, name, self.container)
             elif isinstance(some_container, list):
                 # container should never be needed here
                 for sub_container in value:
-                    func = getattr(
-                        self, "my_visit_" + type(sub_container).__name__)
+                    func = getattr(self, "my_visit_" + type(sub_container).__name__)
                     some_container.append(func(sub_container))
             else:
-                raise TypeError("All `_block_fields` should be subclasses "
-                                "of the `list` or `FlowContainer`")
+                raise TypeError(
+                    "All `_block_fields` should be subclasses "
+                    "of the `list` or `FlowContainer`"
+                )
 
         self.container = prev_container
 
@@ -57,44 +76,50 @@ class Translator(ast.NodeTransformer):
         self.handle_block_without_appending(block, node)
 
     def visit_match_case(self, node: ast.match_case) -> ast.match_case:
-        self.handle_block(
-            MatchCase(node.pattern, node.guard),  # no attributes
-            node)
+        self.handle_block(MatchCase(node.pattern, node.guard), node)  # no attributes
         return node
 
     def visit_Match(self, node: ast.Match) -> ast.Match:
         self.handle_block(
-            Match(node.subject,
-                  lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            Match(node.subject, lineno=node.lineno, col_offset=node.col_offset), node
+        )
         return node
 
     def visit_With(self, node: ast.With) -> ast.With:
         self.handle_block(
-            With(node.items, is_async=False,
-                 lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            With(
+                node.items,
+                is_async=False,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
         return node
 
     def visit_AsyncWith(self, node: ast.AsyncWith) -> ast.AsyncWith:
         self.handle_block(
-            With(node.items, is_async=True,
-                 lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            With(
+                node.items,
+                is_async=True,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
         return node
 
     def visit_If(self, node: ast.If) -> ast.If:
         self.handle_block(
-            If(node.test,
-               lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            If(node.test, lineno=node.lineno, col_offset=node.col_offset), node
+        )
         return node
 
     def my_visit_ExceptHandler(self, node: ast.ExceptHandler) -> ExceptHandler:
         # should only be called from handle_block_without_appending
         acr_handler = ExceptHandler(
-            node.type, node.name,
-            lineno=node.lineno, col_offset=node.col_offset)
+            node.type, node.name, lineno=node.lineno, col_offset=node.col_offset
+        )
         self.handle_block_without_appending(acr_handler, node)
         return acr_handler
 
@@ -105,23 +130,34 @@ class Translator(ast.NodeTransformer):
 
     def visit_For(self, node: ast.For) -> ast.For:
         self.handle_block(
-            For(node.target, node.iter, is_async=False,
-                lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            For(
+                node.target,
+                node.iter,
+                is_async=False,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
         return node
 
     def visit_AsyncFor(self, node: ast.AsyncFor) -> ast.AsyncFor:
         self.handle_block(
-            For(node.target, node.iter, is_async=True,
-                lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            For(
+                node.target,
+                node.iter,
+                is_async=True,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
         return node
 
     def visit_While(self, node: ast.While) -> ast.While:
         self.handle_block(
-            While(node.test,
-                  lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            While(node.test, lineno=node.lineno, col_offset=node.col_offset), node
+        )
         return node
 
     #### expr scopes ####
@@ -133,39 +169,58 @@ class Translator(ast.NodeTransformer):
         return scope
 
     def visit_Lambda(self, node: ast.Lambda) -> Scope:
-        lamb = Lambda(
-            node.args, lineno=node.lineno, col_offset=node.col_offset)
+        lamb = Lambda(node.args, lineno=node.lineno, col_offset=node.col_offset)
         node.body = [ast.Expr(node.body)]  # type: ignore
         return self.handle_scope(lamb, node)
 
     def visit_ListComp(self, node: ast.ListComp) -> Scope:
         return self.handle_scope(
-            ListComp(node.elt, generators=node.generators,
-                     lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            ListComp(
+                node.elt,
+                generators=node.generators,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
 
     def visit_SetComp(self, node: ast.SetComp) -> Scope:
         return self.handle_scope(
-            SetComp(node.elt, generators=node.generators,
-                    lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            SetComp(
+                node.elt,
+                generators=node.generators,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
 
     def visit_GeneratorExp(self, node: ast.GeneratorExp) -> Scope:
         return self.handle_scope(
-            GeneratorExp(node.elt, generators=node.generators,
-                         lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            GeneratorExp(
+                node.elt,
+                generators=node.generators,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
 
     def visit_DictComp(self, node: ast.DictComp) -> Scope:
         return self.handle_scope(
-            DictComp(node.key, node.value, generators=node.generators,
-                     lineno=node.lineno, col_offset=node.col_offset),
-            node)
+            DictComp(
+                node.key,
+                node.value,
+                generators=node.generators,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
 
     #### stmt scopes ####
 
-    def translate_from_module(self, module: ast.Module,
-                              name: str) -> Module:
+    def translate_from_module(self, module: ast.Module, name: str) -> Module:
         acr = Module(name)
         self.container = acr.body
         self.generic_visit(module)
@@ -176,15 +231,21 @@ class Translator(ast.NodeTransformer):
         raise NotImplementedError(  # XXX: parsing error idk
             "Either you just called `visit` on the tree "
             "(which starts with `ast.Module`) - use `translate_from_module` "
-            "or there's more than one `ast.Module` in the tree")
+            "or there's more than one `ast.Module` in the tree"
+        )
 
     def handle_stmt_scope(self, scope: Scope, node: STMT_SCOPE) -> None:
         self.container.add_code(self.handle_scope(scope, node))
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.FunctionDef:
         func = Function(
-            node.name, node.args, node.decorator_list, is_async=False,
-            lineno=node.lineno, col_offset=node.col_offset)
+            node.name,
+            node.args,
+            node.decorator_list,
+            is_async=False,
+            lineno=node.lineno,
+            col_offset=node.col_offset,
+        )
         self.handle_stmt_scope(func, node)
         return node
 
@@ -193,17 +254,28 @@ class Translator(ast.NodeTransformer):
     ) -> ast.AsyncFunctionDef:
 
         func = Function(
-            node.name, node.args, node.decorator_list, is_async=True,
-            lineno=node.lineno, col_offset=node.col_offset)
+            node.name,
+            node.args,
+            node.decorator_list,
+            is_async=True,
+            lineno=node.lineno,
+            col_offset=node.col_offset,
+        )
         self.handle_stmt_scope(func, node)
         return node
 
     def visit_ClassDef(self, node: ast.ClassDef) -> ast.ClassDef:
         self.handle_stmt_scope(
             Class(
-                node.name, node.bases, node.keywords, node.decorator_list,
-                lineno=node.lineno, col_offset=node.col_offset),
-            node)
+                node.name,
+                node.bases,
+                node.keywords,
+                node.decorator_list,
+                lineno=node.lineno,
+                col_offset=node.col_offset,
+            ),
+            node,
+        )
         return node
 
     #### Other contlow flow ####
