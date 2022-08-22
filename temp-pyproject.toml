@@ -1,0 +1,32 @@
+[project]
+name = "pynalyser"
+version = "0.1.0"
+description="Static Python Code Analyzer"
+authors=[
+    {name = "0dminnimda",
+    email="0dminnimda.contact@gmail.com"},
+]
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: Pre-processors",
+        "Topic :: Utilities",
+        "Typing :: Typed",
+]
+
+[project.urls]
+homepage = "https://github.com/0dminnimda/pynalyser"
+documentation = "https://github.com/0dminnimda/pynalyser"
+repository = "https://github.com/0dminnimda/pynalyser"
