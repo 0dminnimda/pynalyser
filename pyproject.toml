@@ -4,8 +4,7 @@ version = "0.1.0"
 description="Static Python Code Analyzer"
 authors=[
     {name = "0dminnimda",
-    email="0dminnimda.contact@gmail.com",
-    url="https://github.com/0dminnimda/pynalyser"},
+    email="0dminnimda.contact@gmail.com"},
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
