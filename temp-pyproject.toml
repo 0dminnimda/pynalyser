@@ -37,6 +37,9 @@ dynamic = ["version", "dependencies", "optional-dependencies"]
 [tool.setuptools]
 packages = ["pynalyser"]
 
+[tool.setuptools.package-data]
+pynalyser = ["py.typed"]
+
 [tool.setuptools.dynamic]
 version = {attr = "pynalyser.__version__"}
 dependencies = {file = "requirements/basic.txt"}
@@ -44,6 +47,3 @@ dependencies = {file = "requirements/basic.txt"}
 [tool.setuptools.dynamic.optional-dependencies]
 docs = {file = "requirements/docs.txt"}
 test = {file = "requirements/test.txt"}
-
-[tool.setuptools.package-data]
-pynalyser = ["py.typed"]
