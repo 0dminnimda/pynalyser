@@ -34,9 +34,6 @@ dynamic = ["version", "dependencies", "optional-dependencies"]
 "Source" = "https://github.com/0dminnimda/pynalyser"
 "Bug Tracker" = "https://github.com/0dminnimda/pynalyser/issues"
 
-[tool.setuptools]
-packages = ["pynalyser"]
-
 [tool.setuptools.package-data]
 pynalyser = ["py.typed"]
 
