@@ -12,6 +12,10 @@
 - `report` parameter to the deref()
 - Basic reporting system
 - `SingleType`: `is_type()` and `issubclass()`
+- `Scope.enclosing` 🔼 Patched by `@groesie` in [#27](https://github.com/0dminnimda/pynalyser/pull/27)
+- A new preferred way to collect names is `analysers.tools.collect_names()`
+- `types.symbol_table_types.SymbolTableType.reset()`
+- `types.symbol_table_types.Arg.iter()`
 
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
@@ -25,6 +29,13 @@
 - Filename is now optional for `parse_string` and `parse_ast`
 - `CompareType` -> `CompareOpType`
 - Implement accurate `BinOpType`, `CompareOpType` and `SubscriptType` `deref()`
+- `analysers.redefinitions.RedefinitionAnalyser` -> `analysers.definitions.DefinitionAnalyser`
+- Move parts of `analysers.scope.ScopeAnalyser` into `analysers.definitions.SymTabAnalyser`
+- Update `analysers.pipeline.default_pipe`
+- Move `UnionType.make()` functionality to `UnionType.deref()`
+- Use `pyproject.toml` instead of `setup.py` 🔼 Patched by `@9gl` in [#15](https://github.com/0dminnimda/pynalyser/pull/15) and `@0dminnimda` in [#30](https://github.com/0dminnimda/pynalyser/pull/30)
+- Move `mypy.ini` into `pyproject.toml`
+- `PynalyserType.deref()` returns `SingleType`
 
 ### Removed
 - "Graph Visit Casher"
@@ -32,6 +43,8 @@
 - `symbols.SymbolTable`
 - `main.analyse_context` and `main.analyse`
 - Support of python 3.6
+- `analysers.scope.SymTabAnalyser`
+- `types.operations`
 
 ### Fixed
 - `ACRCodeTransformer` now works properly
