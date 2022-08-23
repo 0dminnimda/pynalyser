@@ -36,7 +36,7 @@ jobs:
 
       - name: Type check the code with mypy
         if: ${{ always() }}
-        run: mypy . --config-file mypy.ini --exclude build
+        run: mypy --config-file pyproject.toml
 
   run-tests:
     timeout-minutes: 5
