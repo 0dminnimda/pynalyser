@@ -1,3 +1,6 @@
+from typing import List
+
+
 OP_TO_STR = {
     # binop
     "add": "+",
@@ -49,3 +52,18 @@ def not_iterable(type: str) -> TypeError:
 
 def not_subscriptable(type: str) -> TypeError:
     return TypeError(f"'{type}' object is not subscriptable")
+
+
+def invalid_mro(bases: List[str]) -> TypeError:
+    return TypeError(
+        "Cannot create a consistent method resolution\n"
+        "order (MRO) for bases " + " ".join(bases)
+    )
+
+
+def duplicate_base(base: str) -> TypeError:
+    return TypeError("duplicate base class " + base)
+
+
+def inheritance_cycle() -> TypeError:
+    return TypeError("a __bases__ item causes an inheritance cycle")
