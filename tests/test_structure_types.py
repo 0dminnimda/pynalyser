@@ -56,9 +56,7 @@ def test_sequence():
 
 
 def test_list():
-    lst = ListType(
-        item_type=SingleType(name="test", is_builtin=False), is_builtin=False
-    )
+    lst = ListType(item_type=DataType(name="test", is_builtin=False), is_builtin=False)
     assert isinstance(lst * IntType(), SequenceType)
     # assert lst[IntType()] is lst.item_type
     assert SubscriptType(lst, IntType()).deref(True) is lst.item_type
