@@ -55,6 +55,22 @@ def set_bases(obj: ENTRY, bases: INHERITABLES) -> None:
     obj.mro = linearization(obj, obj.bases)
 
 
+_internal_counter = 0
+
+
+def register_inheritance(obj: ENTRY) -> None:
+    global _internal_counter
+    _internal_counter += 1
+
+    obj._type_id = _internal_counter
+
+
 class Inheritable:
     mro: INHERITABLES = ()
     bases: INHERITABLES = ()
+    _type_id: int = 0
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        register_inheritance(cls)
+
