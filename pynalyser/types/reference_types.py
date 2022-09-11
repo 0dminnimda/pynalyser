@@ -3,15 +3,13 @@ from typing import TYPE_CHECKING, List, Optional, Tuple
 import attr
 
 from .. import reports
-from .base_types import AnyType, PynalyserType, SingleType, UnionType, UnknownType
-from .exceptions import (
-    binary_not_supported,
-    compare_not_supported,
-    not_iterable,
-    not_subscriptable,
-)
+from .base_types import (AnyType, DataType, PynalyserType, UnionType,
+                         UnknownType)
+from .exceptions import (binary_not_supported, compare_not_supported,
+                         not_iterable, not_subscriptable)
 from .op import Op, Signature
-from .structure_types import BoolType, IntType, IterableType, NotImplementedType
+from .structure_types import (BoolType, IntType, IterableType,
+                              NotImplementedType)
 
 if TYPE_CHECKING:
     from ..symbol import Symbol
@@ -25,24 +23,24 @@ class SymbolType(PynalyserType):
     name: str
     symbol: "Symbol"
 
-    def deref(self, report: bool) -> SingleType:
+    def deref(self, report: bool) -> DataType:
         return self.symbol.type.deref(report)
 
     def __hash__(self) -> int:
         return hash((type(self), self.name))
 
 
-def infer_signature_type(type: SingleType, signature: Signature) -> SingleType:
-    if type.issubclass(signature):
-        return type
-    if not type.is_completed:
+def infer_signature_type(tp: DataType, signature: Signature) -> DataType:
+    if tp.issubclass(signature):
+        return tp
+    if not tp.is_completed:
         return UnionType(*signature).deref(report=False)
-    return type
+    return tp
 
 
 def narrow_type(
-    calls: Calls, lhs: SingleType, rhs: SingleType
-) -> Tuple[SingleType, SingleType]:
+    calls: Calls, lhs: DataType, rhs: DataType
+) -> Tuple[DataType, DataType]:
 
     for method, reflected in calls:
         if method is None:
@@ -66,7 +64,7 @@ class BinOpType(PynalyserType):
     right: PynalyserType
 
     @staticmethod
-    def prepare_calls(lhs: SingleType, op: str, rhs: SingleType) -> Calls:
+    def prepare_calls(lhs: DataType, op: str, rhs: DataType) -> Calls:
         forward = f"__{op}__"
         reflected = f"__r{op}__"
 
@@ -86,8 +84,8 @@ class BinOpType(PynalyserType):
 
     @classmethod
     def do_binary_op(
-        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
-    ) -> SingleType:
+        cls, lhs: DataType, op: str, rhs: DataType, report: bool = True
+    ) -> DataType:
         for method, reflected in cls.prepare_calls(lhs, op, rhs):
             if method is None:
                 continue
@@ -117,7 +115,7 @@ class BinOpType(PynalyserType):
         if isinstance(self.right, SymbolType):
             self.right.symbol.type = rhs
 
-    def deref(self, report: bool) -> SingleType:
+    def deref(self, report: bool) -> DataType:
         return self.do_binary_op(
             self.left.deref(report), self.op, self.right.deref(report), report
         )
@@ -134,7 +132,7 @@ class CompareOpType(PynalyserType):
     comparators: List[PynalyserType]
 
     @staticmethod
-    def prepare_calls(lhs: SingleType, op: str, rhs: SingleType) -> Calls:
+    def prepare_calls(lhs: DataType, op: str, rhs: DataType) -> Calls:
         if op == "is":
             return []
 
@@ -155,8 +153,8 @@ class CompareOpType(PynalyserType):
 
     @classmethod
     def do_is(
-        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
-    ) -> SingleType:
+        cls, lhs: DataType, op: str, rhs: DataType, report: bool = True
+    ) -> DataType:
 
         calls = cls.prepare_calls(lhs, op, rhs)
         assert len(calls) == 0, f"calls were prepared for '{op}' operation"
@@ -166,8 +164,8 @@ class CompareOpType(PynalyserType):
 
     @classmethod
     def do_contains(
-        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
-    ) -> SingleType:
+        cls, lhs: DataType, op: str, rhs: DataType, report: bool = True
+    ) -> DataType:
 
         for method, reflected in cls.prepare_calls(lhs, op, rhs):
             assert reflected, f"'{op}' operation is not reflected"
@@ -186,8 +184,8 @@ class CompareOpType(PynalyserType):
 
     @classmethod
     def do_richcompare(
-        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
-    ) -> SingleType:
+        cls, lhs: DataType, op: str, rhs: DataType, report: bool = True
+    ) -> DataType:
 
         for method, reflected in cls.prepare_calls(lhs, op, rhs):
             if method is None:
@@ -222,8 +220,8 @@ class CompareOpType(PynalyserType):
 
     @classmethod
     def do_compare_op(
-        cls, lhs: SingleType, op: str, rhs: SingleType, report: bool = True
-    ) -> SingleType:
+        cls, lhs: DataType, op: str, rhs: DataType, report: bool = True
+    ) -> DataType:
 
         # TODO: the same deal - use UnaryOpType.do_not for negate
         op, negate = cls.process_op(op)
@@ -236,7 +234,7 @@ class CompareOpType(PynalyserType):
 
         return cls.do_richcompare(lhs, op, rhs, report)
 
-    def deref_comparators(self, report: bool) -> List[SingleType]:
+    def deref_comparators(self, report: bool) -> List[DataType]:
         return [
             comparator.deref(report) for comparator in [self.left] + self.comparators
         ]
@@ -259,7 +257,7 @@ class CompareOpType(PynalyserType):
         if isinstance(self.comparators[0], SymbolType):
             self.comparators[0].symbol.type = rhs
 
-    def deref(self, report: bool) -> SingleType:
+    def deref(self, report: bool) -> DataType:
         comparators = self.deref_comparators(report)
 
         # TODO: implement and use all()
@@ -274,7 +272,7 @@ class SubscriptType(PynalyserType):
     value: PynalyserType
     slice: PynalyserType
 
-    def deref(self, report: bool) -> SingleType:
+    def deref(self, report: bool) -> DataType:
         value = self.value.deref(report)
         method = value.ops.get("__getitem__")
 
@@ -303,7 +301,7 @@ class ItemType(PynalyserType):
             #     self.iterable = IterableType(
             #         item_type=UnknownType, is_builtin=False)
 
-    def deref(self, report: bool) -> SingleType:
+    def deref(self, report: bool) -> DataType:
         return self.iterable.deref(report).item_type.deref(report)  # type: ignore
 
 
@@ -313,7 +311,7 @@ class CallType(PynalyserType):
     args: Tuple[PynalyserType, ...]
     keywords: Tuple[Tuple[Optional[str], PynalyserType], ...]
 
-    def deref(self, report: bool) -> SingleType:
+    def deref(self, report: bool) -> DataType:
         if isinstance(self.func, SymbolType) and self.func.name == "range":
             return IterableType(
                 item_type=IntType(), is_builtin=False

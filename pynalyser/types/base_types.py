@@ -1,7 +1,7 @@
 from typing import Any, Callable, List, Optional, Set, Tuple, Union
-from typing_extensions import Literal
 
 import attr
+from typing_extensions import Literal
 
 from .op import OpCarrier
 
@@ -14,7 +14,7 @@ class PynalyserType:
             f"'as_str' is not implemented in {type(self).__name__}"
         )
 
-    def deref(self, report: bool) -> "SingleType":
+    def deref(self, report: bool) -> "DataType":
         raise NotImplementedError(
             f"'deref' is not implemented in {type(self).__name__}"
         )
@@ -33,8 +33,8 @@ class UnionType(PynalyserType):
     def as_str(self) -> str:
         return f"Union[{', '.join(tp.as_str for tp in self.types)}]"
 
-    def deref(self, report: bool) -> "SingleType":
-        types: Set[SingleType] = {type.deref(report) for type in self.types}
+    def deref(self, report: bool) -> "DataType":
+        types: Set[DataType] = {type.deref(report) for type in self.types}
 
         if len(types) == 0:
             return UnknownType
@@ -46,17 +46,17 @@ class UnionType(PynalyserType):
 
 
 NotImplementedLiteral = Literal[NotImplemented]  # type: ignore
-Return = Union["SingleType", NotImplementedLiteral]
+Return = Union["DataType", NotImplementedLiteral]
 
 
 @attr.s(auto_attribs=True, hash=True, cmp=False)
-class SingleType(PynalyserType, OpCarrier):
+class DataType(PynalyserType, OpCarrier):
     name: str = attr.ib(kw_only=True)
     is_builtin: bool = attr.ib(kw_only=True)
     # XXX: why do we need is_completed?
     is_completed: bool = attr.ib(default=False, kw_only=True)
 
-    def deref(self, report: bool) -> "SingleType":
+    def deref(self, report: bool) -> "DataType":
         return self
 
     @property
@@ -64,13 +64,13 @@ class SingleType(PynalyserType, OpCarrier):
         return self.name
 
     @classmethod
-    def issubclass(cls, other: Union["SingleType", Tuple["SingleType", ...]]) -> bool:
+    def issubclass(cls, other: Union["DataType", Tuple["DataType", ...]]) -> bool:
         if not isinstance(other, tuple):
             return issubclass(cls, type(other))
         return any(issubclass(cls, type(tp)) for tp in other)
 
     @classmethod
-    def is_type(cls, other: "SingleType") -> bool:
+    def is_type(cls, other: "DataType") -> bool:
         return cls == type(other)
 
     # Methods below are not participating in the actual analysis (OpCarrier.ops does)
@@ -209,6 +209,6 @@ class SingleType(PynalyserType, OpCarrier):
     #     return self._get_op_func("__contains__")(self, value)
 
 
-AnyType = SingleType(name="object", is_builtin=False)
-UnknownType = SingleType(name="object", is_builtin=False)
+AnyType = DataType(name="object", is_builtin=False)
+UnknownType = DataType(name="object", is_builtin=False)
 # invariant, cool name huh ;)

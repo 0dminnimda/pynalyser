@@ -1,6 +1,6 @@
 import attr
 
-from .base_types import AnyType, PynalyserType, SingleType
+from .base_types import AnyType, PynalyserType, DataType
 from .op import REVERSED, Op, Signature, set_default_ops, set_op
 
 # TODO: make a base class with __X__ and _sig_X annotated and defaulted
@@ -12,11 +12,11 @@ from .op import REVERSED, Op, Signature, set_default_ops, set_op
 signature: Signature
 
 
-NotImplementedType = SingleType(name="NotImplementedType", is_builtin=True)
+NotImplementedType = DataType(name="NotImplementedType", is_builtin=True)
 
 
 @attr.s(auto_attribs=True, hash=True, cmp=False)
-class IntType(SingleType):
+class IntType(DataType):
     name: str = "int"
     is_builtin: bool = True
     is_completed: bool = True
@@ -27,21 +27,21 @@ signature = (IntType(),)
 
 # also see "long_compare" in cpython github
 @Op.sign(signature)
-def _int_cmp(this: SingleType, value: PynalyserType) -> SingleType:
+def _int_cmp(this: DataType, value: PynalyserType) -> DataType:
     if isinstance(value, IntType):
         return BoolType()
     return NotImplementedType
 
 
 @Op.sign(signature)
-def _int_binop(this: SingleType, value: PynalyserType) -> SingleType:
+def _int_binop(this: DataType, value: PynalyserType) -> DataType:
     if isinstance(value, IntType):
         return IntType()
     return NotImplementedType
 
 
 @Op.sign(signature)
-def _int__truediv__(this: SingleType, value: PynalyserType) -> SingleType:
+def _int__truediv__(this: DataType, value: PynalyserType) -> DataType:
     if isinstance(value, IntType):
         return FloatType()
     return NotImplementedType
@@ -49,7 +49,7 @@ def _int__truediv__(this: SingleType, value: PynalyserType) -> SingleType:
 
 # def __pow__(
 #     self, value: PynalyserType, mod: Optional[PynalyserType] = None
-# ) -> SingleType:
+# ) -> DataType:
 #     if isinstance(value, IntType):
 #         if isinstance(mod, IntType) or mod is None:
 #             # FIXME: this is true only if 'value' is negative
@@ -72,7 +72,7 @@ class BoolType(IntType):
 
 
 @attr.s(auto_attribs=True, hash=True, cmp=False)
-class FloatType(SingleType):
+class FloatType(DataType):
     name: str = "float"
     is_builtin: bool = True
     is_completed: bool = True
@@ -82,7 +82,7 @@ signature = (IntType(), FloatType())
 
 
 @Op.sign(signature)
-def _float_binop(this: SingleType, value: PynalyserType) -> SingleType:
+def _float_binop(this: DataType, value: PynalyserType) -> DataType:
     if isinstance(value, (IntType, FloatType)):
         return FloatType()
     return NotImplementedType
@@ -94,14 +94,14 @@ set_default_ops(FloatType, _float_binop, REVERSED, exclude={"__rpow__", "__rmatm
 
 
 @attr.s(auto_attribs=True, hash=True, cmp=False)
-class SliceType(SingleType):
+class SliceType(DataType):
     name: str = "slice"
     is_builtin: bool = True
     is_completed: bool = True
 
 
 @attr.s(auto_attribs=True, hash=True, cmp=False)
-class IterableType(SingleType):
+class IterableType(DataType):
     item_type: PynalyserType
     name: str = "Iterable"
 
@@ -120,14 +120,14 @@ class SequenceType(IterableType):
 
 
 @Op.sign((IntType(),))
-def _seq__mul__(this: SingleType, value: PynalyserType) -> SingleType:
+def _seq__mul__(this: DataType, value: PynalyserType) -> DataType:
     if isinstance(value, IntType):
         return this
     return NotImplementedType
 
 
 @Op.sign((AnyType,))
-def _seq__getitem__(this: PynalyserType, item: PynalyserType) -> SingleType:
+def _seq__getitem__(this: PynalyserType, item: PynalyserType) -> DataType:
     return AnyType
 
 
@@ -145,7 +145,7 @@ class ListType(SequenceType):
 
 
 @Op.sign((IntType(), SliceType()))
-def _list__getitem__(this: ListType, item: PynalyserType) -> SingleType:
+def _list__getitem__(this: ListType, item: PynalyserType) -> DataType:
     if isinstance(item, IntType):
         return this.item_type.deref(report=True)
     if isinstance(item, SliceType):

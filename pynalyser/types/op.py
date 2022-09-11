@@ -1,20 +1,18 @@
 from typing import TYPE_CHECKING, Callable, Dict, NamedTuple, Optional, Set, Tuple, Type
 
 if TYPE_CHECKING:
-    from .base_types import PynalyserType, SingleType
+    from .base_types import PynalyserType, DataType
 
 
-OpFunction = Callable[..., "SingleType"]
-Signature = Tuple["SingleType", ...]
+OpFunction = Callable[..., "DataType"]
+Signature = Tuple["DataType", ...]
 
 
 class Op(NamedTuple):
     function: OpFunction
     signature: Signature = tuple()
 
-    def __call__(
-        self, *args: "PynalyserType", **kwargs: "PynalyserType"
-    ) -> "SingleType":
+    def __call__(self, *args: "PynalyserType", **kwargs: "PynalyserType") -> "DataType":
         return self.function(*args, **kwargs)
 
     def __repr__(self) -> str:
@@ -85,7 +83,7 @@ class OpCarrier:
             return self._default_op_func
 
     @staticmethod
-    def _default_op_func(*args, **kwargs) -> "SingleType":
+    def _default_op_func(*args, **kwargs) -> "DataType":
         from .structure_types import NotImplementedType
 
         return NotImplementedType

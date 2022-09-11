@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING, DefaultDict, Iterable, List, Optional
 
 import attr
 
-from .base_types import PynalyserType, SingleType, UnknownType
+from .base_types import PynalyserType, DataType, UnknownType
 
 if TYPE_CHECKING:
     from ..symbol import MultiDefSymbol, Symbol
 
 
 @attr.s(auto_attribs=True, hash=True, cmp=False)
-class SymbolTableType(DefaultDict[str, "MultiDefSymbol"], SingleType):
+class SymbolTableType(DefaultDict[str, "MultiDefSymbol"], DataType):
     is_builtin: bool = attr.ib(default=True, init=False)
 
     def __attrs_pre_init__(self):

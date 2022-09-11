@@ -10,7 +10,7 @@ from ..types import (
     ItemType,
     ListType,
     PynalyserType,
-    SingleType,
+    DataType,
     SliceType,
     SubscriptType,
     SymbolType,
@@ -110,7 +110,7 @@ class TypeInference(DefinitionAnalyser):
     def visit_Constant(self, node: ast.Constant) -> PynalyserType:
         if isinstance(node.value, int):
             return IntType()
-        return SingleType(name=type(node.value).__name__, is_builtin=True)
+        return DataType(name=type(node.value).__name__, is_builtin=True)
 
     def visit_Name(self, node: ast.Name) -> PynalyserType:
         return SymbolType(node.id, self.symtab[node.id].current_symbol)
