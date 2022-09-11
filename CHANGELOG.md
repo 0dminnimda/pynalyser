@@ -64,6 +64,8 @@ Template:
 - Move `mypy.ini` into `pyproject.toml`
 - `PynalyserType.deref()` returns `SingleType`
 - `SingleType` is renamed to `DataType`
+- `is_type()` and `issubclass()` are moved to `types.inheritance`
+- `issubclass()` renamed to `is_subclass()`
 
 ### Removed
 - "Graph Visit Casher"
