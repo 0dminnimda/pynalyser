@@ -42,6 +42,7 @@ Template:
 - A new preferred way to collect names is `analysers.tools.collect_names()`
 - `types.symbol_table_types.SymbolTableType.reset()`
 - `types.symbol_table_types.Arg.iter()`
+- Inheritance and MRO support for types
 
 ### Changed
 - Finally `global` and `nonlocal` are now analyzed in `ScopeAnalyser` instead of `Translator`
@@ -62,6 +63,7 @@ Template:
 - Use `pyproject.toml` instead of `setup.py` 🔼 Patched by `@9gl` in [#15](https://github.com/0dminnimda/pynalyser/pull/15) and `@0dminnimda` in [#30](https://github.com/0dminnimda/pynalyser/pull/30)
 - Move `mypy.ini` into `pyproject.toml`
 - `PynalyserType.deref()` returns `SingleType`
+- `SingleType` is renamed to `DataType`
 
 ### Removed
 - "Graph Visit Casher"
