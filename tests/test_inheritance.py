@@ -156,43 +156,43 @@ def test_is_subclass():
     A = make_class("A")
     B = make_class("B")
 
-    assert not is_subclass(A,   B)
-    assert not is_subclass(A,   B())
+    assert not is_subclass(A, B)
+    assert not is_subclass(A, B())
     assert not is_subclass(A(), B)
     assert not is_subclass(A(), B())
 
-    assert not is_subclass(B,   A)
-    assert not is_subclass(B,   A())
+    assert not is_subclass(B, A)
+    assert not is_subclass(B, A())
     assert not is_subclass(B(), A)
     assert not is_subclass(B(), A())
 
     C = make_class("C")
     D = make_class("D", (C,))
 
-    assert is_subclass(D,   C)
-    assert is_subclass(D,   C())
+    assert is_subclass(D, C)
+    assert is_subclass(D, C())
     assert is_subclass(D(), C)
     assert is_subclass(D(), C())
 
-    assert not is_subclass(C,   D)
-    assert not is_subclass(C,   D())
+    assert not is_subclass(C, D)
+    assert not is_subclass(C, D())
     assert not is_subclass(C(), D)
     assert not is_subclass(C(), D())
 
     E = make_class("E", (D, A))
 
-    assert is_subclass(E,   D)
-    assert is_subclass(E,   D())
+    assert is_subclass(E, D)
+    assert is_subclass(E, D())
     assert is_subclass(E(), D)
     assert is_subclass(E(), D())
 
-    assert is_subclass(E,   C)
-    assert is_subclass(E,   C())
+    assert is_subclass(E, C)
+    assert is_subclass(E, C())
     assert is_subclass(E(), C)
     assert is_subclass(E(), C())
 
-    assert is_subclass(E,   A)
-    assert is_subclass(E,   A())
+    assert is_subclass(E, A)
+    assert is_subclass(E, A())
     assert is_subclass(E(), A)
     assert is_subclass(E(), A())
 
