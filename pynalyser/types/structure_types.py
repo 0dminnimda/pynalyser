@@ -2,6 +2,7 @@ import attr
 
 from .base_types import AnyType, PynalyserType, DataType
 from .op import REVERSED, Op, Signature, set_default_ops, set_op
+from .inheritance import set_bases
 
 # TODO: make a base class with __X__ and _sig_X annotated and defaulted
 # the default value must be equal to a field not defined in the simulated class
@@ -20,6 +21,9 @@ class IntType(DataType):
     name: str = "int"
     is_builtin: bool = True
     is_completed: bool = True
+
+
+set_bases(IntType, ())
 
 
 signature = (IntType(),)
@@ -71,11 +75,17 @@ class BoolType(IntType):
     is_completed: bool = True
 
 
+set_bases(BoolType, (IntType,))
+
+
 @attr.s(auto_attribs=True, hash=True, cmp=False)
 class FloatType(DataType):
     name: str = "float"
     is_builtin: bool = True
     is_completed: bool = True
+
+
+set_bases(FloatType, ())
 
 
 signature = (IntType(), FloatType())
@@ -100,6 +110,9 @@ class SliceType(DataType):
     is_completed: bool = True
 
 
+set_bases(SliceType, ())
+
+
 @attr.s(auto_attribs=True, hash=True, cmp=False)
 class IterableType(DataType):
     item_type: PynalyserType
@@ -110,9 +123,15 @@ class IterableType(DataType):
         return f"{super().as_str}[{self.item_type.as_str}]"
 
 
+set_bases(IterableType, ())
+
+
 @attr.s(auto_attribs=True, hash=True, cmp=False)  # auto_detect=True)
 class SequenceType(IterableType):
     pass
+
+
+set_bases(SequenceType, (IterableType,))
 
 
 # TODO: not finished, see docs.python.org/3/library/collections.abc.html
@@ -144,6 +163,9 @@ class ListType(SequenceType):
     is_completed: bool = True
 
 
+set_bases(ListType, (SequenceType,))
+
+
 @Op.sign((IntType(), SliceType()))
 def _list__getitem__(this: ListType, item: PynalyserType) -> DataType:
     if isinstance(item, IntType):
@@ -162,6 +184,9 @@ class TupleType(SequenceType):
     name: str = "tuple"
     is_builtin: bool = True
     is_completed: bool = True
+
+
+set_bases(TupleType, (SequenceType,))
 
 
 del signature

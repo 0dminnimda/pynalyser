@@ -3,6 +3,7 @@ from typing import Any, Callable, List, Optional, Set, Tuple, Union
 import attr
 from typing_extensions import Literal
 
+from .inheritance import Inheritable
 from .op import OpCarrier
 
 
@@ -50,7 +51,7 @@ Return = Union["DataType", NotImplementedLiteral]
 
 
 @attr.s(auto_attribs=True, hash=True, cmp=False)
-class DataType(PynalyserType, OpCarrier):
+class DataType(PynalyserType, OpCarrier, Inheritable):
     name: str = attr.ib(kw_only=True)
     is_builtin: bool = attr.ib(kw_only=True)
     # XXX: why do we need is_completed?
