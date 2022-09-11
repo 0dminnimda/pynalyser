@@ -197,5 +197,37 @@ def test_is_subclass():
     assert is_subclass(E(), A())
 
 
+def test_is_subclass_tuple():
+    A = make_class("A")
+
+    assert not is_subclass(A, ())
+    assert not is_subclass(A(), ())
+
+    B = make_class("B")
+    C = make_class("C")
+
+    assert not is_subclass(A, (B, C))
+    assert not is_subclass(A, (B, C()))
+    assert not is_subclass(A, (B(), C))
+    assert not is_subclass(A, (B(), C()))
+
+    assert not is_subclass(A(), (B, C))
+    assert not is_subclass(A(), (B, C()))
+    assert not is_subclass(A(), (B(), C))
+    assert not is_subclass(A(), (B(), C()))
+
+    D = make_class("D", (A,))
+
+    assert is_subclass(D, (B, A))
+    assert is_subclass(D, (B, A()))
+    assert is_subclass(D, (B(), A))
+    assert is_subclass(D, (B(), A()))
+
+    assert is_subclass(D(), (B, A))
+    assert is_subclass(D(), (B, A()))
+    assert is_subclass(D(), (B(), A))
+    assert is_subclass(D(), (B(), A()))
+
+
 if __name__ == "__main__":
     do_test(__file__)
