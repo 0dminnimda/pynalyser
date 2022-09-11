@@ -1,9 +1,10 @@
-from typing import List, Optional, Tuple, Type
+from typing import List, Optional, Tuple, Type, Union
 
 from .exceptions import duplicate_base, inheritance_cycle, invalid_mro
 
 
 ENTRY = Type["Inheritable"]
+TYPE_OR_INSTANCE = Union["Inheritable", ENTRY]
 INHERITABLES = Tuple[ENTRY, ...]
 
 
@@ -74,3 +75,19 @@ class Inheritable:
         super().__init_subclass__(**kwargs)
         register_inheritance(cls)
 
+
+def is_type(cls: TYPE_OR_INSTANCE, other: TYPE_OR_INSTANCE) -> bool:
+    return cls._type_id == other._type_id
+
+
+def is_subclass(
+    cls: TYPE_OR_INSTANCE,
+    class_or_tuple: Union[TYPE_OR_INSTANCE, Tuple[TYPE_OR_INSTANCE, ...]],
+) -> bool:
+    if isinstance(class_or_tuple, tuple):
+        return any(is_subclass(cls, tp) for tp in class_or_tuple)
+
+    for base in cls.mro:
+        if is_type(base, class_or_tuple):
+            return True
+    return False

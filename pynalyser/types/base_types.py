@@ -64,16 +64,6 @@ class DataType(PynalyserType, OpCarrier, Inheritable):
     def as_str(self) -> str:
         return self.name
 
-    @classmethod
-    def issubclass(cls, other: Union["DataType", Tuple["DataType", ...]]) -> bool:
-        if not isinstance(other, tuple):
-            return issubclass(cls, type(other))
-        return any(issubclass(cls, type(tp)) for tp in other)
-
-    @classmethod
-    def is_type(cls, other: "DataType") -> bool:
-        return cls == type(other)
-
     # Methods below are not participating in the actual analysis (OpCarrier.ops does)
     # Those are just for fancy user interface
 

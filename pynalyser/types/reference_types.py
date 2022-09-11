@@ -7,6 +7,7 @@ from .base_types import (AnyType, DataType, PynalyserType, UnionType,
                          UnknownType)
 from .exceptions import (binary_not_supported, compare_not_supported,
                          not_iterable, not_subscriptable)
+from .inheritance import is_subclass, is_type
 from .op import Op, Signature
 from .structure_types import (BoolType, IntType, IterableType,
                               NotImplementedType)
@@ -31,7 +32,7 @@ class SymbolType(PynalyserType):
 
 
 def infer_signature_type(tp: DataType, signature: Signature) -> DataType:
-    if tp.issubclass(signature):
+    if is_subclass(tp, signature):
         return tp
     if not tp.is_completed:
         return UnionType(*signature).deref(report=False)
@@ -74,10 +75,10 @@ class BinOpType(PynalyserType):
         call_lhs = lhs_op, False
         call_rhs = rhs_op, True
 
-        if lhs.is_type(rhs):
+        if is_type(lhs, rhs):
             return [call_lhs]
         # will "lhs.ops.get(reflected) is not rhs_op" be not triggered when needed?
-        elif rhs.issubclass(lhs) and lhs.ops.get(reflected) is not rhs_op:
+        elif is_subclass(rhs, lhs) and lhs.ops.get(reflected) is not rhs_op:
             return [call_rhs, call_lhs]
         else:
             return [call_lhs, call_rhs]
@@ -146,7 +147,7 @@ class CompareOpType(PynalyserType):
         call_lhs = f_lhs, False
         call_rhs = f_rhs, True
 
-        if not lhs.is_type(rhs) and rhs.issubclass(lhs):
+        if not is_type(lhs, rhs) and is_subclass(rhs, lhs):
             return [call_rhs, call_lhs]
         else:
             return [call_lhs, call_rhs]

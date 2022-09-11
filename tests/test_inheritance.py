@@ -1,5 +1,5 @@
 from typing import Tuple, Type
-from pynalyser.types.inheritance import Inheritable, set_bases
+from pynalyser.types.inheritance import Inheritable, is_subclass, is_type, set_bases
 from pynalyser.types.exceptions import duplicate_base, invalid_mro
 from utils import do_test, raises_instance
 
@@ -135,6 +135,66 @@ def test_mro_disagreement():
 
 
 # TODO: add cpython/Lib/test/test_genericclass.py
+
+
+def test_is_type():
+    A = make_class("A")
+    B = make_class("B")
+    assert not is_type(A, B)
+    assert not is_type(A, B())
+    assert not is_type(A(), B)
+    assert not is_type(A(), B())
+
+    C = make_class("C")
+    assert is_type(C, C)
+    assert is_type(C, C())
+    assert is_type(C(), C)
+    assert is_type(C(), C())
+
+
+def test_is_subclass():
+    A = make_class("A")
+    B = make_class("B")
+
+    assert not is_subclass(A,   B)
+    assert not is_subclass(A,   B())
+    assert not is_subclass(A(), B)
+    assert not is_subclass(A(), B())
+
+    assert not is_subclass(B,   A)
+    assert not is_subclass(B,   A())
+    assert not is_subclass(B(), A)
+    assert not is_subclass(B(), A())
+
+    C = make_class("C")
+    D = make_class("D", (C,))
+
+    assert is_subclass(D,   C)
+    assert is_subclass(D,   C())
+    assert is_subclass(D(), C)
+    assert is_subclass(D(), C())
+
+    assert not is_subclass(C,   D)
+    assert not is_subclass(C,   D())
+    assert not is_subclass(C(), D)
+    assert not is_subclass(C(), D())
+
+    E = make_class("E", (D, A))
+
+    assert is_subclass(E,   D)
+    assert is_subclass(E,   D())
+    assert is_subclass(E(), D)
+    assert is_subclass(E(), D())
+
+    assert is_subclass(E,   C)
+    assert is_subclass(E,   C())
+    assert is_subclass(E(), C)
+    assert is_subclass(E(), C())
+
+    assert is_subclass(E,   A)
+    assert is_subclass(E,   A())
+    assert is_subclass(E(), A)
+    assert is_subclass(E(), A())
 
 
 if __name__ == "__main__":
