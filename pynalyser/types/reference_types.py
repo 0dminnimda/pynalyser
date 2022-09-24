@@ -61,9 +61,9 @@ def narrow_type(
 
 @attr.s(auto_attribs=True, hash=True)
 class BinOpType(PynalyserType):
-    left: PynalyserType
+    lhs: PynalyserType
     op: str
-    right: PynalyserType
+    rhs: PynalyserType
 
     @staticmethod
     def prepare_calls(lhs: SingleType, op: str, rhs: SingleType) -> Calls:
@@ -129,7 +129,7 @@ SWAPPED_CMP = {v1: v2 for v1, v2 in zip(_CMP, _CMP[::-1])}
 
 @attr.s(auto_attribs=True, hash=True)
 class CompareOpType(PynalyserType):
-    left: PynalyserType
+    lhs: PynalyserType
     ops: List[str]
     comparators: List[PynalyserType]
 
