@@ -106,20 +106,20 @@ class BinOpType(PynalyserType):
         return AnyType
 
     def __attrs_post_init__(self) -> None:
-        lhs = self.left.deref(report=False)
-        rhs = self.right.deref(report=False)
+        lhs = self.lhs.deref(report=False)
+        rhs = self.rhs.deref(report=False)
 
         lhs, rhs = narrow_type(self.prepare_calls(lhs, self.op, rhs), lhs, rhs)
 
-        if isinstance(self.left, SymbolType):
-            self.left.symbol.type = lhs
+        if isinstance(self.lhs, SymbolType):
+            self.lhs.symbol.type = lhs
 
-        if isinstance(self.right, SymbolType):
-            self.right.symbol.type = rhs
+        if isinstance(self.rhs, SymbolType):
+            self.rhs.symbol.type = rhs
 
     def deref(self, report: bool) -> SingleType:
         return self.do_binary_op(
-            self.left.deref(report), self.op, self.right.deref(report), report
+            self.lhs.deref(report), self.op, self.right.deref(report), report
         )
 
 
@@ -238,7 +238,7 @@ class CompareOpType(PynalyserType):
 
     def deref_comparators(self, report: bool) -> List[SingleType]:
         return [
-            comparator.deref(report) for comparator in [self.left] + self.comparators
+            comparator.deref(report) for comparator in [self.lhs] + self.comparators
         ]
 
     def __attrs_post_init__(self) -> None:
@@ -247,14 +247,14 @@ class CompareOpType(PynalyserType):
         #     op = self.process_op(op)[0]
         #     lhs, rhs = narrow_type(self.prepare_calls(lhs, op, rhs), lhs, rhs)
 
-        lhs = self.left.deref(report=False)
+        lhs = self.lhs.deref(report=False)
         rhs = self.comparators[0].deref(report=False)
 
         op = self.process_op(self.ops[0])[0]
         lhs, rhs = narrow_type(self.prepare_calls(lhs, op, rhs), lhs, rhs)
 
-        if isinstance(self.left, SymbolType):
-            self.left.symbol.type = lhs
+        if isinstance(self.lhs, SymbolType):
+            self.lhs.symbol.type = lhs
 
         if isinstance(self.comparators[0], SymbolType):
             self.comparators[0].symbol.type = rhs
