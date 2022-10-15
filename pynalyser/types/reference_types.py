@@ -119,7 +119,7 @@ class BinOpType(PynalyserType):
 
     def deref(self, report: bool) -> SingleType:
         return self.do_binary_op(
-            self.lhs.deref(report), self.op, self.right.deref(report), report
+            self.lhs.deref(report), self.op, self.rhs.deref(report), report
         )
 
 
