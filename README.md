@@ -74,12 +74,15 @@ Look into the [`CHANGELOG.md`](https://github.com/0dminnimda/pynalyser/blob/main
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <table>
-  <tr>
-    <td align="center"><a href="https://github.com/0dminnimda"><img src="https://avatars.githubusercontent.com/u/52697657?v=4?s=100" width="100px;" alt=""/><br /><sub><b>0dminnimda</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Code">💻</a> <a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Documentation">📖</a> <a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Tests">⚠️</a> <a href="#design-0dminnimda" title="Design">🎨</a> <a href="#infra-0dminnimda" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/0dminnimda/pynalyser/pulls?q=is%3Apr+reviewed-by%3A0dminnimda" title="Reviewed Pull Requests">👀</a></td>
-    <td align="center"><a href="https://github.com/wert-rar"><img src="https://avatars.githubusercontent.com/u/72702040?v=4?s=100" width="100px;" alt=""/><br /><sub><b>wert-rar</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=wert-rar" title="Tests">⚠️</a></td>
-    <td align="center"><a href="https://github.com/groesie"><img src="https://avatars.githubusercontent.com/u/56902389?v=4?s=100" width="100px;" alt=""/><br /><sub><b>globe</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=groesie" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/9gl"><img src="https://avatars.githubusercontent.com/u/67200542?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Gunjan Lunkad</b></sub></a><br /><a href="#infra-9gl" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-  </tr>
+  <tbody>
+    <tr>
+      <td align="center"><a href="https://github.com/0dminnimda"><img src="https://avatars.githubusercontent.com/u/52697657?v=4?s=100" width="100px;" alt="0dminnimda"/><br /><sub><b>0dminnimda</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Code">💻</a> <a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Documentation">📖</a> <a href="https://github.com/0dminnimda/pynalyser/commits?author=0dminnimda" title="Tests">⚠️</a> <a href="#design-0dminnimda" title="Design">🎨</a> <a href="#infra-0dminnimda" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/0dminnimda/pynalyser/pulls?q=is%3Apr+reviewed-by%3A0dminnimda" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center"><a href="https://github.com/wert-rar"><img src="https://avatars.githubusercontent.com/u/72702040?v=4?s=100" width="100px;" alt="wert-rar"/><br /><sub><b>wert-rar</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=wert-rar" title="Tests">⚠️</a></td>
+      <td align="center"><a href="https://github.com/groesie"><img src="https://avatars.githubusercontent.com/u/56902389?v=4?s=100" width="100px;" alt="globe"/><br /><sub><b>globe</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=groesie" title="Code">💻</a></td>
+      <td align="center"><a href="https://github.com/9gl"><img src="https://avatars.githubusercontent.com/u/67200542?v=4?s=100" width="100px;" alt="Gunjan Lunkad"/><br /><sub><b>Gunjan Lunkad</b></sub></a><br /><a href="#infra-9gl" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+      <td align="center"><a href="https://github.com/PhlegmaticGregoire"><img src="https://avatars.githubusercontent.com/u/74172850?v=4?s=100" width="100px;" alt="PhlegmaticGregoire"/><br /><sub><b>PhlegmaticGregoire</b></sub></a><br /><a href="https://github.com/0dminnimda/pynalyser/commits?author=PhlegmaticGregoire" title="Code">💻</a></td>
+    </tr>
+  </tbody>
 </table>
 
 <!-- markdownlint-restore -->
