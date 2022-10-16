@@ -79,7 +79,7 @@ class TypeInference(DefinitionAnalyser):
 
     def visit_BinOp(self, node: ast.BinOp) -> PynalyserType:
         return BinOpType(
-            self.visit(node.lhs), BINOP[type(node.op)], self.visit(node.rhs)
+            self.visit(node.left), BINOP[type(node.op)], self.visit(node.right)
         )
 
     def visit_Compare(self, node: ast.Compare) -> PynalyserType:
