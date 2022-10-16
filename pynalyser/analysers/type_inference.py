@@ -84,7 +84,7 @@ class TypeInference(DefinitionAnalyser):
 
     def visit_Compare(self, node: ast.Compare) -> PynalyserType:
         return CompareOpType(
-            self.visit(node.lhs),
+            self.visit(node.left),
             [CMPOP[type(op)] for op in node.ops],
             [self.visit(item) for item in node.comparators],
         )
