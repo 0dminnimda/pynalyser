@@ -1,2 +1,2 @@
-sphinx<5
+sphinx<7
 sphinx-book-theme==0.3.3
